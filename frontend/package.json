@@ -1,0 +1,17 @@
+{
+  "devDependencies": {
+    "autoprefixer": "^10.4.21",
+    "postcss": "^8.5.6",
+    "tailwindcss": "^3.4.17",
+    "webpack-cli": "^6.0.1",
+    "webpack-dev-server": "^5.2.2"
+  },
+  "dependencies": {
+    "@tailwindcss/cli": "^4.1.13",
+    "next-themes": "^0.4.6",
+    "webpack": "^5.101.3"
+  },
+  "scripts": {
+    "dev": "next dev --turbopack"
+  }
+}
