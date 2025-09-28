@@ -7,6 +7,11 @@
   resolved "https://registry.npmjs.org/@alloc/quick-lru/-/quick-lru-5.2.0.tgz"
   integrity sha512-UrcABB+4bUrFABwbluTIBErXwvbsU/V7TZWfmbgJfbkwiBuziS9gxdODUyuiecfdGQ85jglMW6juS3+z5TsKLw==
 
+"@babel/runtime@^7.24.7":
+  version "7.28.4"
+  resolved "https://registry.npmjs.org/@babel/runtime/-/runtime-7.28.4.tgz"
+  integrity sha512-Q/N6JNWvIvPnLDvjlE1OUBLPQHH6l3CltCEsHIujp45zQUSSh8K+gHnaEX45yAT1nyngnINhvWtzN+Nb9D8RAQ==
+
 "@emnapi/core@^1.4.3":
   version "1.5.0"
   resolved "https://registry.npmjs.org/@emnapi/core/-/core-1.5.0.tgz"
@@ -207,6 +212,11 @@
   resolved "https://registry.npmjs.org/@nolyfill/is-core-module/-/is-core-module-1.0.39.tgz"
   integrity sha512-nn5ozdjYQpUCZlWGuxcJY/KpxkWQs4DcbMCmKojjyrYDEAGy4Ce19NN4v5MduafTwJlbKc99UA8YhSVqq9yPZA==
 
+"@novnc/novnc@^1.5.0", "@novnc/novnc@^1.6.0":
+  version "1.6.0"
+  resolved "https://registry.npmjs.org/@novnc/novnc/-/novnc-1.6.0.tgz"
+  integrity sha512-CJrmdSe9Yt2ZbLsJpVFoVkEu0KICEvnr3njW25Nz0jodaiFJtg8AYLGZogRYy0/N5HUWkGUsCmegKXYBSqwygw==
+
 "@rtsao/scc@^1.1.0":
   version "1.1.0"
   resolved "https://registry.npmjs.org/@rtsao/scc/-/scc-1.1.0.tgz"
@@ -302,6 +312,11 @@
   integrity sha512-gfehUI8N1z92kygssiuWvLiwcbOB3IRktR6hTDgJlXMYh5OvkPSRmgfoBUmfZt+vhwJtX7v1Yw4KvvAf7c5QKQ==
   dependencies:
     undici-types "~6.21.0"
+
+"@types/novnc__novnc@^1.6.0":
+  version "1.6.0"
+  resolved "https://registry.npmjs.org/@types/novnc__novnc/-/novnc__novnc-1.6.0.tgz"
+  integrity sha512-kIH/PQACbf9qj6whiSXRKECpyzgs6IFNVsW4wohyqQUZfQHdLhuGRMLi9XEhBiISSh0lKCSbBa7kScuPu9Gk+Q==
 
 "@types/react-dom@^19":
   version "19.1.9"
@@ -578,6 +593,11 @@ balanced-match@^1.0.0:
   resolved "https://registry.npmjs.org/balanced-match/-/balanced-match-1.0.2.tgz"
   integrity sha512-3oSeUO0TMV67hN1AmbXsK4yaqU7tjiHlbxRDZOpH0KW9+CeX4bRAaX0Anxt0tx2MrpRpWwQaPwIlISEJhYU5Pw==
 
+bowser@^0.7.2:
+  version "0.7.3"
+  resolved "https://registry.npmjs.org/bowser/-/bowser-0.7.3.tgz"
+  integrity sha512-N/toHA87JcmAHPqU8Qt7YnhFK6W2WUpdq5M1k/JqLdTqtts7sHEMZhFjFWTvvR2poKF7Qki0qknhIPIr5I7TIQ==
+
 brace-expansion@^1.1.7:
   version "1.1.12"
   resolved "https://registry.npmjs.org/brace-expansion/-/brace-expansion-1.1.12.tgz"
@@ -732,6 +752,13 @@ data-view-byte-offset@^1.0.1:
     call-bound "^1.0.2"
     es-errors "^1.3.0"
     is-data-view "^1.0.1"
+
+debug@^2.2.0:
+  version "2.6.9"
+  resolved "https://registry.npmjs.org/debug/-/debug-2.6.9.tgz"
+  integrity sha512-bC7ElrdJaJnPbAP+1EotYvqZsb3ecl5wi6Bfi6BJTUcNowp6cvspg0jXznRTKDjm/E7AdgFBVeAPVMNcKGsHMA==
+  dependencies:
+    ms "2.0.0"
 
 debug@^3.2.7:
   version "3.2.7"
@@ -1816,6 +1843,11 @@ ms@^2.1.1, ms@^2.1.3:
   resolved "https://registry.npmjs.org/ms/-/ms-2.1.3.tgz"
   integrity sha512-6FlzubTLZG3J2a/NVCAleEhjzq5oxgHyaCU9yYXvcLsvoVaHJq/s5xXI6/XXP6tz7R9xAOtHnSO/tXtF3WRTlA==
 
+ms@2.0.0:
+  version "2.0.0"
+  resolved "https://registry.npmjs.org/ms/-/ms-2.0.0.tgz"
+  integrity sha512-Tpp60P6IUJDTuOq/5Z8cdskzJujfwqfOTkrwIwj7IRISpnkJnT6SyJ4PCPnGMoFjC9ddhal5KVIYtAt97ix05A==
+
 nanoid@^3.3.11, nanoid@^3.3.6:
   version "3.3.11"
   resolved "https://registry.npmjs.org/nanoid/-/nanoid-3.3.11.tgz"
@@ -1851,6 +1883,31 @@ next@15.5.3:
     "@next/swc-win32-arm64-msvc" "15.5.3"
     "@next/swc-win32-x64-msvc" "15.5.3"
     sharp "^0.34.3"
+
+node.js@^0.0.1-security:
+  version "0.0.1-security"
+  resolved "https://registry.npmjs.org/node.js/-/node.js-0.0.1-security.tgz"
+  integrity sha512-8tWQiyg/3ggdLTrtfgj/NxmZpC20eB1U5VNkqt2dbelpcr3NrfjpEE3DgifpBOCJ4Xu9Obvu8iju63ViQW3Hvg==
+
+novnc-next@^1.0.0:
+  version "1.0.0"
+  resolved "https://registry.npmjs.org/novnc-next/-/novnc-next-1.0.0.tgz"
+  integrity sha512-dQTNBHE+RxvljS/wVwqKOsYVBnx4Zqrp11wOJuH88jJCeDal3mT3DJeTAx1nKebUBcop5lM7ZXIs1OQCT98Ocw==
+  dependencies:
+    "@babel/runtime" "^7.24.7"
+
+novnc-node@^0.5.3:
+  version "0.5.3"
+  resolved "https://registry.npmjs.org/novnc-node/-/novnc-node-0.5.3.tgz"
+  integrity sha512-qiPKTK2MNs2ym9eg7LG+TNMspBqxkfbiZQRLzRAJXVVoO9gsz0hj57KdSt8SusWmqPjttKiQhs7OHPDL+g9r3g==
+  dependencies:
+    bowser "^0.7.2"
+    debug "^2.2.0"
+
+novnc@^1.2.0:
+  version "1.2.0"
+  resolved "https://registry.npmjs.org/novnc/-/novnc-1.2.0.tgz"
+  integrity sha512-bItTHPXsrKEs79nZoOKGp+qnj5I986suOFva+fgvkO8AO0Uhedn6+FYZTN7QCGS88F33gshzcy55302ke2PPjw==
 
 object-assign@^4.1.1:
   version "4.1.1"
@@ -2018,7 +2075,7 @@ prelude-ls@^1.2.1:
   resolved "https://registry.npmjs.org/prelude-ls/-/prelude-ls-1.2.1.tgz"
   integrity sha512-vkcDPrRZo1QZLbn5RLGPpg/WmIQ65qoWWhcGKf/b5eplkkarX0m9z8ppCat4mlOqUsWpyNuYgO3VRyrYHSzX5g==
 
-prop-types@^15.8.1:
+prop-types@^15.6.1, prop-types@^15.8.1:
   version "15.8.1"
   resolved "https://registry.npmjs.org/prop-types/-/prop-types-15.8.1.tgz"
   integrity sha512-oj87CgZICdulUohogVAR7AjlC0327U4el4L6eAvOqCeudMDVU0NThNaV+b9Df4dXgSP1gXMTnPdhfe/2qDH5cg==
@@ -2037,7 +2094,7 @@ queue-microtask@^1.2.2:
   resolved "https://registry.npmjs.org/queue-microtask/-/queue-microtask-1.2.3.tgz"
   integrity sha512-NuaNSa6flKT5JaSYQzJok04JzTL1CA6aGhv5rfLW3PgqA+M2ChpZQnAC8h8i4ZFkBS8X5RqkDBHA7r4hej3K9A==
 
-"react-dom@^18.2.0 || 19.0.0-rc-de68d2f4-20241204 || ^19.0.0", react-dom@19.1.0:
+"react-dom@^18.2.0 || 19.0.0-rc-de68d2f4-20241204 || ^19.0.0", react-dom@>=19.0.0, react-dom@19.1.0:
   version "19.1.0"
   resolved "https://registry.npmjs.org/react-dom/-/react-dom-19.1.0.tgz"
   integrity sha512-Xs1hdnE+DyKgeHJeJznQmYMIBG3TKIHJJT95Q58nHLSrElKlGQqDTR2HQ9fx5CN/Gk6Vh/kupBTDLU11/nDk/g==
@@ -2049,7 +2106,23 @@ react-is@^16.13.1:
   resolved "https://registry.npmjs.org/react-is/-/react-is-16.13.1.tgz"
   integrity sha512-24e6ynE2H+OKt4kqsOvNd8kBpV65zoxbA4BVsEOB3ARVWQki/DHzaUoC5KuON/BiccDaCCTZBuOcfZs70kR8bQ==
 
-"react@^18.2.0 || 19.0.0-rc-de68d2f4-20241204 || ^19.0.0", react@^19.1.0, "react@>= 16.8.0 || 17.x.x || ^18.0.0-0 || ^19.0.0-0", react@19.1.0:
+react-vnc-display@^2.0.1:
+  version "2.0.1"
+  resolved "https://registry.npmjs.org/react-vnc-display/-/react-vnc-display-2.0.1.tgz"
+  integrity sha512-XQ+t118HfdXg8LTrTer9KLf1gyod+KYnXeXHhJI4xZivnB/iNXQnvb06ZeFLz9+WPmz6TvR36mlfkA0x8BaylQ==
+  dependencies:
+    novnc-node "^0.5.3"
+    prop-types "^15.6.1"
+
+react-vnc@^3.1.0:
+  version "3.1.0"
+  resolved "https://registry.npmjs.org/react-vnc/-/react-vnc-3.1.0.tgz"
+  integrity sha512-yUihinDNYn6djq7x/ft1c+VWEIhgKKgMzUyCLrdYbmpyABEVBRTQEThGhF0+r8YAz6BJge8wRBC7CZC+pioG+w==
+  dependencies:
+    "@novnc/novnc" "^1.5.0"
+    "@types/novnc__novnc" "^1.6.0"
+
+"react@^18.2.0 || 19.0.0-rc-de68d2f4-20241204 || ^19.0.0", react@^19.1.0, "react@>= 16.8.0 || 17.x.x || ^18.0.0-0 || ^19.0.0-0", react@>=19.0.0, react@19.1.0:
   version "19.1.0"
   resolved "https://registry.npmjs.org/react/-/react-19.1.0.tgz"
   integrity sha512-FS+XFBNvn3GTAWq26joslQgWNoFu08F4kl0J4CgdNKADkdSGXQyTCnKteIAJy96Br6YbpEU1LSzV5dYtjMkMDg==

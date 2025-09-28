@@ -9,9 +9,16 @@
     "lint": "eslint"
   },
   "dependencies": {
+    "@novnc/novnc": "^1.6.0",
+    "@types/novnc__novnc": "^1.6.0",
     "next": "15.5.3",
+    "node.js": "^0.0.1-security",
+    "novnc": "^1.2.0",
+    "novnc-next": "^1.0.0",
     "react": "19.1.0",
-    "react-dom": "19.1.0"
+    "react-dom": "19.1.0",
+    "react-vnc": "^3.1.0",
+    "react-vnc-display": "^2.0.1"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",

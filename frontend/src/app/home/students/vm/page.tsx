@@ -1,0 +1,18 @@
+'use client';
+import { Navigation } from "@/components/Navigation";
+import VncViewer from "@/components/VncViewer";
+
+export default function VmPage() {
+
+
+    return (
+
+        <div className="flex flex-row w-screen h-screen bg-background ">
+            <Navigation />
+            <div className="w-full h-100vh bg-foreground m-20 p-4 rounded-2xl rounded-r-none mr-0">
+
+               <VncViewer url="wss://192.168.0.114:5902" password="debian"/>
+            </div> 
+        </div>
+    );
+}
