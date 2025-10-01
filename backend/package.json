@@ -10,15 +10,19 @@
 		"build": "tsc",
 		"start": "node dist/server.js",
 		"watch": "tsc --watch",
-		"dev": "nodemon --watch 'src/**/*.ts' --exec 'node ./dist/server.js'",
+		"dev": "nodemon --watch './src/server.ts' --exec 'node ./dist/server.js'",
 		"lint": "eslint 'src/**/*.ts'"
 	},
 	"dependencies": {
+		"@prisma/client": "^6.16.3",
 		"@types/express": "^5.0.3",
 		"dotenv": "^17.2.2",
-		"express": "^5.1.0"
+		"express": "^5.1.0",
+		"jsonwebtoken": "^9.0.2",
+		"prisma": "^6.16.3"
 	},
 	"devDependencies": {
-		"@types/dotenv": "^6.1.1"
+		"@types/dotenv": "^6.1.1",
+		"@types/jsonwebtoken": "^9.0.10"
 	}
 }
