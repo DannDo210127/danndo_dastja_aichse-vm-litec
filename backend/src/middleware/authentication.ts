@@ -1,7 +1,7 @@
 import jwt from 'jsonwebtoken';
-import { User } from '../../generated/prisma';
 import { NextFunction, Request, Response } from 'express';
 import DatabaseClient from '../db/client';
+import { User } from '@prisma/client';
 
 const prisma = DatabaseClient.getInstance().prisma;
 
