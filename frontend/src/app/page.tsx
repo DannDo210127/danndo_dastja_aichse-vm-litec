@@ -1,18 +1,15 @@
 'use client'
-import Image from "next/image";
-import { Button } from "@/components/Button";
-import { useRouter } from "next/navigation";
+import { useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 
-export default function Home() {
-
+const IndexPage = () => {
   const router = useRouter();
 
-  return (
-    <div className="flex min-h-screen flex-col items-center justify-center p-24 color-background">
-        <div className="color-foreground flex-col justify-center items-center w-1/2">
-          
-          <Button onClick={() => router.push('/connection')}>LogIn</Button>
-        </div>
-    </div>
-  );
-}
+  useEffect(() => {
+    router.push('/login'); // Redirect to the login page
+  }, [router]);
+
+  return null; // Render nothing while redirecting
+};
+
+export default IndexPage;
