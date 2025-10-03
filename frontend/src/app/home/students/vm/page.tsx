@@ -11,7 +11,7 @@ export default function VmPage() {
             <Navigation />
             <div className="w-full h-100vh bg-foreground m-20 p-4 rounded-2xl rounded-r-none mr-0">
 
-               <VncViewer url="wss://192.168.0.114:5902" password="debian"/>
+               <VncViewer password="debian"/>
             </div> 
         </div>
     );

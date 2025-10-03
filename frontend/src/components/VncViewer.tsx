@@ -2,7 +2,7 @@
 import { init } from "next/dist/compiled/webpack/webpack";
 import { useEffect, useRef } from "react";
 
-export default function VncViewer({ url = "ws://your-server:6080", password = "" }) {
+export default function VncViewer({ url = "wss://localhost:6080/websockify", password = "debian" }) {
   const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -19,8 +19,8 @@ export default function VncViewer({ url = "ws://your-server:6080", password = ""
         rfb = new RFB(containerRef.current, url, {
           credentials: { password },
         });
-        rfb.scaleViewport = false;
-        rfb.resizeSession = false;
+        rfb.scaleViewport = true;
+        rfb.resizeSession = true;
       }
     };
     document.body.appendChild(script);
@@ -31,5 +31,5 @@ export default function VncViewer({ url = "ws://your-server:6080", password = ""
     };
   }, [url, password]);
 
-  return <div ref={containerRef} className="w-full h-full bg-black" />;
+  return <div ref={containerRef} className="w-full h-screen bg-white" />;
 }

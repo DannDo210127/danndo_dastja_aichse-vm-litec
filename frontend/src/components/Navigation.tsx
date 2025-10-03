@@ -13,7 +13,7 @@ export function Navigation(){
     console.log("slug in nav", slug);
 
     return(
-        <div className="flex flex-col w-3/8 md:w-3/8 lg:w-3/8 xl:w-2/8 h-100vh bg-foreground items-left justify-left rounded-xl m-10 ml-0 rounded-l-none p-4">
+        <div className="flex flex-col w-3/8 md:w-3/8 lg:w-3/8 xl:w-2/8 h-100vh bg-background items-left justify-left">
            <Button className="h-15 text-start text-3xl sm:text-5xl" onClick={() => router.push(`/home/${slug}`)}>Home</Button>
 
            {slug === 'teachers' && (
