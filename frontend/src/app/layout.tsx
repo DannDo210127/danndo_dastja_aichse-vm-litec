@@ -1,6 +1,6 @@
-import "./globals.css"
+import '@/app/styles/globals.css'
 
-export default function DashboardLayout({
+export default function IndexLayout({
   children,
 }: {
   children: React.ReactNode
@@ -8,6 +8,8 @@ export default function DashboardLayout({
   return (
     <html lang="en">
       <body>
+        {/* Layout UI */}
+        {/* Place children where you want to render a page or nested layout */}
         <main>{children}</main>
       </body>
     </html>
