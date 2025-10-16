@@ -35,7 +35,7 @@ export default function LoginPage() {
     <div>
       <input type="text" placeholder="Email" onChange={(e) => setEmail(e.target.value)} />
       <input type="password" placeholder="Password" onChange={(e) => setPassword(e.target.value)} />
-      <Button onClick={() => loginUser.mutate()}>Login</Button>
+      <button onClick={() => loginUser.mutate()}>Login</button>
     </div>
     
   );

@@ -32,6 +32,8 @@ const IndexPage = () => {
       <div>{user.data?.firstName} {user.data?.lastName}</div>
       
       <button onClick={() => logout.mutate()}>Logout</button>
+
+      INDEX
     </div>
   )
 };
