@@ -1,13 +1,34 @@
 import express from 'express';
-import itemRoutes from './routes/incus';
 import config from './config/config';
+import { PrismaClient } from '../generated/prisma/client';
 
+import AuthentificationRouter from './routes/authentification';
+import UserRouter from './routes/user';
+import cors from 'cors';
+import cookieParser from 'cookie-parser';
+
+const prisma = new PrismaClient();
 const app = express();
+
+app.use(
+    cors({
+      origin: 'http://localhost:3000',
+      credentials: true,
+    }),
+  );
+
+app.use(cookieParser())
+
 
 app.use(express.json());
 
-// Routes
-app.use('/api/items', itemRoutes);
+app.use('/auth', AuthentificationRouter);
+app.use('/user', UserRouter);
+
+
+prisma.$connect().then(() => {
+  console.log('Prisma ORM connected to database');
+});
 
 app.listen(config.port, () => {
   console.log(`Local: http://127.0.0.1:${config.port}`);

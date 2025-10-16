@@ -1,15 +1,20 @@
 'use client'
-import { useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import api from "@/api/client";
+
+import { useQuery } from "@tanstack/react-query";
 
 const IndexPage = () => {
-  const router = useRouter();
+  const user = useQuery({
+    queryKey: ["user"],
+    queryFn: async () => {
+      const { data } = await api.get("/user");
+      return data;
+    },
+  });
 
-  useEffect(() => {
-    router.push('/login'); // Redirect to the login page
-  }, [router]);
-
-  return null; // Render nothing while redirecting
+  return (
+    <div>index page</div>
+  )
 };
 
 export default IndexPage;

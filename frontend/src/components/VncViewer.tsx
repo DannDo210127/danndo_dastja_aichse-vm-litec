@@ -1,5 +1,4 @@
 "use client";
-import { init } from "next/dist/compiled/webpack/webpack";
 import { useEffect, useRef } from "react";
 
 export default function VncViewer({ url = "wss://localhost:6080/websockify", password = "debian" }) {
