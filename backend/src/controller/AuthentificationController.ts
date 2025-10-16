@@ -38,16 +38,27 @@ const login: RequestHandler = async (req, res) => {
 
   const accessToken = generateAccessToken(user.id);
   const refreshToken = generateRefreshToken(user.id);
+  const refreshTokenExpiry = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000) // 7 Days
 
   await prisma.token.create({
     data: {
       token: refreshToken,
       userId: user.id,
-      expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000) // 7 Days
+      expiresAt: refreshTokenExpiry
     }
   });
 
-  res.json({ accessToken, refreshToken });
+  res.cookie("refreshToken", refreshToken, {
+    httpOnly: true,
+    sameSite: "strict",
+    path: "/auth/token", // Cookie only gets sent to token enpoint
+    maxAge: refreshTokenExpiry.getTime() - Date.now(),
+  })
+
+  res.cookie("accessToken", accessToken, {
+    httpOnly: true,
+    sameSite: "strict",
+  })
 }
 
 const register: RequestHandler = async (req, res) => {
@@ -81,7 +92,7 @@ const register: RequestHandler = async (req, res) => {
  * @returns 
  */
 const token: RequestHandler = async (req, res) => {
-  const refreshToken = req.body.token;
+  const refreshToken = req.cookies.refreshToken;
   if (!refreshToken) return res.sendStatus(401); // Unauthorized
 
   const validToken = await prisma.token.findFirst({
@@ -94,7 +105,11 @@ const token: RequestHandler = async (req, res) => {
 
   if (validToken?.token == refreshToken) {
     const accessToken = generateAccessToken(validToken!.userId);
-    res.json({ accessToken });
+
+    res.cookie("accessToken", accessToken, {
+      httpOnly: true,
+      sameSite: "strict",
+    }  )
   }
 } 
 

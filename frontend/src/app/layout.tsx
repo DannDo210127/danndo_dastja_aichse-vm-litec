@@ -1,17 +1,22 @@
-import '@/app/styles/globals.css'
+'use client'
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
+import { useState } from 'react'
+import '../styles/global.css'
 
 export default function IndexLayout({
   children,
 }: {
   children: React.ReactNode
 }) {
+  const [queryClient] = useState(() => new QueryClient())
+
   return (
     <html lang="en">
-      <body>
-        {/* Layout UI */}
-        {/* Place children where you want to render a page or nested layout */}
-        <main>{children}</main>
-      </body>
+        <body>
+          <QueryClientProvider client={queryClient}>
+            {children}
+          </QueryClientProvider>
+        </body>
     </html>
   )
 }
