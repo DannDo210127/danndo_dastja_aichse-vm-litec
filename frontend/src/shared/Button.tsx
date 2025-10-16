@@ -23,7 +23,7 @@ export function Button({
   return (
     <button
       onClick={onClick}
-      className={"flex items-center rounded-[8] p-4 bg-background hover:bg-foreground" + (className ? " " + className : "") + (active ? " bg-foreground" : "")}
+      className={"flex items-center rounded-[8] p-4 bg-background hover:bg-foreground cursor-pointer" + (className ? " " + className : "") + (active ? " bg-foreground" : "")}
     >
       {icon && <span className="mr-4">{icon}</span>}
       <span className="">{label}</span>

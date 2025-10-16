@@ -32,9 +32,9 @@ export default function LoginPage() {
   });
 
   return (
-    <div>
-      <input type="text" placeholder="Email" onChange={(e) => setEmail(e.target.value)} />
-      <input type="password" placeholder="Password" onChange={(e) => setPassword(e.target.value)} />
+    <div className="flex flex-col gap-2 w-96">
+      <input type="text" placeholder="Email" onChange={(e) => setEmail(e.target.value)} className="bg-gray-50 p-4" />
+      <input type="password" placeholder="Password" onChange={(e) => setPassword(e.target.value)} className="bg-gray-50 p-4" />
       <button onClick={() => loginUser.mutate()}>Login</button>
     </div>
     
