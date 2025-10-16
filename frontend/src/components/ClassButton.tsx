@@ -1,6 +1,6 @@
 import { Home } from "lucide-react";
 
-interface ButtonProps {
+interface ClassButtonProps {
   icon?: React.ReactNode;
   label: string;
   onclick?: () => void;
@@ -9,22 +9,22 @@ interface ButtonProps {
 
 
 
-export function Button({
+export function ClassButton({
   icon,
   label,
   onclick,
   className,
-}: ButtonProps) {
+}: ClassButtonProps) {
 
 
   return (
     <button
       onClick={onclick}
-      className={"flex items-center rounded-[8] p-2 bg-foreground hover:bg-secondary" + 
+      className={"flex items-center rounded-[8] p-2 bg-foreground" + 
                 (className ? " " + className : "")}
     >
-      {icon && <span className="mr-4">{icon}</span>}
       <span className="">{label}</span>
+      {icon && <span className="mr-4">{icon}</span>}
     </button>
   );
 }

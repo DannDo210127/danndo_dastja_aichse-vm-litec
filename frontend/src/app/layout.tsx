@@ -17,7 +17,7 @@ export default function IndexLayout({
           <QueryClientProvider client={queryClient}>
             <div className='flex flex-row h-full w-full'>
               <Navigation/>
-              {children}
+              <main className='grow w-full h-full'>{children}</main>
             </div>
           </QueryClientProvider>
         </body>
