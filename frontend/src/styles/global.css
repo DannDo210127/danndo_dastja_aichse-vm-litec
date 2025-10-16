@@ -9,7 +9,12 @@
 }
 
 body{
- font-family: "Notable", sans-serif;
+  width: 100vh;
+  height: 100vh;
+  display: flex;
+  overflow: hidden;
+  flex-direction: row;
+  font-family: "Notable", sans-serif;
   font-weight: 600;
   color: var(--color-font);
   font-style: normal;

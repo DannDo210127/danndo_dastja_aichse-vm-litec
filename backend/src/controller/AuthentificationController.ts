@@ -50,15 +50,10 @@ const login: RequestHandler = async (req, res) => {
 
   res.cookie("refreshToken", refreshToken, {
     httpOnly: true,
-    sameSite: "strict",
-    path: "/auth/token", // Cookie only gets sent to token enpoint
     maxAge: refreshTokenExpiry.getTime() - Date.now(),
   })
 
-  res.cookie("accessToken", accessToken, {
-    httpOnly: true,
-    sameSite: "strict",
-  })
+  res.send({ accessToken });
 }
 
 const register: RequestHandler = async (req, res) => {
@@ -106,15 +101,33 @@ const token: RequestHandler = async (req, res) => {
   if (validToken?.token == refreshToken) {
     const accessToken = generateAccessToken(validToken!.userId);
 
-    res.cookie("accessToken", accessToken, {
-      httpOnly: true,
-      sameSite: "strict",
-    }  )
+    res.send({ accessToken });
   }
+} 
+
+/**
+ * Logout Route
+ * @returns 
+ */
+const logout: RequestHandler = async (req, res) => {
+  const refreshToken = req.cookies.refreshToken;
+
+  if(!refreshToken)
+    return res.sendStatus(400).send('No refresh token provided');
+
+  await prisma.token.delete({
+    where: { token: refreshToken }
+  })
+
+  res.cookie('refreshToken', '', {
+    httpOnly: true,
+    expires: new Date(0),
+  });
 } 
 
 export {
   login,
   register,
-  token
+  token,
+  logout
 };

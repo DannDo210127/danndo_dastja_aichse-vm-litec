@@ -1,7 +1,8 @@
 'use client'
 import api from "@/api/client";
+import { useAuthStore } from "@/store/token-store";
 
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 
 const IndexPage = () => {
   const user = useQuery({
@@ -12,8 +13,28 @@ const IndexPage = () => {
     },
   });
 
+  const logout = useMutation({
+    mutationFn: async () => {
+      await api.post("/auth/logout", {}, { withCredentials: true });
+    },
+
+    onSuccess: () => {
+      useAuthStore.getState().clearTokens();
+    }
+  })
+
+
+
   return (
-    <div>index page</div>
+    <div>
+      <div>{user.data?.email}</div>
+    
+      <div>{user.data?.firstName} {user.data?.lastName}</div>
+      
+      <button onClick={() => logout.mutate()}>Logout</button>
+
+      INDEX
+    </div>
   )
 };
 

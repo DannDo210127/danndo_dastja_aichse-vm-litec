@@ -1,6 +1,7 @@
 'use client'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { useState } from 'react'
+import { Navigation } from '@/components/Navigation'
 import '../styles/global.css'
 
 export default function IndexLayout({
@@ -14,7 +15,10 @@ export default function IndexLayout({
     <html lang="en">
         <body>
           <QueryClientProvider client={queryClient}>
-            {children}
+            <div className='flex flex-row h-full w-full'>
+              <Navigation/>
+              {children}
+            </div>
           </QueryClientProvider>
         </body>
     </html>
