@@ -21,7 +21,7 @@ const getUserRole: RequestHandler = async (req, res) => {
 
     if(!role) return res.status(404).json({ message: 'Role not found' });
 
-    res.json(role);
+    res.status(200).json(role);
 };
 
 export {

@@ -20,17 +20,14 @@ api.interceptors.response.use(
   (res) => res,
   async (error) => {
     if (error.response?.status === 401) {
-      const refresh = useAuthStore.getState().refreshToken;
-      if (refresh) {
         try {
-          const { data } = await axios.post("http://localhost:4000/auth/token", { refreshToken: refresh });
-          useAuthStore.getState().setTokens(data.accessToken, data.refreshToken);
+          const { data } = await axios.post("http://localhost:4000/auth/token", { }, { withCredentials: true });
+          useAuthStore.getState().setTokens(data.accessToken);
           error.config.headers.Authorization = `Bearer ${data.accessToken}`;
           return api.request(error.config);
         } catch {
           useAuthStore.getState().clearTokens();
         }
-      }
     }
     return Promise.reject(error);
   }

@@ -16,7 +16,7 @@ declare global {
 
 export const isAuthenticated = async (req: Request, res: Response, next: NextFunction) => {
   const authHeader = req.headers['authorization'];
-  const token = req.cookies.accessToken;
+  const token = authHeader?.split(' ')[1]; // Bearer TOKEN
   
   if (!token) return res.sendStatus(401); // Unauthorized
 
