@@ -115,14 +115,20 @@ const logout: RequestHandler = async (req, res) => {
   if(!refreshToken)
     return res.sendStatus(400).send('No refresh token provided');
 
-  await prisma.token.delete({
+  const deletedToken = await prisma.token.delete({
     where: { token: refreshToken }
   })
+  
+  if(!deletedToken)
+    return res.sendStatus(400).send('Token not found');
 
-  res.cookie('refreshToken', '', {
+
+  res.cookie("refreshToken", "", {
     httpOnly: true,
-    expires: new Date(0),
-  });
+    maxAge: 0,
+  })
+
+  res.sendStatus(200).send('Logged out successfully');
 } 
 
 export {

@@ -19,6 +19,7 @@ export default function IndexLayout({
             <div className='flex flex-row h-full w-full'>
               <Navigation/>
               {children}
+              <div id="modal-root"></div>
               <ReactQueryDevtools initialIsOpen={false} />
             </div>
           </QueryClientProvider>
