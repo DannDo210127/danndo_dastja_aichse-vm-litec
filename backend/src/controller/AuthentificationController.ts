@@ -6,6 +6,9 @@ import bcrypt from "bcryptjs";
 
 const prisma = DatabaseClient.getInstance().prisma;
 
+
+const refreshTokenExpiry = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000) // 7 Days
+
 /**
  * Login a user and return generated JWT token 
  * @returns 
@@ -38,7 +41,6 @@ const login: RequestHandler = async (req, res) => {
 
   const accessToken = generateAccessToken(user.id);
   const refreshToken = generateRefreshToken(user.id);
-  const refreshTokenExpiry = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000) // 7 Days
 
   await prisma.token.create({
     data: {
@@ -79,7 +81,15 @@ const register: RequestHandler = async (req, res) => {
     data: user
   });
 
-  res.status(201).json(createdUser);
+  const accessToken = generateAccessToken(createdUser.id);
+  const refreshToken = generateRefreshToken(createdUser.id);
+
+  res.cookie("refreshToken", refreshToken, {
+    httpOnly: true,
+    maxAge: refreshTokenExpiry.getTime() - Date.now(),
+  })
+
+  res.status(201).json({ accessToken });
 }
 
 /**
@@ -115,14 +125,20 @@ const logout: RequestHandler = async (req, res) => {
   if(!refreshToken)
     return res.sendStatus(400).send('No refresh token provided');
 
-  await prisma.token.delete({
+  const deletedToken = await prisma.token.delete({
     where: { token: refreshToken }
   })
+  
+  if(!deletedToken)
+    return res.sendStatus(400).send('Token not found');
 
-  res.cookie('refreshToken', '', {
+
+  res.cookie("refreshToken", "", {
     httpOnly: true,
-    expires: new Date(0),
-  });
+    maxAge: 0,
+  })
+
+  res.sendStatus(200).send('Logged out successfully');
 } 
 
 export {
