@@ -1,12 +1,11 @@
-import { Home } from "lucide-react";
 import { usePathname, useRouter } from "next/navigation";
 
 interface NavigationButtonProps {
   icon?: React.ReactNode;
   label: string;
-  active?: boolean;
-  href: string;
+  href?: string;
   className?: string;
+  onClick?: () => void;
 }
 
 
@@ -14,18 +13,21 @@ export function NavigationButton({
   icon,
   label,
   href,
-  active = usePathname() === href,
   className,
+  onClick,
 }: NavigationButtonProps) {
 
+  const pathname = usePathname();
   const router = useRouter();
+
+  const isActive = pathname === href;
     
   return (
     <button
-      onClick={() => router.push(href)}
+      onClick={href ? () => router.push(href) : onClick}
       className={"flex items-center rounded-[8] p-4 bg-background hover:bg-foreground" + 
                 (className ? " " + className : "") + 
-                (active ? " bg-foreground" : "")}
+                (isActive ? " bg-foreground" : "")}
     >
       {icon && <span className="mr-4">{icon}</span>}
       <span className="">{label}</span>

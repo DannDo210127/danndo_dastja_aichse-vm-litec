@@ -1,25 +1,19 @@
 'use client'
 import { Codesandbox, LogIn, LogOut, Monitor, School, Settings, User as UserIcon } from "lucide-react";
-import { Button } from "../shared/Button"
-import { useRouter } from "next/navigation"
-import { usePathname } from 'next/navigation'
 import Link from "next/link";
 import { useAuth } from "@/hooks/useAuth";
-import StandardModal from "@/shared/StandardModal";
 import { Fragment, useState } from "react";
-import { ConfigModal } from "@/shared/ConfirmModal";
+import { ConfirmModal } from "@/shared/ConfirmModal";
 import { LoginModal } from "./LoginModal";
+import { NavigationButton } from "./NavigationButton";
+import { RegisterModal } from "./RegisterModal";
 
 export function Navigation(){
-    const router = useRouter();
-
-    const pathname = usePathname();
-    const slug = pathname.split('/')[2];
-
     const user = useAuth();
 
     const [isLogoutModalOpen, setLogoutModalOpen] = useState(false);
     const [isLoginModalOpen, setLoginModalOpen] = useState(false);
+    const [isRegisterModalOpen, setRegisterModalOpen] = useState(false);
 
     return(
         <Fragment>
@@ -34,30 +28,32 @@ export function Navigation(){
                         </Link>
                     </div>
 
-                    <Button slug={slug} label="Classroom" icon={<School />} onClick={() => router.push("/classroom")}></Button>
-                    <Button slug={slug} label="VM" icon={<Monitor />} onClick={() => router.push("/vm")}></Button>
+                    <NavigationButton label="Classrooms" icon={<School />} href="/classrooms" />
+                    <NavigationButton label="VM" icon={<Monitor />} href="/vm" />
                 </div>
             
                 {user.isAuthenticated ? (
                     <div className="mx-5 mb-10">
                         <p className="border-b-2 border-b-gray-100 text-gray-200 mb-5 font-light">User Managment</p>
                         <div className="flex flex-col gap-4">
-                            <Button slug={slug} label={user.data?.firstName + " " + user.data?.lastName} icon={<UserIcon />} onClick={() => router.push("/profile")}></Button>
-                            <Button slug={slug} label="Settings" icon={<Settings />} onClick={() => router.push("/settings")}></Button>
-                            <Button slug={slug} label="Logout" icon={<LogOut />} onClick={() => setLogoutModalOpen(true)}></Button>
+                            <NavigationButton label={user.data?.firstName + " " + user.data?.lastName} icon={<UserIcon />} href="/profile" />
+                            <NavigationButton label="Settings" icon={<Settings />} href="/settings" />
+                            <NavigationButton label="Logout" icon={<LogOut />} onClick={() => setLogoutModalOpen(true)} />
                         </div>  
                     </div>
                 ): (
                     <div className="flex flex-col mx-5 gap-4 mb-10">
-                        <Button slug={slug} label="Login" icon={<LogIn />} onClick={() => setLoginModalOpen(true)}></Button>
-                        <Button slug={slug} label="Register" icon={<LogOut />} onClick={() => router.push("/register")}></Button>
+                        <NavigationButton label="Login" icon={<LogIn />} onClick={() => setLoginModalOpen(true)} />
+                        <NavigationButton label="Register" icon={<LogOut />} onClick={() => setRegisterModalOpen(true)} />
                     </div>  
                 )}
 
             </div>
 
-            <LoginModal isOpen={isLoginModalOpen} onClose={() => {setLoginModalOpen(false)}} onConfirm={() => {setLoginModalOpen(false)}} />
-            <ConfigModal title="Confirm Logout" description="Are you sure you want to logout?" isOpen={isLogoutModalOpen} onClose={() => {
+            <RegisterModal isOpen={isRegisterModalOpen} onClose={() => setRegisterModalOpen(false)} onSubmit={() => setRegisterModalOpen(false)} />
+            <LoginModal isOpen={isLoginModalOpen} onClose={() => setLoginModalOpen(false)} onSubmit={() => setLoginModalOpen(false)} />
+
+            <ConfirmModal title="Confirm Logout" description="Are you sure you want to logout?" isOpen={isLogoutModalOpen} onClose={() => {
                 setLogoutModalOpen(false);
             }} onConfirm={() => {
                 user.logout();

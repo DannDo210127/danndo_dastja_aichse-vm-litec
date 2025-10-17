@@ -9,7 +9,7 @@ interface ConfigModalProps {
     onConfirm: () => void;
 }
 
-export const ConfigModal: FC<ConfigModalProps> = ({ title, description, isOpen, onClose, onConfirm }) => {
+export const ConfirmModal: FC<ConfigModalProps> = ({ title, description, isOpen, onClose, onConfirm }) => {
     return (
         <StandardModal title={title} description={description} isOpen={isOpen}>
             <div className="mt-3">

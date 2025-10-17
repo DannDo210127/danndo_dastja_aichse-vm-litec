@@ -3,7 +3,6 @@ import { useMutation, useQuery } from '@tanstack/react-query'
 import User from '@/api/user'
 import { useEffect } from 'react'
 import { useAuthStore } from '@/store/token-store'
-import api from '@/api/client';
 
 export function useAuth() {
     const tokenStore = useAuthStore((state) => state);

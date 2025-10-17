@@ -7,22 +7,26 @@ import { useMutation } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import { FC, useState } from "react";
 
-interface LoginModalProps {
+interface RegisterModalProps {
     isOpen: boolean;
     onClose: () => void;
     onSubmit: () => void;
 }
 
-export const LoginModal: FC<LoginModalProps> = ({ isOpen, onClose, onSubmit }) => {
+export const RegisterModal: FC<RegisterModalProps> = ({ isOpen, onClose, onSubmit }) => {
+   const [firstName, setFirstName] = useState<string>("");
+   const [lastName, setLastName] = useState<string>("");
    const [email, setEmail] = useState<string>("");
    const [password, setPassword] = useState<string>("");
 
    const router = useRouter();
    const authStore = useAuthStore((state) => state);
 
-  const loginUser = useMutation({
+  const registerUser = useMutation({
     mutationFn: async () => {
-      const { data } = await api.post("/auth/login", {
+      const { data } = await api.post("/auth/register", {
+        firstName,
+        lastName,
         email,
         password
       });
@@ -38,13 +42,15 @@ export const LoginModal: FC<LoginModalProps> = ({ isOpen, onClose, onSubmit }) =
 
     return (
         <StandardModal
-            title="Login Required"
-            description="Please log in to access all feature of Virtual Classroom."
+            title="Register"
+            description="Please make an account to use all the features."
             isOpen={isOpen}
             className="w-1/4"
         >
             <div className="flex flex-col space-y-4 mt-4">
 
+                <StandardInput placeholder="First Name" onValueChange={(value: string) => setFirstName(value)} />
+                <StandardInput placeholder="Last Name" onValueChange={(value: string) => setLastName(value)} />
                 <StandardInput placeholder="Email" onValueChange={(value: string) => setEmail(value)} />
                 <StandardInput type="password" placeholder="Password" onValueChange={(value: string) => setPassword(value)} />
 
@@ -56,10 +62,10 @@ export const LoginModal: FC<LoginModalProps> = ({ isOpen, onClose, onSubmit }) =
                         <StandardButton label="Cancel" onClick={onClose} className="px-6 py-3" />
                         <StandardButton label="Login" onClick={() => {
 
-                            if (!checkCredentials(email, password))
+                            if (!checkCredentials(email, firstName, lastName, password))
                                 return false;
 
-                            loginUser.mutate();
+                            registerUser.mutate();
                             onSubmit();
                         }} className="px-6 py-3" />
                     </div> 
@@ -71,7 +77,7 @@ export const LoginModal: FC<LoginModalProps> = ({ isOpen, onClose, onSubmit }) =
 };
 
 // TODO: Implement better error handling
-const checkCredentials = (email: string, password: string) => {
+const checkCredentials = (email: string, firstName: string, lastName: string, password: string) => {
     if(!email && !password)
         return false;
 
