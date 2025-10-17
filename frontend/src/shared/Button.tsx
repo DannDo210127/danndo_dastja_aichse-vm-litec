@@ -1,7 +1,6 @@
 import { Home } from "lucide-react";
 
 interface ButtonProps {
-  icon?: React.ReactNode;
   label: string;
   onclick?: () => void;
   className?: string;
@@ -10,7 +9,6 @@ interface ButtonProps {
 
 
 export function Button({
-  icon,
   label,
   onclick,
   className,
@@ -23,8 +21,7 @@ export function Button({
       className={"flex items-center rounded-[8] p-2 bg-foreground hover:bg-secondary" + 
                 (className ? " " + className : "")}
     >
-      {icon && <span className="mr-4">{icon}</span>}
-      <span className="">{label}</span>
+        <span className="">{label}</span>
     </button>
   );
 }

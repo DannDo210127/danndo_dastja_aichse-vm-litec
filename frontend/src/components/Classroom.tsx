@@ -9,7 +9,7 @@ import { StudentList } from "./Studentlist";
 interface Student {
   id: number;
   name: string;
-  assignedVM?: string;
+  assignedVMs?: string[];
 }
 
 interface Classroom {
@@ -25,6 +25,18 @@ const classroomsData: Classroom[] = [
     students: Array.from({ length: 8 }, (_, i) => ({
       id: i + 1,
       name: `student ${i + 1}`,
+      assignedVM: [
+            {
+              id: 1,
+              name: "Ubuntu VM",
+              state: 'running'
+            },
+            {
+              id: 2,
+              name: "Debian 12",
+              state: 'stopped'
+            }
+      ],
     })),
   },
   {
@@ -34,7 +46,7 @@ const classroomsData: Classroom[] = [
   },
 ];
 
-export default function ClassroomList() {
+export function Classroom() {
   const [openClassroom, setOpenClassroom] = useState<number | null>(null);
 
   const toggleClassroom = (id: number) => {
@@ -58,8 +70,8 @@ export default function ClassroomList() {
               </div>
             
               <div className="flex flex-row space-x-2">
-                <Button className="px-2 py-1" label="Add student" icon={<PlusIcon />}></Button>
-                <Button className="px-2 py-1" label="Delete Classroom" icon={<TrashIcon />}></Button>
+                <Button className="px-2 py-1" label="Add student" icon={<PlusIcon className="size-6" />}></Button>
+                <Button className="px-2 py-1" label="Delete Classroom" icon={<TrashIcon className="size-6" />}></Button>
               </div>
 
             </div>
