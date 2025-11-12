@@ -4,7 +4,6 @@ import { useState } from 'react'
 import { Navigation } from '@/components/Navigation'
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
 
-// @ts-expect-error: Import global.css
 import '../styles/global.css'
 
 export default function IndexLayout({
