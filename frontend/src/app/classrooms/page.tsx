@@ -301,7 +301,7 @@ export function StudentList({ students }: StudentListProps) {
                         </div>
                         <div className="flex flex-row grow justify-end items-center">
                             <VmComponent assignedVM={student.assignedVM}></VmComponent>
-                            <button className="w-fit ml-4 size-6 bg-background" onClick={() => {setDeleteStudentId(index);setDeleteStudentModalOpen(true);}}>
+                            <button className="w-fit ml-4 size-8 rounded-[8] bg-background hover:bg-secondary" onClick={() => {setDeleteStudentId(index);setDeleteStudentModalOpen(true);}}>
                               <Trash2 size={22}/>
                             </button>
                         </div>
