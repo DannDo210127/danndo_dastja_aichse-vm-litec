@@ -33,11 +33,11 @@ export default function ClassroomPage(){
 
     const [isClassroomModalOpen, setClassroomModalOpen] = useState(false);
 
-
     return (
-           <div className="flex flex-col w-full h-screen">
-               <div className="flex flex-row w-full h-1/12 bg-background items-center">
-                    <StandardButton label="Create Classroom" onClick={() => {setClassroomModalOpen(true)}} className="mt-5 px-4 ml-8">
+           <div className="flex flex-col m-20 w-8/10 h-8/10 rounded-[8] bg-background">
+               <div className="flex flex-row justify-between w-full h-1/12 bg-background border-b-2 border-foreground items-center">
+                    <h2 className="m-5 p-2 text-2xl font-bold">Your Classrooms</h2>
+                    <StandardButton label="Create Classroom" onClick={() => {setClassroomModalOpen(true)}} className=" px-4 ml-8">
                         <PlusIcon className="size-6 mr-1" />
                     </StandardButton>
                </div>
@@ -176,7 +176,7 @@ function Classroom({ classrooms }: ClassroomProps) {
   
 
   return (
-    <div className="p-8 space-y-4 overflow-y-auto flex-1">
+    <div className="p-8 space-y-4 overflow-y-auto flex-1 max-h-[calc(100vh-10rem)]">
       {classrooms.map((classroom, index) => {
         const isOpen = openClassroomIds.includes(classroom.id);
       
