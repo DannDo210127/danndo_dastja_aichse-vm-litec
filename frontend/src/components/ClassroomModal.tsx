@@ -19,14 +19,14 @@ export const ClassroomModal: FC<ClassroomModalProps> = ({ isOpen, onClose, onSub
     const [classroomName, setClassroomName] = useState<string>("");
 
     return (
-        <StandartModal title={"Create Classroom"} description={"Enter classroom name:"} isOpen={isOpen}>
+        <StandartModal className="w-96" title={"Create Classroom"} description={"Enter classroom name:"} isOpen={isOpen}>
             <div className="flex flex-col space-y-4 mt-4">
                 <StandardInput placeholder="Classname" onValueChange={(value: string) => setClassroomName(value)} />
 
                 <div className="flex w-full justify-between mt-2">
                 <div className="flex gap-4">
-                    <StandardButton label="Cancel" onClick={onClose} className="px-6 py-3" />
-                    <StandardButton label="Create" onClick={() => onSubmit(classroomName)} className="px-6 py-3" />
+                    <StandardButton label="Cancel" onClick={onClose} className="px-6 py-3 bg-gray-200" />
+                    <StandardButton label="Create" onClick={() => onSubmit(classroomName)} className="px-6 py-3 bg-gray-200" />
                 </div>
 
                 </div>

@@ -25,7 +25,7 @@ export function NavigationButton({
   return (
     <button
       onClick={href ? () => router.push(href) : onClick}
-      className={"flex items-center rounded-[8] p-4 bg-background hover:bg-foreground" + 
+      className={"flex items-center rounded-[8] p-4 bg-background hover:bg-foreground cursor-pointer" + 
                 (className ? " " + className : "") + 
                 (isActive ? " bg-foreground" : "")}
     >
