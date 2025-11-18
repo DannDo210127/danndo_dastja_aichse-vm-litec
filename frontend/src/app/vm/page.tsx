@@ -2,26 +2,28 @@
 
 import { StandardButton } from "@/shared/StandardButton";
 import { CirclePowerIcon, ComputerIcon, PlusIcon,  ScreenShareIcon, Trash2Icon } from "lucide-react";
-import { FC, useEffect, useState } from "react";
+import { FC, useEffect, useReducer, useState } from "react";
 import StandardModal  from "@/shared/StandardModal";
 import { StandardInput } from "@/shared/StandardInput";
 import {Menu, MenuButton, MenuItem, MenuItems } from "@headlessui/react";
 import { ImageResponse } from "next/server";
 import { ConfirmModal } from "@/shared/ConfirmModal";
+import { useRouter } from "next/navigation";
 
 interface VmComponent{
         id: number;
         name: string;
         image?: string;
         state: 'running' | 'stopped';
+        ipPath?: string;
     
 }
 
 const assignedVms: VmComponent[] = [
-    { id: 1, name: "Debian 13",image:"debian13.netinst", state: "running" },
-    { id: 2, name: "Ubuntu 22.04",image:"ubuntu2204.netinst", state: "stopped" },
-    { id: 3, name: "CentOS 8", image:"centos8.netinst", state: "running" },
-    { id: 4, name: "Fedora 36", image:"fedora36.netinst", state: "stopped" },
+    { id: 1, name: "Debian 13",image:"debian13.netinst", state: "running", ipPath: "127.0.0.1:9090" },
+    { id: 2, name: "Ubuntu 22.04",image:"ubuntu2204.netinst", state: "stopped", ipPath: "127.0.0.1:9091" },
+    { id: 3, name: "CentOS 8", image:"centos8.netinst", state: "running", ipPath: "127.0.0.1:9092" },
+    { id: 4, name: "Fedora 36", image:"fedora36.netinst", state: "stopped", ipPath: "127.0.0.1:9093" },
 ]
 
 
@@ -67,53 +69,6 @@ export default function VMPage(){
         )
 }
 
-interface VmComponentProps{
-    assignedVms: VmComponent[];
-}
-
-export function VmComponent(props: VmComponentProps){
-
-    const [isDeleteVmModalOpen, setDeleteVmModalOpen] = useState(false);
-    const [vmModalId, setVmModalId] = useState<number | null>(null);
-
-    return (
-        <div className="flex flex-col m-5 p-2 rounded-[8]">
-            <ul>
-                {props.assignedVms.map((vm) => (
-                    <li key={vm.id} className="mb-4 p-2 bg-gray-100 border-2 border-gray-200 rounded-[8]">
-                        <div className="flex flex-row h-full w-full ">
-                            <div className="flex flex-row flex-grow">
-                                <ComputerIcon className="w-6 h-6  ml-1 self-center"/>
-                                <span className="ml-4 text-lg w-5/10 h-fit self-center">{vm.name +"  " +vm.id}</span>
-                            </div>
-                            <StandardButton label="connect" className="" onClick={() => {}} >
-                                <ScreenShareIcon className="size-5 mr-1" />
-                            </StandardButton>
-                            <StandardButton label={vm.state === 'running' ? 'Stop' : 'Start'} className="ml-1" onClick={() => {}} >
-                                <CirclePowerIcon className="size-5 mr-1" />
-                            </StandardButton>
-                            <StandardButton label="" className="ml-1" onClick={() => {setDeleteVmModalOpen(true); setVmModalId(vm.id);}} >
-                                <Trash2Icon className="p-0.5 self-center rounded-[8] cursor-pointer" />
-                            </StandardButton>
-                            <DeleteVmModal isOpen={isDeleteVmModalOpen} onClose={() => {}} onSubmit={() => {
-                                if (vmModalId !== null) {
-                                    const index = assignedVms.findIndex((vm) => vm.id === vmModalId)
-                                    assignedVms.splice(index, 1);
-                            
-                                setVmModalId(null);
-                                }
-                                setDeleteVmModalOpen(false);
-                            }} />
-                        </div>
-                    </li>
-                ))}
-            </ul>
-        </div>
-    )
-}
-
-
-
 
 interface CreateVmModalProps{
     isOpen: boolean;
@@ -143,10 +98,10 @@ export const CreateVmModal: FC<CreateVmModalProps> = ({ isOpen, onClose, onSubmi
                 <div>
                     {/* VM Type Selection Menu */}
                     <Menu>
-                        <MenuButton className="w-full bg-gray-200 text-left px-4 py-2 rounded-[8] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-100 focus:ring-indigo-500">
+                        <MenuButton className="w-full bg-gray-200 text-left px-4 py-2 rounded-[8]">
                             {selectedImage ? selectedImage.name : "Select VM Type"}
                         </MenuButton>
-                        <MenuItems className="absolute mt-2 w-fit bg-gray-200 drop-shadow-md border border-gray-400 rounded-[8]">
+                        <MenuItems className="absolute mt-2 w-fit bg-gray-200 border border-gray-400! drop-shadow-md rounded-[8]">
                             {images.map((image, index) => (
                                 <MenuItem>{({ active }) => (
                                     <StandardButton 
@@ -172,6 +127,86 @@ export const CreateVmModal: FC<CreateVmModalProps> = ({ isOpen, onClose, onSubmi
         </StandardModal>
     )
 }
+
+
+
+
+
+interface VmComponentProps{
+    assignedVms: VmComponent[];
+}
+
+export function VmComponent(props: VmComponentProps){
+
+    const [isDeleteVmModalOpen, setDeleteVmModalOpen] = useState(false);
+    const [vmModalId, setVmModalId] = useState<number | null>(null);
+
+    const [vmStates, setVmStates] = useState<Record<number, 'running' | 'stopped'>>(() =>
+        Object.fromEntries(props.assignedVms.map(v => [v.id, v.state])) as Record<number, 'running' | 'stopped'>
+    );
+
+    useEffect(() => {
+        setVmStates(prev => {
+            const next: Record<number, 'running' | 'stopped'> = { ...prev };
+            for (const v of props.assignedVms) {
+                if (!(v.id in next)) next[v.id] = v.state;
+            }
+            for (const id of Object.keys(next)) {
+                if (!props.assignedVms.find(v => v.id === Number(id))) {
+                    delete next[Number(id)];
+                }
+            }
+            return next;
+        });
+    }, [props.assignedVms]);
+
+    const getVmState = (id: number) => vmStates[id] ?? 'stopped';
+    const toggleVmState = (id: number) => {
+        setVmStates(prev => ({ ...prev, [id]: prev[id] === 'running' ? 'stopped' : 'running' }));
+    };
+
+    const router = useRouter();
+
+
+    return (
+        <div className="flex flex-col m-5 p-2 rounded-[8]">
+            <ul>
+                {props.assignedVms.map((vm) => (
+                    <li key={vm.id} className="mb-4 p-2 bg-gray-100 border-2 border-gray-200 rounded-[8]">
+                        <div className="flex flex-row h-full w-full ">
+                            <div className="flex flex-row flex-grow">
+                                <ComputerIcon className="w-6 h-6  ml-1 self-center"/>
+                                <span className="ml-4 text-lg w-5/10 h-fit self-center">{vm.name +"  " +vm.id}</span>
+                            </div>
+                            <StandardButton label="connect" className="" onClick={() => { router.push(`/vnc`); }} >
+                                <ScreenShareIcon className="size-5 mr-1" />
+                            </StandardButton>
+                            <StandardButton label={getVmState(vm.id) === 'running' ? 'Stop' : 'Start'} className="ml-1" onClick={() => { toggleVmState(vm.id); }} >
+                                <CirclePowerIcon className="size-5 mr-1" />
+                            </StandardButton>
+                            <StandardButton label="" className="ml-1" onClick={() => {setDeleteVmModalOpen(true); setVmModalId(vm.id);}} >
+                                <Trash2Icon className="p-0.5 self-center rounded-[8] cursor-pointer" />
+                            </StandardButton>
+                            <DeleteVmModal isOpen={isDeleteVmModalOpen} onClose={() => {}} onSubmit={() => {
+                                if (vmModalId !== null) {
+                                    const index = assignedVms.findIndex((vm) => vm.id === vmModalId)
+                                    assignedVms.splice(index, 1);
+                            
+                                setVmModalId(null);
+                                }
+                                setDeleteVmModalOpen(false);
+                            }} />
+                        </div>
+                    </li>
+                ))}
+            </ul>
+        </div>
+    )
+}
+
+
+
+
 
 
 

@@ -1,7 +1,8 @@
 /** @type {import('next').NextConfig} */
 
-module.exports = {
-  async redirects() {
+
+module.exports = { 
+async redirects() {
     return [
       {
         source: '/about',
@@ -11,3 +12,4 @@ module.exports = {
     ]
   },
 }
+
