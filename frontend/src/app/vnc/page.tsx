@@ -1,5 +1,6 @@
 'use client';
 import { useEffect, useRef, useState } from 'react';
+//@ts-ignore allowing import of a non-TS module
 import RFB from 'novnc-next';
 
 export default function VncPage() {
@@ -15,7 +16,8 @@ export default function VncPage() {
     try {
       rfb.current = new RFB(containerRef.current, websocketUrl, {
         credentials: { username: 'user', password: 'userpassword' },
-        preferredEncoding: 'tight' // force Tight encoding
+        enableWebRTC: false,
+        viewOnly: false,
       });
 
       // Automatically scale to fit container
@@ -59,25 +61,14 @@ export default function VncPage() {
   }, []);
 
   return (
-    <div style={{ width: '100vw', height: '100vh', overflow: 'hidden' }}>
+    <div className='w-full h-full overflow-hidden'>
       <div
         ref={containerRef}
-        style={{
-          width: '100%',
-          height: '100%',
-          backgroundColor: '#000',
-        }}
+        className='w-full h-full bg-foreground'
       />
       {!connected && (
         <div
-          style={{
-            position: 'absolute',
-            top: '50%',
-            left: '50%',
-            transform: 'translate(-50%, -50%)',
-            color: '#fff',
-            fontSize: '1.2rem',
-          }}
+            className='absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-black text-[1.2rem]'
         >
           Connecting to VNC...
         </div>
