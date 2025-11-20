@@ -1,15 +1,16 @@
-/** @type {import('next').NextConfig} */
+import type { NextConfig } from 'next';
 
-
-module.exports = { 
-async redirects() {
+const nextConfig: NextConfig = {
+  async redirects() {
     return [
       {
         source: '/about',
         destination: '/login',
         permanent: true,
       },
-    ]
+    ];
   },
-}
+};
+
+export default nextConfig;
 
