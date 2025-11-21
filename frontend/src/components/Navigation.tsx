@@ -21,7 +21,7 @@ export function Navigation(){
             <div className="flex flex-col w-1/3 h-full bg-background justify-between drop-shadow-2xl">
 
                 <div className="flex flex-col gap-4 mx-5">
-                    <div className="border-b-2 border-b-gray-200 mx-2 my-4">
+                    <div className="border-b-2 border-b-lightforeground mx-2 my-4">
                         <Link href={"/"} className="flex flex-row items-center m-5">
                             <Codesandbox className="mr-2"/>
                             Virtual Classroom
@@ -34,7 +34,7 @@ export function Navigation(){
             
                 {user.isAuthenticated ? (
                     <div className="mx-5 mb-10">
-                        <p className="border-b-2 border-b-gray-200 text-gray-200 mb-5 font-light"></p>
+                        <p className="border-b-2 border-b-lightforeground mb-5"></p>
                         <div className="flex flex-col gap-4">
                             <NavigationButton label={user.data?.firstName + " " + user.data?.lastName} icon={<UserIcon />} href="/profile" />
                             <NavigationButton label="Settings" icon={<Settings />} href="/settings" />

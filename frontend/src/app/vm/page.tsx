@@ -47,7 +47,7 @@ export default function VMPage(){
 
      return (
             <div className="flex flex-col m-20 w-8/10 h-8/10 rounded-[8] bg-background">
-                <div className="flex flex-row justify-between items-center border-b-2 border-foreground">
+                <div className="flex flex-row justify-between items-center border-b-2 border-lightforeground">
                     <h2 className="m-5 p-2 text-2xl font-bold">Your Virtual Machines</h2>
                     <StandardButton className="drop-shadow-sm bg-lightforeground hover:bg-contrast! hover:scale-105 transition-all hover:text-background p-2.5!" label="Create VM" onClick={() => {setVmModalOpen(true);}} >
                         <PlusIcon className="size-6 mr-1" />
@@ -101,7 +101,7 @@ export const CreateVmModal: FC<CreateVmModalProps> = ({ isOpen, onClose, onSubmi
                         <MenuButton className="w-full bg-lightforeground text-left px-4 py-2 rounded-[8]">
                             {selectedImage ? selectedImage.name : "Select VM Type"}
                         </MenuButton>
-                        <MenuItems className="absolute z-50 mt-2 w-full bg-lightforeground drop-shadow-md border border-lightforeground rounded-[8]">
+                        <MenuItems className="absolute z-50 mt-2 w-fit bg-lightforeground drop-shadow-md border border-lightforeground rounded-[8]">
                             {images.map((image) => (
                                 <MenuItem key={image.id}>
                                     {({ active }) => (

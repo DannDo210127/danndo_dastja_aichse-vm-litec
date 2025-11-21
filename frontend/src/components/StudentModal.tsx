@@ -25,8 +25,8 @@ export const StudentModal: FC<StudentModalProps> = ({isOpen, onClose, onSubmit }
                                     
                 <div className="flex w-full justify-between mt-2">
                 <div className="flex gap-4">
-                    <StandardButton label="Cancel" onClick={onClose} className="px-6 py-3 bg-gray-200" />
-                    <StandardButton label="Create" onClick={() => onSubmit(studentName)} className="px-6 py-3 bg-gray-200" />
+                    <StandardButton label="Cancel" onClick={onClose} className="px-6 py-3 bg-lightforeground" />
+                    <StandardButton label="Create" onClick={() => onSubmit(studentName)} className="px-6 py-3 bg-lightforeground" />
                 </div>
 
                 </div>
