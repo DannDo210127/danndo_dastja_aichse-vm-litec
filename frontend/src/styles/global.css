@@ -3,6 +3,7 @@
 @theme {
   --color-background: #FFFFFF;
   --color-foreground: #D9D9D9;
+  --color-lightforeground: var(--color-gray-200);
   --color-primary: #C8BCF6;
   --color-secondary: #cacaca;
   --color-font: var(--color-black);
