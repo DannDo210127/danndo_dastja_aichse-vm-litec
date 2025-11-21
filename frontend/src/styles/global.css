@@ -20,3 +20,28 @@ html,body{
   font-style: normal;
   font-size: small;
 }
+
+/*Scrollbar css design*/
+/* width */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+/* Track */
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 8px;
+  margin-top: 2px;
+  margin-bottom: 2px;
+}
+
+/* Handle */
+::-webkit-scrollbar-thumb {
+  background: var(--color-foreground);
+  border-radius: 8px;
+}
+
+/* Handle on hover */
+::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}

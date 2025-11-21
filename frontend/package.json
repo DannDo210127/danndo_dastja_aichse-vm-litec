@@ -9,16 +9,15 @@
     "lint": "eslint"
   },
   "dependencies": {
+    "@headlessui/react": "^2.2.9",
     "@novnc/novnc": "^1.6.0",
     "@tanstack/react-query": "^5.90.3",
     "@tanstack/react-query-devtools": "^5.90.2",
-    "@types/novnc__novnc": "^1.6.0",
     "axios": "^1.12.2",
     "lucide-react": "^0.545.0",
     "next": "15.5.3",
     "node.js": "^0.0.1-security",
     "novnc": "^1.2.0",
-    "novnc-next": "^1.0.0",
     "react": "19.1.0",
     "react-dom": "19.1.0",
     "react-vnc": "^3.1.0",
@@ -31,11 +30,13 @@
     "@types/estree": "^1.0.8",
     "@types/json-schema": "^7.0.15",
     "@types/node": "^20.19.17",
+    "@types/novnc": "^0.0.27",
+    "@types/novnc__novnc": "^1.6.0",
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "eslint": "^9",
     "eslint-config-next": "15.5.3",
     "tailwindcss": "^4",
-    "typescript": "^5"
+    "typescript": "^5.9.3"
   }
 }

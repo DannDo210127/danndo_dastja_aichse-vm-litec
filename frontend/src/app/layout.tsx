@@ -17,7 +17,7 @@ export default function IndexLayout({
     <html lang="en">
         <body>
           <QueryClientProvider client={queryClient}>
-            <div className='flex flex-row h-full w-full'>
+            <div className='flex flex-row h-screen w-screen'>
               {/* Navigation Component*/}
               <Navigation/>
               

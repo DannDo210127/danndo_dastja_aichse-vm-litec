@@ -1,6 +1,6 @@
 'use client'
 import { StandardButton } from "@/shared/StandardButton"
-import { ChevronDown, ChevronUp, ComputerIcon, Icon, Pause, Play, PlusIcon, Trash2, TrashIcon, User } from "lucide-react";
+import { ChevronDown, ChevronUp, ComputerIcon, Icon, Pause, Play, PlusIcon, Trash2, Trash2Icon, User } from "lucide-react";
 import { useState } from "react";
 import { ClassroomModal } from "@/components/ClassroomModal";
 import { StudentModal } from "@/components/StudentModal";
@@ -33,11 +33,11 @@ export default function ClassroomPage(){
 
     const [isClassroomModalOpen, setClassroomModalOpen] = useState(false);
 
-
     return (
-           <div className="flex flex-col w-full h-screen">
-               <div className="flex flex-row w-full h-1/12 bg-background items-center">
-                    <StandardButton label="Create Classroom" onClick={() => {setClassroomModalOpen(true)}} className="mt-5 px-4 ml-8">
+           <div className="flex flex-col m-20 w-8/10 h-8/10 rounded-[8] bg-background">
+               <div className="flex flex-row justify-between w-full h-1/12 bg-background border-b-2 border-gray-200 items-center">
+                    <h2 className="m-5 p-2 text-2xl font-bold">Your Classrooms</h2>
+                    <StandardButton label="Create Classroom" onClick={() => {setClassroomModalOpen(true)}} className=" px-4 ml-8 bg-gray-200 drop-shadow-sm p-2.5! hover:bg-black! hover:scale-105 transition-all hover:text-white">
                         <PlusIcon className="size-6 mr-1" />
                     </StandardButton>
                </div>
@@ -176,27 +176,27 @@ function Classroom({ classrooms }: ClassroomProps) {
   
 
   return (
-    <div className="p-8 space-y-4 overflow-y-auto flex-1">
+    <div className="p-8 space-y-4 overflow-y-auto flex-1 max-h-[calc(100vh-10rem)]">
       {classrooms.map((classroom, index) => {
         const isOpen = openClassroomIds.includes(classroom.id);
       
         return (
-          <div key={classroom.id} className="rounded-[8] bg-foreground">
+          <div key={classroom.id} className="rounded-[8] bg-background border-2 border-gray-200 drop-shadow-sm">
             {/* Header */}
-            <div className="flex items-center px-4 py-2 cursor-pointer" >
+            <div className="flex items-center px-4 py-2 cursor-pointer border-b-2 border-gray-200 bg-gray-100" >
 
               <div className="flex-1 flex items-center space-x-4" onClick={() => toggleClassroom(classroom.id)} >  
                 {isOpen ? 
-                    <ClassButton label={classroom.name} icon={<ChevronUp size={18} />} /> : 
-                    <ClassButton label={classroom.name} icon={<ChevronDown size={18} />} />}
+                    <ClassButton className="bg-transparent!" label={classroom.name} icon={<ChevronUp size={18} />} /> : 
+                    <ClassButton className="bg-transparent!" label={classroom.name} icon={<ChevronDown size={18} />} />}
               </div>
             
               <div className="flex flex-row space-x-2">
-                <StandardButton className="px-2 py-1" label="Add student" onClick={() => { setStudentModalClassroomId(index); setStudentModalOpen(true); }}>
+                <StandardButton className="px-2 py-1 bg-transparent!" label="Add student" onClick={() => { setStudentModalClassroomId(index); setStudentModalOpen(true); }}>
                   <PlusIcon className="size-6 mr-1" />
                 </StandardButton>
-                <StandardButton className="px-2 py-1" label="Delete classroom" onClick={() => { setDeleteClassroomId(index); setDeleteClassroomModalOpen(true); }}>
-                  <TrashIcon className="size-6 mr-1" />
+                <StandardButton className="px-2 py-1 bg-transparent!" label="" onClick={() => { setDeleteClassroomId(index); setDeleteClassroomModalOpen(true); }}>
+                  <Trash2Icon className="size-6" />
                 </StandardButton>
               </div>
 
@@ -292,7 +292,7 @@ export function StudentList({ students }: StudentListProps) {
             {students.map((student, index) => (
                 <li
                     key={student.id}
-                    className="flex justify-between items-center px-3 py-2 bg-white rounded-[8]"
+                    className="flex justify-between items-center px-3 py-2 bg-background rounded-[8]"
                 >
                     <div className="flex flex-row w-full">
                         <div className="flex flex-row w-fit items-center">
@@ -300,9 +300,8 @@ export function StudentList({ students }: StudentListProps) {
                             <span className="ml-3">{student.name}</span>
                         </div>
                         <div className="flex flex-row grow justify-end items-center">
-                            <VmComponent assignedVM={student.assignedVM}></VmComponent>
                             <button className="w-fit ml-4 size-8 rounded-[8] bg-background hover:bg-secondary" onClick={() => {setDeleteStudentId(index);setDeleteStudentModalOpen(true);}}>
-                              <Trash2 size={22}/>
+                              <Trash2 className="size-6"/>
                             </button>
                         </div>
                     </div>
@@ -324,59 +323,4 @@ export function StudentList({ students }: StudentListProps) {
 
 }
 
-
-interface VmComponentProps {
-    assignedVM?: {
-        id: number;
-        name: string;
-        state: 'running' | 'stopped';
-    };
-}
-
-
-
-export function VmComponent({ assignedVM }: VmComponentProps) {
-
-    const [state, setState] = useState<string[]>(assignedVM?.state ? [assignedVM.state] : []);
-
-    function toggleState(assignedVM: { id: number; state: 'running' | 'stopped' }) {
-         
-        if(assignedVM.state === 'running'){
-            console.log('Stopping VM...');
-            setState(['stopped']);
-        }else if(assignedVM.state === 'stopped'){
-            console.log('Starting VM...');
-            setState(['running']);
-        }
-            
-    }
-
-    return (
-       <ul className="flex flex-row w-full justify-end h-full space-x-3">
-           {assignedVM && (
-               <li key={assignedVM.id}>
-
-                        <div className="flex flex-row w-fit h-full items-center bg-foreground rounded-[8]">
-                            <ComputerIcon className="w-6 h-6 m-1 ml-2" />
-                            <span className="mx-2">{assignedVM.name}</span>
-                            {assignedVM.state === 'running' ? (
-                              <button
-                                onClick={() => (toggleState(assignedVM), console.log('Play clicked'))}
-                              >
-                                <Play className="size-5 mr-2" />
-                              </button>
-                            ) : (
-                              <button
-                                onClick={() => (toggleState(assignedVM), console.log('Pause clicked'))}
-                              >
-                                <Pause className="size-5 mr-2" />
-                              </button>
-                            )}
-                        </div>
-                    </li>
-           )}
-      </ul>
-
-   );
-}
 
