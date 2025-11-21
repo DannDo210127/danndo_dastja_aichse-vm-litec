@@ -7,6 +7,18 @@
   --color-primary: #C8BCF6;
   --color-secondary: #cacaca;
   --color-font: var(--color-black);
+  --color-contrast: #000000;
+}
+
+/* Dark theme overrides */
+[data-theme="dark"] {
+  --color-background: #222323;
+  --color-foreground: #292a2a;
+  --color-lightforeground: #3d3e3e;
+  --color-primary: #dddddd;
+  --color-secondary: #4A4A4A;
+  --color-font: var(--color-white);
+  --color-contrast: #FFFFFF;
 }
 
 html,body{

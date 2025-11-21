@@ -37,7 +37,7 @@ export default function ClassroomPage(){
            <div className="flex flex-col m-20 w-8/10 h-8/10 rounded-[8] bg-background">
                <div className="flex flex-row justify-between w-full h-1/12 bg-background border-b-2 border-lightforeground items-center">
                     <h2 className="m-5 p-2 text-2xl font-bold">Your Classrooms</h2>
-                    <StandardButton label="Create Classroom" onClick={() => {setClassroomModalOpen(true)}} className=" px-4 ml-8 bg-light-foreground drop-shadow-sm p-2.5! hover:bg-black! hover:scale-105 transition-all hover:text-white">
+                    <StandardButton label="Create Classroom" onClick={() => {setClassroomModalOpen(true)}} className=" px-4 ml-8 bg-lightforeground drop-shadow-sm p-2.5! hover:bg-contrast! hover:scale-105 transition-all hover:text-background">
                         <PlusIcon className="size-6 mr-1" />
                     </StandardButton>
                </div>
@@ -183,7 +183,7 @@ function Classroom({ classrooms }: ClassroomProps) {
         return (
           <div key={classroom.id} className="rounded-[8] bg-background border-2 border-lightforeground drop-shadow-sm">
             {/* Header */}
-            <div className="flex items-center px-4 py-2 cursor-pointer border-b-2 border-lightforeground bg-gray-100" >
+            <div className="flex items-center px-4 py-2 cursor-pointer border-b-2 border-lightforeground bg-lightforeground" >
 
               <div className="flex-1 flex items-center space-x-4" onClick={() => toggleClassroom(classroom.id)} >  
                 {isOpen ? 
@@ -211,7 +211,7 @@ function Classroom({ classrooms }: ClassroomProps) {
 
                   <StudentList students={classroom.students}></StudentList>
                 ) : (
-                  <p className="text-sm text-gray-500">No students yet.</p>
+                  <p className="text-sm text-font">No students yet.</p>
                 )}
               </div>
             )}

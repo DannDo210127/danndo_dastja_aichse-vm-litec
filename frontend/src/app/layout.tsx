@@ -22,7 +22,7 @@ export default function IndexLayout({
               <Navigation/>
               
               {/* Page Content */}
-              <main className="w-full h-full">{children}</main>
+              <main className="w-full h-full bg-background">{children}</main>
 
               {/* Portal Div for Modals */}
               <div id="modal-root"></div>
