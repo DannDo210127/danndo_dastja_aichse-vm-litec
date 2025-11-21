@@ -101,17 +101,20 @@ export const CreateVmModal: FC<CreateVmModalProps> = ({ isOpen, onClose, onSubmi
                         <MenuButton className="w-full bg-gray-200 text-left px-4 py-2 rounded-[8]">
                             {selectedImage ? selectedImage.name : "Select VM Type"}
                         </MenuButton>
-                        <MenuItems className="absolute mt-2 w-fit bg-gray-200 border border-gray-400! drop-shadow-md rounded-[8]">
-                            {images.map((image, index) => (
-                                <MenuItem>{({ active }) => (
-                                    <StandardButton 
-                                        className={`${active ? 'bg-gray-100' : ''} w-full text-left px-4 py-2 rounded-[8]`}
-                                        onClick={() => { setSelectedImage(image); }}
-                                        label={image.name}
-                                    >
-                                    </StandardButton>
-                                )}</MenuItem>
-                            ))}  
+                        <MenuItems className="absolute z-50 mt-2 w-full bg-gray-200 drop-shadow-md border border-gray-400 rounded-[8]">
+                            {images.map((image) => (
+                                <MenuItem key={image.id}>
+                                    {({ active }) => (
+                                        <button
+                                            type="button"
+                                            onClick={() => setSelectedImage(image)}
+                                            className={`w-full text-left px-4 py-2 rounded-[6] focus:outline-none ${active ? 'bg-gray-100' : ''}`}
+                                        >
+                                            {image.name}
+                                        </button>
+                                    )}
+                                </MenuItem>
+                            ))}
                         </MenuItems>
                     </Menu>
                 </div>
