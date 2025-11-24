@@ -45,17 +45,26 @@ export default function VMPage(){
 
     const [isVmModalOpen, setVmModalOpen] = useState(false);
 
+    const [vmErrorMessage, setVmErrorMessage] = useState<string>("");
+
      return (
             <div className="flex flex-col m-20 w-8/10 h-8/10 rounded-[8] bg-background">
-                <div className="flex flex-row justify-between items-center border-b-2 border-foreground">
+                <div className="flex flex-row justify-between items-center border-b-2 border-lightforeground">
                     <h2 className="m-5 p-2 text-2xl font-bold">Your Virtual Machines</h2>
-                    <StandardButton className="drop-shadow-sm bg-gray-200 hover:bg-black! hover:scale-105 transition-all hover:text-white p-2.5!" label="Create VM" onClick={() => {setVmModalOpen(true);}} >
+                    <StandardButton className="drop-shadow-sm bg-lightforeground hover:bg-contrast! hover:scale-105 transition-all hover:text-background p-2.5!" label="Create VM" onClick={() => {setVmModalOpen(true);}} >
                         <PlusIcon className="size-6 mr-1" />
                     </StandardButton>
                 </div>
                
                 <VmComponent assignedVms={assignedVms}></VmComponent>
-                <CreateVmModal images={images} isOpen={isVmModalOpen} onClose={() => setVmModalOpen(false)} onSubmit={(Vmname, selectedImage) => {
+                <CreateVmModal errormessage={vmErrorMessage} images={images} isOpen={isVmModalOpen} onClose={() => setVmModalOpen(false)} onSubmit={(Vmname, selectedImage) => {
+                    if(assignedVms.find(vm => vm.name.toLowerCase() === Vmname.toLowerCase())){
+                        setVmErrorMessage("A VM with this name already exists.");
+                        setVmModalOpen(true);
+                        return;
+                    }else{
+                        setVmErrorMessage("");
+                    }
                     assignedVms.push({
                         id: assignedVms.length===0 ? 1:(assignedVms[assignedVms.length - 1].id + 1),
                         name: Vmname,
@@ -75,20 +84,40 @@ interface CreateVmModalProps{
     onClose: () => void;
     onSubmit: (VmName: string, image: string) => void;
     images: image[]
+    errormessage?: string;
 }
 
-export const CreateVmModal: FC<CreateVmModalProps> = ({ isOpen, onClose, onSubmit, images }) => {
+export const CreateVmModal: FC<CreateVmModalProps> = ({ isOpen, onClose, onSubmit, images, errormessage }) => {
 
     const [VmName, setVmName] = useState<string>("");
     const [selectedImage, setSelectedImage] = useState<image>();
+    const [showError, setShowError] = useState<boolean>(false);
+
     const isCreateDisabled = !VmName.trim() || !selectedImage;
 
     useEffect(() => {
         if (!isOpen) {
             setSelectedImage(undefined);
             setVmName("");
+            setShowError(false);
         }
     }, [isOpen]);
+
+
+
+    
+    // Show error when errormessage changes and is not empty
+    useEffect(() => {
+        if (errormessage) {
+            setShowError(true);
+        }
+        }, [errormessage]);
+    
+    const handleSubmit = () => {
+        setShowError(true); // Trigger animation when clicking Create
+        onSubmit(VmName, selectedImage?.image || "");
+    };
+    
 
     return (
          <StandardModal className="w-96" title={"Create new Vm"} description={""} isOpen={isOpen}>
@@ -98,17 +127,17 @@ export const CreateVmModal: FC<CreateVmModalProps> = ({ isOpen, onClose, onSubmi
                 <div>
                     {/* VM Type Selection Menu */}
                     <Menu>
-                        <MenuButton className="w-full bg-gray-200 text-left px-4 py-2 rounded-[8]">
+                        <MenuButton className="w-full bg-lightforeground text-left px-4 py-2 rounded-[8]">
                             {selectedImage ? selectedImage.name : "Select VM Type"}
                         </MenuButton>
-                        <MenuItems className="absolute z-50 mt-2 w-full bg-gray-200 drop-shadow-md border border-gray-400 rounded-[8]">
+                        <MenuItems className="absolute z-50 mt-2 w-fit bg-lightforeground drop-shadow-md border border-lightforeground rounded-[8]">
                             {images.map((image) => (
                                 <MenuItem key={image.id}>
                                     {({ active }) => (
                                         <button
                                             type="button"
                                             onClick={() => setSelectedImage(image)}
-                                            className={`w-full text-left px-4 py-2 rounded-[6] focus:outline-none ${active ? 'bg-gray-100' : ''}`}
+                                            className={`w-full text-left px-4 py-2 rounded-[6] focus:outline-none ${active ? 'bg-lightforeground' : ''}`}
                                         >
                                             {image.name}
                                         </button>
@@ -117,11 +146,21 @@ export const CreateVmModal: FC<CreateVmModalProps> = ({ isOpen, onClose, onSubmi
                             ))}
                         </MenuItems>
                     </Menu>
+                    
                 </div>
+                <div 
+                    className={`
+                        overflow-hidden transition-all duration-300 ease-in-out
+                        ${showError && errormessage ? 'max-h-20 opacity-100 py-2 px-4' : 'max-h-0 opacity-0'}
+                        bg-red-400 rounded-[8] text-font text-sm 
+                    `}
+                >
+                    {errormessage}
+                </div>             
 
                 <div className="flex w-full justify-between mt-2">
                 <div className="flex gap-4">
-                    <StandardButton label="Cancel" onClick={onClose} className="px-6 py-3 bg-gray-200" />
+                    <StandardButton label="Cancel" onClick={onClose} className="px-6 py-3 bg-lightforeground" />
                     <StandardButton label="Create" onClick={() => onSubmit(VmName, selectedImage?.image || "")} className="px-6 py-3 bg-gray-200" disabled={isCreateDisabled} />
                 </div>
 
@@ -175,11 +214,11 @@ export function VmComponent(props: VmComponentProps){
         <div className="flex flex-col m-5 p-2 rounded-[8]">
             <ul>
                 {props.assignedVms.map((vm) => (
-                    <li key={vm.id} className="mb-4 p-2 bg-gray-100 border-2 border-gray-200 rounded-[8]">
+                    <li key={vm.id} className="mb-4 p-2 bg-lightforeground border-2 border-lightforeground rounded-[8]">
                         <div className="flex flex-row h-full w-full ">
                             <div className="flex flex-row flex-grow">
                                 <ComputerIcon className="w-6 h-6  ml-1 self-center"/>
-                                <span className="ml-4 text-lg w-5/10 h-fit self-center">{vm.name +"  " +vm.id}</span>
+                                <span className="ml-4 text-lg w-5/10 h-fit self-center">{vm.name}</span>
                             </div>
                             <StandardButton label="connect" className="" onClick={() => { router.push(`/vnc`); }} >
                                 <ScreenShareIcon className="size-5 mr-1" />
@@ -190,7 +229,9 @@ export function VmComponent(props: VmComponentProps){
                             <StandardButton label="" className="ml-1" onClick={() => {setDeleteVmModalOpen(true); setVmModalId(vm.id);}} >
                                 <Trash2Icon className="p-0.5 self-center rounded-[8] cursor-pointer" />
                             </StandardButton>
-                            <DeleteVmModal isOpen={isDeleteVmModalOpen} onClose={() => {}} onSubmit={() => {
+                            <DeleteVmModal isOpen={isDeleteVmModalOpen} onClose={() => {
+                                setDeleteVmModalOpen(false);
+                            }} onSubmit={() => {
                                 if (vmModalId !== null) {
                                     const index = assignedVms.findIndex((vm) => vm.id === vmModalId)
                                     assignedVms.splice(index, 1);

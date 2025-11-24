@@ -1,17 +1,19 @@
 'use client'
 import { StandardButton } from "@/shared/StandardButton"
 import { ChevronDown, ChevronUp, ComputerIcon, Icon, Pause, Play, PlusIcon, Trash2, Trash2Icon, User } from "lucide-react";
-import { useState } from "react";
-import { ClassroomModal } from "@/components/ClassroomModal";
-import { StudentModal } from "@/components/StudentModal";
-import { DeleteClassroomModal } from "@/components/DeleteClassroomModal";
-import { DeleteStudentModal } from "@/components/DeleteStudentModal";
+import { FC, useEffect, useState } from "react";
+import { StandardInput } from "@/shared/StandardInput";
+import StandardModal from "@/shared/StandardModal";
+import { ConfirmModal } from "@/shared/ConfirmModal";
 
 export default function ClassroomPage(){
 
 
     const [classrooms, setClassrooms] = useState<Classroom[]>(classroomsData);
 
+    // errormessage for create-classroom modal
+    const [classroomErrormessage, setClassroomErrormessage] = useState<string>("");
+    
     const addClassroom = (name: string) => {
       const newClassroom: Classroom = {
         id: classrooms.length + 1,
@@ -20,15 +22,22 @@ export default function ClassroomPage(){
       };
       setClassrooms((prev) => [...prev, newClassroom]);
     };
+
     const handleClassroomSubmit = (inputValue: string) => {
-        console.log(classroomsData)
-        addClassroom(inputValue);
-
+          setClassroomErrormessage("");
+         
+        const exists = classrooms.some(classroom => classroom.name.toLowerCase() === inputValue.toLowerCase());
+        if(exists){
+          setClassroomErrormessage("Classroom with this name already exists!");
+          setClassroomModalOpen(true);
+        }else{
+          inputValue = inputValue.trim();
+          inputValue = inputValue.toUpperCase();
+          addClassroom(inputValue);
+          setClassroomErrormessage("");
+          setClassroomModalOpen(false);
+        }
     };
-
-
-
-    
 
 
     const [isClassroomModalOpen, setClassroomModalOpen] = useState(false);
@@ -37,12 +46,12 @@ export default function ClassroomPage(){
            <div className="flex flex-col m-20 w-8/10 h-8/10 rounded-[8] bg-background">
                <div className="flex flex-row justify-between w-full h-1/12 bg-background border-b-2 border-lightforeground items-center">
                     <h2 className="m-5 p-2 text-2xl font-bold">Your Classrooms</h2>
-                    <StandardButton label="Create Classroom" onClick={() => {setClassroomModalOpen(true)}} className=" px-4 ml-8 bg-light-foreground drop-shadow-sm p-2.5! hover:bg-black! hover:scale-105 transition-all hover:text-white">
+                    <StandardButton label="Create Classroom" onClick={() => {setClassroomModalOpen(true)}} className=" px-4 ml-8 bg-lightforeground drop-shadow-sm p-2.5! hover:bg-contrast! hover:scale-105 transition-all hover:text-background">
                         <PlusIcon className="size-6 mr-1" />
                     </StandardButton>
                </div>
-                <Classroom classrooms={classrooms}/>
-               <ClassroomModal  isOpen={isClassroomModalOpen} onClose={() => setClassroomModalOpen(false)} onSubmit={(value) => {handleClassroomSubmit(value); setClassroomModalOpen(false);}} />
+                <Classroom classrooms={classrooms} setClassrooms={setClassrooms}/>
+               <ClassroomModal errormessage={classroomErrormessage} isOpen={isClassroomModalOpen} onClose={() => {setClassroomModalOpen(false);}} onSubmit={(value) => {handleClassroomSubmit(value);}} />
 
            </div>
 
@@ -130,7 +139,7 @@ interface ClassroomProps {
   classrooms: Classroom[];
 }
 
-function Classroom({ classrooms }: ClassroomProps) {
+function Classroom({ classrooms, setClassrooms }: ClassroomProps & { setClassrooms: React.Dispatch<React.SetStateAction<Classroom[]>> }) {
 
   const [openClassroomIds, setOpenClassroomIds] = useState<number[]>([]);
   console.log("open classrooms at start", openClassroomIds);
@@ -141,34 +150,71 @@ function Classroom({ classrooms }: ClassroomProps) {
     );
   };
 
-  const handleStudentSubmit = (classid: number, inputValue: string) => {
-    console.log(classid)
-        console.log(classrooms)
-        addStudent(classid, inputValue);
+  
 
-    };
+ 
 
-
-  const addStudent = (classid: number, name: string) => {
-    
-      const newStudent: Student = {
-        id: classrooms[classid].students.length + 1,
-        name,
-        assignedVM: { id: classrooms[classid].students.length + 201, name: "debian", state: "stopped" }, //{placeholder for id because not worked with backend}
-      };
-        classrooms[classid].students.push(newStudent);
-        console.log(openClassroomIds, classid+1)
-        if(openClassroomIds.includes(classid+1) === false){
-          toggleClassroom(classid+1);
-      } 
-    };
-    
 
   const [isStudentModalOpen, setStudentModalOpen] = useState(false);
   const [studentModalClassroomId, setStudentModalClassroomId] = useState<number | null>(null);
+  const [studentErrormessage, setStudentErrormessage] = useState<string>("");
+
+
+  const handleStudentSubmit = (classid: number, inputValue: string) => {
+    setStudentErrormessage(""); // Reset error at start
+    
+    const exists = classrooms[classid].students.some((student: Student) => student.name.toLowerCase() === inputValue.toLowerCase());
+
+    if(exists){
+      setStudentErrormessage("Student with this name already exists!");
+      setStudentModalOpen(true);
+    } else {
+      inputValue = inputValue.trim();
+      addStudent(classid, inputValue);
+      setStudentErrormessage(""); // Clear error on success
+      setStudentModalOpen(false); // Close modal on success
+      setStudentModalClassroomId(null);
+    }
+  };
+
+
+  const addStudent = (classroomIndex: number, name: string) => {
+    const classroom = classrooms[classroomIndex];
+    
+    const newStudent: Student = {
+      id: classroom.students.length > 0 
+        ? Math.max(...classroom.students.map(s => s.id)) + 1 
+        : 1,
+      name,
+      assignedVM: { 
+        id: classroom.students.length > 0 
+          ? Math.max(...classroom.students.map(s => s.assignedVM?.id || 0)) + 1 
+          : 201, 
+        name: "debian", 
+        state: "stopped" 
+      },
+    };
+    
+    // Use setClassrooms to properly update state (don't mutate directly)
+    setClassrooms((prev) => {
+      const updated = [...prev];
+      updated[classroomIndex] = {
+        ...updated[classroomIndex],
+        students: [...updated[classroomIndex].students, newStudent]
+      };
+      return updated;
+    });
+    
+    // Open the classroom if it's not already open
+    if(!openClassroomIds.includes(classroom.id)){
+      toggleClassroom(classroom.id);
+    } 
+};
+    
+
+  
   const [isDeleteClassroomModalOpen, setDeleteClassroomModalOpen] = useState(false);
   const [deleteClassroomId, setDeleteClassroomId] = useState<number | null>(null);
-  
 
   const handleDeleteClassroom = (index: number) => {
     classrooms.splice(index, 1);
@@ -183,7 +229,7 @@ function Classroom({ classrooms }: ClassroomProps) {
         return (
           <div key={classroom.id} className="rounded-[8] bg-background border-2 border-lightforeground drop-shadow-sm">
             {/* Header */}
-            <div className="flex items-center px-4 py-2 cursor-pointer border-b-2 border-lightforeground bg-gray-100" >
+            <div className="flex items-center px-4 py-2 cursor-pointer border-b-2 border-lightforeground bg-lightforeground" >
 
               <div className="flex-1 flex items-center space-x-4" onClick={() => toggleClassroom(classroom.id)} >  
                 {isOpen ? 
@@ -211,12 +257,13 @@ function Classroom({ classrooms }: ClassroomProps) {
 
                   <StudentList students={classroom.students}></StudentList>
                 ) : (
-                  <p className="text-sm text-gray-500">No students yet.</p>
+                  <p className="text-sm text-font">No students yet.</p>
                 )}
               </div>
             )}
       
       <StudentModal 
+        errormessage={studentErrormessage}
         isOpen={isStudentModalOpen} 
         onClose={() => {
           setStudentModalOpen(false);
@@ -226,8 +273,6 @@ function Classroom({ classrooms }: ClassroomProps) {
           if (studentModalClassroomId !== null) {
             handleStudentSubmit(studentModalClassroomId, value); 
           }
-          setStudentModalOpen(false);
-          setStudentModalClassroomId(null);
         }} 
       />
       <DeleteClassroomModal isOpen={isDeleteClassroomModalOpen} onClose={() => setDeleteClassroomModalOpen(false)} onSubmit={() => {
@@ -284,8 +329,12 @@ export function StudentList({ students }: StudentListProps) {
   const [isDeleteStudentModalOpen, setDeleteStudentModalOpen] = useState(false);
   const [deleteStudentId, setDeleteStudentId] = useState<number | null>(null);
 
+
   const handleDeleteStudent = (studentId: number) => {
-    students.splice(studentId, 1);
+    if(students.includes(students[studentId]) === false){
+    }else{
+      students.splice(studentId, 1);
+    }
   };
     return (
         <ul className="space-y-2">
@@ -322,5 +371,170 @@ export function StudentList({ students }: StudentListProps) {
 
 
 }
+
+
+// Modals for ClassroomHandling
+
+
+interface ClassroomModalProps {
+    isOpen: boolean;
+    onClose: () => void;
+    onSubmit: (value: string) => void;
+    errormessage: string;
+}
+
+
+export function ClassroomModal({isOpen, onClose, onSubmit, errormessage}: ClassroomModalProps) {
+
+    const [classroomName, setClassroomName] = useState<string>("");
+    const [showError, setShowError] = useState<boolean>(false);
+
+    const isCreateDisabled = classroomName.trim() === "";
+
+    // Reset error visibility when modal closes
+    useEffect(() => {
+        if (!isOpen) {
+            setShowError(false);
+            setClassroomName("");
+        }
+    }, [isOpen]);
+
+    // Show error when errormessage changes and is not empty
+    useEffect(() => {
+        if (errormessage) {
+            setShowError(true);
+        }
+    }, [errormessage]);
+
+    const handleSubmit = () => {
+        setShowError(true); // Trigger animation when clicking Create
+        onSubmit(classroomName);
+    };
+
+    return (
+        <StandardModal className="w-96" title={"Create Classroom"} description={""} isOpen={isOpen}>
+            <div className="flex flex-col space-y-4 mt-4">
+                <StandardInput placeholder="Classname" onValueChange={(value: string) => setClassroomName(value)} />
+                
+                {/* Error message with smooth expand/collapse triggered by button click */}
+                <div 
+                    className={`
+                        overflow-hidden transition-all duration-300 ease-in-out
+                        ${showError && errormessage ? 'max-h-20 opacity-100 py-2 px-4' : 'max-h-0 opacity-0'}
+                        bg-red-400 rounded-[8] text-font text-sm 
+                    `}
+                >
+                    {errormessage}
+                </div>
+                
+                <div className="flex w-full justify-between mt-2">
+                    <div className="flex gap-4">
+                        <StandardButton label="Cancel" onClick={onClose} className="px-6 py-3 bg-lightforeground" />
+                        <StandardButton label="Create" onClick={() => {handleSubmit();}} className="px-6 py-3 bg-lightforeground" disabled={isCreateDisabled} />
+                    </div>
+                </div>
+            </div>
+        </StandardModal>
+    )
+}
+
+
+interface DeleteClassroomModalProps {
+    isOpen: boolean;
+    onClose: () => void;
+    onSubmit: () => void;
+}
+
+
+export function DeleteClassroomModal({ isOpen, onClose, onSubmit }: DeleteClassroomModalProps) {
+    return (
+       <ConfirmModal title={"Delete Classroom"} description={"Are you sure you want to delete this classroom? This action cannot be undone."} isOpen={isOpen} onClose={onClose} onConfirm={() => onSubmit()} />
+    )
+}
+
+
+
+// Modals for StudentHandling
+
+
+
+
+interface StudentModalProps {
+    isOpen: boolean;
+    onClose: () => void;
+    onSubmit: (value: string) => void;
+    errormessage: string;
+}
+
+
+export function StudentModal({isOpen, onClose, onSubmit, errormessage}: StudentModalProps) {
+    const [showError, setShowError] = useState<boolean>(false);
+
+    const [studentName, setStudentName] = useState<string>("");
+
+    const isCreateDisabled = studentName.trim() === "";
+
+     // Reset error visibility when modal closes
+    useEffect(() => {
+        if (!isOpen) {
+            setShowError(false);
+            setStudentName("");
+        }
+    }, [isOpen]);
+
+    // Show error when errormessage changes and is not empty
+    useEffect(() => {
+        if (errormessage) {
+            setShowError(true);
+        }
+    }, [errormessage]);
+
+    const handleSubmit = () => {
+        setShowError(true); // Trigger animation when clicking Create
+        onSubmit(studentName);
+    };
+
+
+    return (
+        <StandardModal className="w-96" title={"Add Student"} description={"Enter student name:"} isOpen={isOpen}>
+            <div className="flex flex-col space-y-4 mt-4">
+                <StandardInput placeholder="Student Name" onValueChange={(value: string) => setStudentName(value)} />
+                <div 
+                    className={`
+                        overflow-hidden transition-all duration-300 ease-in-out
+                        ${showError && errormessage ? 'max-h-20 opacity-100 py-2 px-4' : 'max-h-0 opacity-0'}
+                        bg-red-400 rounded-[8] text-font text-sm 
+                    `}
+                >
+                    {errormessage}
+                </div>              
+                <div className="flex w-full justify-between mt-2">
+                <div className="flex gap-4">
+                    <StandardButton label="Cancel" onClick={onClose} className="px-6 py-3 bg-lightforeground" />
+                    <StandardButton label="Create" onClick={() => handleSubmit()} className="px-6 py-3 bg-lightforeground" disabled={isCreateDisabled} />
+                </div>
+
+                </div>
+            </div>
+        </StandardModal>
+    )
+}
+
+
+
+
+interface DeleteStudentModalProps {
+    isOpen: boolean;
+    onClose: () => void;
+    onSubmit: () => void;
+}
+
+
+export function DeleteStudentModal({ isOpen, onClose, onSubmit }: DeleteStudentModalProps) {
+    return (
+       <ConfirmModal title={"Delete Student"} description={"Are you sure you want to delete this student? This action cannot be undone."} isOpen={isOpen} onClose={onClose} onConfirm={() => onSubmit()} />
+    )
+}
+
 
 

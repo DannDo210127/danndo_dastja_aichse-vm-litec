@@ -22,12 +22,12 @@ const StandardModal: FC<StandardModalProps> = ({ title, description, isOpen, chi
                     className="fixed inset-0 flex items-center justify-center bg-black/30 z-50"
                 >
                     <div
-                        className={`bg-white rounded-lg p-6 shadow-lg flex flex-col ${className}`}
+                        className={`bg-background rounded-lg p-6 shadow-lg flex flex-col ${className}`}
                         onClick={(e) => e.stopPropagation()}
                     >
-                        <div className="flex flex-col gap-0 border-b-1 border-b-gray-200 pb-3">
+                        <div className="flex flex-col gap-0 border-b-1 border-b-lightforeground pb-3">
                             <h2 className="text-xl font-semibold">{title}</h2>
-                            <p className="text-sm text-gray-400 font-light">{description}</p>
+                            <p className="text-sm text-font font-light">{description}</p>
                         </div>
                         {children}
                     </div>
