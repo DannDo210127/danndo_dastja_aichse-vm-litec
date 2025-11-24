@@ -45,6 +45,8 @@ export default function VMPage(){
 
     const [isVmModalOpen, setVmModalOpen] = useState(false);
 
+    const [vmErrorMessage, setVmErrorMessage] = useState<string>("");
+
      return (
             <div className="flex flex-col m-20 w-8/10 h-8/10 rounded-[8] bg-background">
                 <div className="flex flex-row justify-between items-center border-b-2 border-lightforeground">
@@ -55,7 +57,14 @@ export default function VMPage(){
                 </div>
                
                 <VmComponent assignedVms={assignedVms}></VmComponent>
-                <CreateVmModal images={images} isOpen={isVmModalOpen} onClose={() => setVmModalOpen(false)} onSubmit={(Vmname, selectedImage) => {
+                <CreateVmModal errormessage={vmErrorMessage} images={images} isOpen={isVmModalOpen} onClose={() => setVmModalOpen(false)} onSubmit={(Vmname, selectedImage) => {
+                    if(assignedVms.find(vm => vm.name.toLowerCase() === Vmname.toLowerCase())){
+                        setVmErrorMessage("A VM with this name already exists.");
+                        setVmModalOpen(true);
+                        return;
+                    }else{
+                        setVmErrorMessage("");
+                    }
                     assignedVms.push({
                         id: assignedVms.length===0 ? 1:(assignedVms[assignedVms.length - 1].id + 1),
                         name: Vmname,
@@ -75,20 +84,40 @@ interface CreateVmModalProps{
     onClose: () => void;
     onSubmit: (VmName: string, image: string) => void;
     images: image[]
+    errormessage?: string;
 }
 
-export const CreateVmModal: FC<CreateVmModalProps> = ({ isOpen, onClose, onSubmit, images }) => {
+export const CreateVmModal: FC<CreateVmModalProps> = ({ isOpen, onClose, onSubmit, images, errormessage }) => {
 
     const [VmName, setVmName] = useState<string>("");
     const [selectedImage, setSelectedImage] = useState<image>();
+    const [showError, setShowError] = useState<boolean>(false);
+
     const isCreateDisabled = !VmName.trim() || !selectedImage;
 
     useEffect(() => {
         if (!isOpen) {
             setSelectedImage(undefined);
             setVmName("");
+            setShowError(false);
         }
     }, [isOpen]);
+
+
+
+    
+    // Show error when errormessage changes and is not empty
+    useEffect(() => {
+        if (errormessage) {
+            setShowError(true);
+        }
+        }, [errormessage]);
+    
+    const handleSubmit = () => {
+        setShowError(true); // Trigger animation when clicking Create
+        onSubmit(VmName, selectedImage?.image || "");
+    };
+    
 
     return (
          <StandardModal className="w-96" title={"Create new Vm"} description={""} isOpen={isOpen}>
@@ -117,7 +146,17 @@ export const CreateVmModal: FC<CreateVmModalProps> = ({ isOpen, onClose, onSubmi
                             ))}
                         </MenuItems>
                     </Menu>
+                    
                 </div>
+                <div 
+                    className={`
+                        overflow-hidden transition-all duration-300 ease-in-out
+                        ${showError && errormessage ? 'max-h-20 opacity-100 py-2 px-4' : 'max-h-0 opacity-0'}
+                        bg-red-400 rounded-[8] text-font text-sm 
+                    `}
+                >
+                    {errormessage}
+                </div>             
 
                 <div className="flex w-full justify-between mt-2">
                 <div className="flex gap-4">
