@@ -170,6 +170,11 @@ function Classroom({ classrooms, setClassrooms }: ClassroomProps & { setClassroo
       setStudentModalOpen(true);
     } else {
       inputValue = inputValue.trim();
+      let names = inputValue.split(" ");
+      for (let i = 0; i < names.length; i++) {
+        names[i] = names[i].charAt(0).toUpperCase() + names[i].slice(1).toLowerCase();
+      }
+      inputValue = names.join(" ");
       addStudent(classid, inputValue);
       setStudentErrormessage(""); // Clear error on success
       setStudentModalOpen(false); // Close modal on success
