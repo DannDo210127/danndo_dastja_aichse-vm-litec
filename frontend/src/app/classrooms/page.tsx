@@ -377,7 +377,6 @@ export function StudentList({ students }: StudentListProps) {
 
 }
 
-
 // Modals for ClassroomHandling
 
 
@@ -412,16 +411,35 @@ export function ClassroomModal({isOpen, onClose, onSubmit, errormessage}: Classr
     }, [errormessage]);
 
     const handleSubmit = () => {
-        setShowError(true); // Trigger animation when clicking Create
+        if (isCreateDisabled) return;
+        setShowError(true);
         onSubmit(classroomName);
     };
+
+    // Handler for Enter key to submit the form
+    useEffect(() => {
+        const handleKeyDown = (e: KeyboardEvent) => {
+            if (e.key === "Enter") {
+                handleSubmit();
+            }else if(e.key === "Escape"){
+                onClose();
+            }
+        };
+
+        if (isOpen) {
+            document.addEventListener("keydown", handleKeyDown);
+        }
+
+        return () => {
+            document.removeEventListener("keydown", handleKeyDown);
+        };
+    }, [isOpen, classroomName, onClose]); // Add dependencies
 
     return (
         <StandardModal className="w-96" title={"Create Classroom"} description={""} isOpen={isOpen}>
             <div className="flex flex-col space-y-4 mt-4">
                 <StandardInput placeholder="Classname" onValueChange={(value: string) => setClassroomName(value)} />
                 
-                {/* Error message with smooth expand/collapse triggered by button click */}
                 <div 
                     className={`
                         overflow-hidden transition-all duration-300 ease-in-out
@@ -435,7 +453,7 @@ export function ClassroomModal({isOpen, onClose, onSubmit, errormessage}: Classr
                 <div className="flex w-full justify-between mt-2">
                     <div className="flex gap-4">
                         <StandardButton label="Cancel" onClick={onClose} className="px-6 py-3 bg-lightforeground" />
-                        <StandardButton label="Create" onClick={() => {handleSubmit();}} className="px-6 py-3 bg-lightforeground" disabled={isCreateDisabled} />
+                        <StandardButton label="Create" onClick={handleSubmit} className="px-6 py-3 bg-lightforeground" disabled={isCreateDisabled} />
                     </div>
                 </div>
             </div>
@@ -474,12 +492,10 @@ interface StudentModalProps {
 
 export function StudentModal({isOpen, onClose, onSubmit, errormessage}: StudentModalProps) {
     const [showError, setShowError] = useState<boolean>(false);
-
     const [studentName, setStudentName] = useState<string>("");
 
     const isCreateDisabled = studentName.trim() === "";
 
-     // Reset error visibility when modal closes
     useEffect(() => {
         if (!isOpen) {
             setShowError(false);
@@ -487,7 +503,6 @@ export function StudentModal({isOpen, onClose, onSubmit, errormessage}: StudentM
         }
     }, [isOpen]);
 
-    // Show error when errormessage changes and is not empty
     useEffect(() => {
         if (errormessage) {
             setShowError(true);
@@ -495,10 +510,29 @@ export function StudentModal({isOpen, onClose, onSubmit, errormessage}: StudentM
     }, [errormessage]);
 
     const handleSubmit = () => {
-        setShowError(true); // Trigger animation when clicking Create
+        if (isCreateDisabled) return;
+        setShowError(true);
         onSubmit(studentName);
     };
 
+    // Handler for Enter key to submit the form
+    useEffect(() => {
+        const handleKeyDown = (e: KeyboardEvent) => {
+            if (e.key === "Enter") {
+                handleSubmit();
+            } else if(e.key === "Escape"){
+                onClose();
+            }
+        };
+
+        if (isOpen) {
+            document.addEventListener("keydown", handleKeyDown);
+        }
+
+        return () => {
+            document.removeEventListener("keydown", handleKeyDown);
+        };
+    }, [isOpen, studentName, onClose]); 
 
     return (
         <StandardModal className="w-96" title={"Add Student"} description={"Enter student name:"} isOpen={isOpen}>
@@ -514,11 +548,10 @@ export function StudentModal({isOpen, onClose, onSubmit, errormessage}: StudentM
                     {errormessage}
                 </div>              
                 <div className="flex w-full justify-between mt-2">
-                <div className="flex gap-4">
-                    <StandardButton label="Cancel" onClick={onClose} className="px-6 py-3 bg-lightforeground" />
-                    <StandardButton label="Create" onClick={() => handleSubmit()} className="px-6 py-3 bg-lightforeground" disabled={isCreateDisabled} />
-                </div>
-
+                    <div className="flex gap-4">
+                        <StandardButton label="Cancel" onClick={onClose} className="px-6 py-3 bg-lightforeground" />
+                        <StandardButton label="Create" onClick={handleSubmit} className="px-6 py-3 bg-lightforeground" disabled={isCreateDisabled} />
+                    </div>
                 </div>
             </div>
         </StandardModal>
@@ -536,10 +569,11 @@ interface DeleteStudentModalProps {
 
 
 export function DeleteStudentModal({ isOpen, onClose, onSubmit }: DeleteStudentModalProps) {
+
+
     return (
-       <ConfirmModal title={"Delete Student"} description={"Are you sure you want to delete this student? This action cannot be undone."} isOpen={isOpen} onClose={onClose} onConfirm={() => onSubmit()} />
+        <ConfirmModal title={"Delete Student"} description={"Are you sure you want to delete this student? This action cannot be undone."} isOpen={isOpen} onClose={onClose} onConfirm={() => onSubmit()} />    
     )
+
 }
-
-
 

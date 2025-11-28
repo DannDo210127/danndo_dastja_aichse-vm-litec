@@ -5,20 +5,20 @@ import * as React from 'react';
 
 export default function SettingsPage() {
 
-    const [isDarkMode, setDarkMode] = React.useState<boolean>(document.documentElement.getAttribute("data-theme") === "dark");
+    const [isDarkMode, setDarkMode] = React.useState<boolean>(false); // Initialize with false
 
     React.useEffect(() => {
         const savedTheme = localStorage.getItem('theme') || 'light';
         const isDark = savedTheme === 'dark';
         setDarkMode(isDark);
         document.documentElement.setAttribute("data-theme", savedTheme);
-        localStorage.setItem('theme', savedTheme);
     }, []);
 
     const toggleDarkMode = (checked: boolean) => {
         const newTheme = checked ? 'dark' : 'light';
         setDarkMode(checked);
         document.documentElement.setAttribute("data-theme", newTheme);
+        localStorage.setItem('theme', newTheme); // Save to localStorage
     };
 
     return (

@@ -14,6 +14,8 @@ const StandardModal: FC<StandardModalProps> = ({ title, description, isOpen, chi
         return null;
     }
 
+    
+
     return createPortal(
         <Fragment>
             {isOpen ? 
