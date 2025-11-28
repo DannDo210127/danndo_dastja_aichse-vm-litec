@@ -10,7 +10,7 @@
 		"build": "tsc",
 		"start": "node dist/server.js",
 		"watch": "tsc --watch",
-		"dev": "nodemon --watch ./dist --exec 'node ./dist/server.js'",
+		"dev": "nodemon --watch ./dist --exec \"node ./dist/server.js\"",
 		"lint": "eslint 'src/**/*.ts'"
 	},
 	"dependencies": {
