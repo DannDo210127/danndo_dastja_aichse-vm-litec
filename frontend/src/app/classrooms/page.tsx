@@ -416,6 +416,13 @@ export function ClassroomModal({isOpen, onClose, onSubmit, errormessage}: Classr
         onSubmit(classroomName);
     };
 
+    useEffect(() => {
+        if (isOpen) {
+          document.getElementsByName("StandardInput")[0]?.focus();
+        }
+      }, [isOpen]);
+    
+
     // Handler for Enter key to submit the form
     useEffect(() => {
         const handleKeyDown = (e: KeyboardEvent) => {
@@ -438,7 +445,7 @@ export function ClassroomModal({isOpen, onClose, onSubmit, errormessage}: Classr
     return (
         <StandardModal className="w-96" title={"Create Classroom"} description={""} isOpen={isOpen}>
             <div className="flex flex-col space-y-4 mt-4">
-                <StandardInput placeholder="Classname" onValueChange={(value: string) => setClassroomName(value)} />
+                <StandardInput  placeholder="Classname" onValueChange={(value: string) => setClassroomName(value)} />
                 
                 <div 
                     className={`

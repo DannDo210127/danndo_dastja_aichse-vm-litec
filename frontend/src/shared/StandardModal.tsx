@@ -1,4 +1,4 @@
-import { FC, Fragment } from "react";
+import { FC, Fragment, useEffect } from "react";
 import { createPortal } from "react-dom";
 
 interface StandardModalProps {
@@ -13,8 +13,6 @@ const StandardModal: FC<StandardModalProps> = ({ title, description, isOpen, chi
     if (typeof window === "undefined") {
         return null;
     }
-
-    
 
     return createPortal(
         <Fragment>
