@@ -5,6 +5,8 @@ import { FC, useEffect, useState } from "react";
 import { StandardInput } from "@/shared/StandardInput";
 import StandardModal from "@/shared/StandardModal";
 import { ConfirmModal } from "@/shared/ConfirmModal";
+import { useMutation, useQuery } from "@tanstack/react-query";
+import { getAllClassrooms, getAllStudentsInClassroom, removeStudentFromClassroom } from "@/api/classroom";
 
 export default function ClassroomPage(){
 
@@ -139,7 +141,7 @@ interface ClassroomProps {
   classrooms: Classroom[];
 }
 
-function Classroom({ classrooms, setClassrooms }: ClassroomProps & { setClassrooms: React.Dispatch<React.SetStateAction<Classroom[]>> }) {
+function Classroom({ classrooms: _classrooms, setClassrooms }: ClassroomProps & { setClassrooms: React.Dispatch<React.SetStateAction<Classroom[]>> }) {
 
   const [openClassroomIds, setOpenClassroomIds] = useState<number[]>([]);
   console.log("open classrooms at start", openClassroomIds);
@@ -160,75 +162,79 @@ function Classroom({ classrooms, setClassrooms }: ClassroomProps & { setClassroo
   const [studentErrormessage, setStudentErrormessage] = useState<string>("");
 
 
-  const handleStudentSubmit = (classid: number, inputValue: string) => {
-    setStudentErrormessage(""); // Reset error at start
+  //const handleStudentSubmit = (classid: number, inputValue: string) => {
+    //setStudentErrormessage(""); // Reset error at start
     
-    const exists = classrooms[classid].students.some((student: Student) => student.name.toLowerCase() === inputValue.toLowerCase());
+    //const exists = classrooms[classid].students.some((student: Student) => student.name.toLowerCase() === inputValue.toLowerCase());
 
-    if(exists){
-      setStudentErrormessage("Student with this name already exists!");
-      setStudentModalOpen(true);
-    } else {
-      inputValue = inputValue.trim();
-      let names = inputValue.split(" ");
-      for (let i = 0; i < names.length; i++) {
-        names[i] = names[i].charAt(0).toUpperCase() + names[i].slice(1).toLowerCase();
-      }
-      inputValue = names.join(" ");
-      addStudent(classid, inputValue);
-      setStudentErrormessage(""); // Clear error on success
-      setStudentModalOpen(false); // Close modal on success
-      setStudentModalClassroomId(null);
-    }
-  };
+    //if(exists){
+      //setStudentErrormessage("Student with this name already exists!");
+      //setStudentModalOpen(true);
+    //} else {
+      //inputValue = inputValue.trim();
+      //let names = inputValue.split(" ");
+      //for (let i = 0; i < names.length; i++) {
+        //names[i] = names[i].charAt(0).toUpperCase() + names[i].slice(1).toLowerCase();
+      //}
+      //inputValue = names.join(" ");
+      //addStudent(classid, inputValue);
+      //setStudentErrormessage(""); // Clear error on success
+      //setStudentModalOpen(false); // Close modal on success
+      //setStudentModalClassroomId(null);
+    //}
+  //};
 
 
-  const addStudent = (classroomIndex: number, name: string) => {
-    const classroom = classrooms[classroomIndex];
+  //const addStudent = (classroomIndex: number, name: string) => {
+    //const classroom = classrooms[classroomIndex];
     
-    const newStudent: Student = {
-      id: classroom.students.length > 0 
-        ? Math.max(...classroom.students.map(s => s.id)) + 1 
-        : 1,
-      name,
-      assignedVM: { 
-        id: classroom.students.length > 0 
-          ? Math.max(...classroom.students.map(s => s.assignedVM?.id || 0)) + 1 
-          : 201, 
-        name: "debian", 
-        state: "stopped" 
-      },
-    };
+    //const newStudent: Student = {
+      //id: classroom.students.length > 0 
+        //? Math.max(...classroom.students.map(s => s.id)) + 1 
+        //: 1,
+      //name,
+      //assignedVM: { 
+        //id: classroom.students.length > 0 
+          //? Math.max(...classroom.students.map(s => s.assignedVM?.id || 0)) + 1 
+          //: 201, 
+        //name: "debian", 
+        //state: "stopped" 
+      //},
+    //};
     
-    // Use setClassrooms to properly update state (don't mutate directly)
-    setClassrooms((prev) => {
-      const updated = [...prev];
-      updated[classroomIndex] = {
-        ...updated[classroomIndex],
-        students: [...updated[classroomIndex].students, newStudent]
-      };
-      return updated;
-    });
+    //// Use setClassrooms to properly update state (don't mutate directly)
+    //setClassrooms((prev) => {
+      //const updated = [...prev];
+      //updated[classroomIndex] = {
+        //...updated[classroomIndex],
+        //students: [...updated[classroomIndex].students, newStudent]
+      //};
+      //return updated;
+    //});
     
-    // Open the classroom if it's not already open
-    if(!openClassroomIds.includes(classroom.id)){
-      toggleClassroom(classroom.id);
-    } 
-};
+    //// Open the classroom if it's not already open
+    //if(!openClassroomIds.includes(classroom.id)){
+      //toggleClassroom(classroom.id);
+    //} 
+//};
     
 
   
   const [isDeleteClassroomModalOpen, setDeleteClassroomModalOpen] = useState(false);
   const [deleteClassroomId, setDeleteClassroomId] = useState<number | null>(null);
 
-  const handleDeleteClassroom = (index: number) => {
-    classrooms.splice(index, 1);
-  };
+  //const handleDeleteClassroom = (index: number) => {
+    //classrooms.splice(index, 1);
+  //};
   
+  const classrooms = useQuery({
+    queryKey: ['classrooms'],
+    queryFn: () => getAllClassrooms(),
+  });
 
   return (
     <div className="p-8 space-y-4 overflow-y-auto flex-1 max-h-[calc(100vh-10rem)]">
-      {classrooms.map((classroom, index) => {
+      {classrooms.data?.map((classroom: any, index: number) => {
         const isOpen = openClassroomIds.includes(classroom.id);
       
         return (
@@ -258,12 +264,7 @@ function Classroom({ classrooms, setClassrooms }: ClassroomProps & { setClassroo
             {/* Dropdown / Collapsible Section */}
             {isOpen && (
               <div className="p-4 transition-all duration-300">
-                {classroom.students.length > 0 ? (
-
-                  <StudentList students={classroom.students}></StudentList>
-                ) : (
-                  <p className="text-sm text-font">No students yet.</p>
-                )}
+                  <StudentList classroomId={classroom.id}></StudentList>
               </div>
             )}
       
@@ -326,35 +327,44 @@ export function ClassButton({
 
 
 interface StudentListProps {
-   students: Student[];
+  classroomId?: number;
 }
 
-export function StudentList({ students }: StudentListProps) {
+export function StudentList({ classroomId }: StudentListProps) {
 
   const [isDeleteStudentModalOpen, setDeleteStudentModalOpen] = useState(false);
   const [deleteStudentId, setDeleteStudentId] = useState<number | null>(null);
 
 
-  const handleDeleteStudent = (studentId: number) => {
-    if(students.includes(students[studentId]) === false){
-    }else{
-      students.splice(studentId, 1);
-    }
-  };
+  const students = useQuery({
+    queryKey: ['students', classroomId],
+    queryFn: () => getAllStudentsInClassroom(classroomId!),
+  })
+
+  const removeStudent = useMutation({
+    mutationFn: (studentId: number) => {
+      return removeStudentFromClassroom(classroomId!, studentId);
+    },}
+    
+  )
+  
     return (
         <ul className="space-y-2">
-            {students.map((student, index) => (
+            {students.isLoading && <div>Loading...</div>}
+            {students.data?.length <= 0 && <div>No students found.</div>}
+            {students.data?.map((student: any, index: number) => (
                 <li
                     key={student.id}
                     className="flex justify-between items-center px-3 py-2 bg-background rounded-[8]"
                 >
+
                     <div className="flex flex-row w-full">
                         <div className="flex flex-row w-fit items-center">
                             <Icon iconNode={[]} className="w-fit size-6"><User /></Icon>
-                            <span className="ml-3">{student.name}</span>
+                            <span className="ml-3">{student.user.firstName} {student.user.lastName}</span>
                         </div>
                         <div className="flex flex-row grow justify-end items-center">
-                            <button className="w-fit ml-4 size-8 rounded-[8] bg-background hover:bg-secondary" onClick={() => {setDeleteStudentId(index);setDeleteStudentModalOpen(true);}}>
+                            <button className="w-fit ml-4 size-8 rounded-[8] bg-background hover:bg-secondary" onClick={() => {setDeleteStudentId(student.user.id);setDeleteStudentModalOpen(true);}}>
                               <Trash2 className="size-6"/>
                             </button>
                         </div>
@@ -362,10 +372,8 @@ export function StudentList({ students }: StudentListProps) {
             </li>
             ))}
              <DeleteStudentModal isOpen={isDeleteStudentModalOpen} onClose={() => setDeleteStudentModalOpen(false)} onSubmit={() => {
-                    if (deleteStudentId !== null) {
-                      handleDeleteStudent(deleteStudentId);
-                    }
                     setDeleteStudentModalOpen(false);
+                    removeStudent.mutate(deleteStudentId!);
                     setDeleteStudentId(null);
             }} />
         </ul>
@@ -537,7 +545,7 @@ interface DeleteStudentModalProps {
 
 export function DeleteStudentModal({ isOpen, onClose, onSubmit }: DeleteStudentModalProps) {
     return (
-       <ConfirmModal title={"Delete Student"} description={"Are you sure you want to delete this student? This action cannot be undone."} isOpen={isOpen} onClose={onClose} onConfirm={() => onSubmit()} />
+       <ConfirmModal title={"Remove student from classroom"} description={"Are you sure you want to remove this student from the classroom?"} isOpen={isOpen} onClose={onClose} onConfirm={() => onSubmit()} />
     )
 }
 
