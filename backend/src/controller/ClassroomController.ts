@@ -39,7 +39,7 @@ export const addStudentToClassroom: RequestHandler = async (req, res) => {
 
 export const removeStudentFromClassroom: RequestHandler = async (req, res) => {
     const classroomId = Number(req.params.classroomId);
-    const userId = req.body.userId;
+    const userId = Number(req.params.userId);
 
     await prisma.classroomUser.delete({
         where: {

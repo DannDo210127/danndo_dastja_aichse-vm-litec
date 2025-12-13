@@ -7,8 +7,8 @@ const ClassroomRouter = Router();
 ClassroomRouter.post('/new', isAuthenticated, createClassroom);
 ClassroomRouter.get('/', isAuthenticated, getAllClassrooms);
 ClassroomRouter.post('/:classroomId/add', isAuthenticated, addStudentToClassroom);
-ClassroomRouter.delete('/:classroomId/', isAuthenticated, removeStudentFromClassroom)
 ClassroomRouter.get('/:classroomId/students', isAuthenticated, getAllStudentsInClassroom);
-ClassroomRouter.delete('/:classroomId', isAuthenticated, deleteClassroom)
+ClassroomRouter.delete('/delete/:classroomId', isAuthenticated, deleteClassroom);
+ClassroomRouter.delete('/:classroomId/:studentId', isAuthenticated, removeStudentFromClassroom);
 
 export default ClassroomRouter;

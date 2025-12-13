@@ -53,7 +53,7 @@ model Classroom {
 model ClassroomUser {
   id          Int       @id @default(autoincrement())
   classroomId Int
-  classroom   Classroom @relation(fields: [classroomId], references: [id])
+  classroom   Classroom @relation(fields: [classroomId], references: [id], onDelete: Cascade)
   userId      Int
   user        User      @relation("UserClassrooms", fields: [userId], references: [id])
   @@unique([classroomId, userId])

@@ -5,63 +5,8 @@ import { FC, useEffect, useState } from "react";
 import { StandardInput } from "@/shared/StandardInput";
 import StandardModal from "@/shared/StandardModal";
 import { ConfirmModal } from "@/shared/ConfirmModal";
-import { useMutation, useQuery } from "@tanstack/react-query";
-import { getAllClassrooms, getAllStudentsInClassroom, removeStudentFromClassroom } from "@/api/classroom";
-
-export default function ClassroomPage(){
-
-
-    const [classrooms, setClassrooms] = useState<Classroom[]>(classroomsData);
-
-    // errormessage for create-classroom modal
-    const [classroomErrormessage, setClassroomErrormessage] = useState<string>("");
-    
-    const addClassroom = (name: string) => {
-      const newClassroom: Classroom = {
-        id: classrooms.length + 1,
-        name,
-        students: [],
-      };
-      setClassrooms((prev) => [...prev, newClassroom]);
-    };
-
-    const handleClassroomSubmit = (inputValue: string) => {
-          setClassroomErrormessage("");
-         
-        const exists = classrooms.some(classroom => classroom.name.toLowerCase() === inputValue.toLowerCase());
-        if(exists){
-          setClassroomErrormessage("Classroom with this name already exists!");
-          setClassroomModalOpen(true);
-        }else{
-          inputValue = inputValue.trim();
-          inputValue = inputValue.toUpperCase();
-          addClassroom(inputValue);
-          setClassroomErrormessage("");
-          setClassroomModalOpen(false);
-        }
-    };
-
-
-    const [isClassroomModalOpen, setClassroomModalOpen] = useState(false);
-
-    return (
-           <div className="flex flex-col m-20 w-8/10 h-8/10 rounded-[8] bg-background">
-               <div className="flex flex-row justify-between w-full h-1/12 bg-background border-b-2 border-lightforeground items-center">
-                    <h2 className="m-5 p-2 text-2xl font-bold">Your Classrooms</h2>
-                    <StandardButton label="Create Classroom" onClick={() => {setClassroomModalOpen(true)}} className=" px-4 ml-8 bg-lightforeground drop-shadow-sm p-2.5! hover:bg-contrast! hover:scale-105 transition-all hover:text-background">
-                        <PlusIcon className="size-6 mr-1" />
-                    </StandardButton>
-               </div>
-                <Classroom classrooms={classrooms} setClassrooms={setClassrooms}/>
-               <ClassroomModal errormessage={classroomErrormessage} isOpen={isClassroomModalOpen} onClose={() => {setClassroomModalOpen(false);}} onSubmit={(value) => {handleClassroomSubmit(value);}} />
-
-           </div>
-
-           
-       )
-}
-
-
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { createClassroom, deleteClassroom, getAllClassrooms, getAllStudentsInClassroom, removeStudentFromClassroom } from "@/api/classroom";
 
 interface Student {
   id: number;
@@ -73,75 +18,100 @@ interface Student {
   };
 }
 
-
-
 interface Classroom {
   id: number;
   name: string;
   students: Student[];
 }
 
-const classroomsData: Classroom[] = [
-  {
-    id: 1,
-    name: "5AHIT",
-    students:[
-      {
-        id: 1,
-        name: "Alice Müller",
-        assignedVM: { id: 201, name: "debian", state: "stopped" },
-      },
-      {
-        id: 2,
-        name: "Ben Schmidt",
-        assignedVM: { id: 202, name: "debian", state: "stopped" },
-      },
-      {
-        id: 3,
-        name: "Carla Novak",
-        assignedVM: { id: 203, name: "debian", state: "stopped" },
-      },
-      {
-        id: 4,
-        name: "Daniel Rossi",
-        assignedVM: { id: 204, name: "debian", state: "stopped" },
-      },
-      {
-        id: 5,
-        name: "Elena García",
-        assignedVM: { id: 204, name: "debian", state: "stopped" },
-      },
-      {
-        id: 6,
-        name: "Filip Nowak",
-        assignedVM: { id: 205, name: "debian", state: "stopped" },
-      },
-      {
-        id: 7,
-        name: "Greta Svensson",
-        assignedVM: { id: 206, name: "debian", state: "stopped" },
-      },
-      {
-        id: 8,
-        name: "Hugo Dubois",
-        assignedVM: { id: 205, name: "debian", state: "stopped" },
-      }
-    
 
-    ],
-  },
-  {
-    id: 2,
-    name: "4BHIT",
-    students: [],
-  },
-];
+
+export default function ClassroomPage(){
+    const [isClassroomModalOpen, setClassroomModalOpen] = useState(false);
+
+
+    const classrooms = useQuery({
+      queryKey: ['classrooms'],
+      queryFn: () => getAllClassrooms(),
+    });
+
+    const queryClient = useQueryClient();
+
+
+    const createClassroomMutation = useMutation({
+      mutationFn: (name: string) => createClassroom(name, ""),
+      onSuccess: () => {
+        // React Query will auto-refetch
+        queryClient.invalidateQueries({ queryKey: ['classrooms'] });
+        setClassroomModalOpen(false);
+      }
+    });
+
+    const deleteClassroomMutation = useMutation({
+      mutationFn: (classroomId: number) => deleteClassroom(classroomId),
+      onSuccess: () => {
+        queryClient.invalidateQueries({ queryKey: ['classrooms'] });
+      }
+    });
+
+  
+
+
+
+    // errormessage for create-classroom modal
+    const [classroomErrormessage, setClassroomErrormessage] = useState<string>("");
+    
+    const handleAddClassroom = (name: string) => {
+      createClassroomMutation.mutate(name);
+    };
+
+    const handleClassroomSubmit = (inputValue: string) => {
+          setClassroomErrormessage("");
+         
+        const exists = classrooms.data?.some((classroom: { name: string; }) => classroom.name.toLowerCase() === inputValue.toLowerCase());
+        if(exists){
+          setClassroomErrormessage("Classroom with this name already exists!");
+          setClassroomModalOpen(true);
+        }else{
+          inputValue = inputValue.trim();
+          inputValue = inputValue.toUpperCase();
+          handleAddClassroom(inputValue);
+          setClassroomErrormessage("");
+        }
+    };
+
+
+
+    return (
+           <div className="flex flex-col m-20 w-8/10 h-8/10 rounded-[8] bg-background">
+               <div className="flex flex-row justify-between w-full h-1/12 bg-background border-b-2 border-lightforeground items-center">
+                    <h2 className="m-5 p-2 text-2xl font-bold">Your Classrooms</h2>
+                    <StandardButton label="Create Classroom" onClick={() => {setClassroomModalOpen(true)}} className=" px-4 ml-8 bg-lightforeground drop-shadow-sm p-2.5! hover:bg-contrast! hover:scale-105 transition-all hover:text-background">
+                        <PlusIcon className="size-6 mr-1" />
+                    </StandardButton>
+               </div>
+                <Classroom classrooms={classrooms.data || []} setClassrooms={() => {}} deleteClassroomMutation={deleteClassroomMutation}/>
+               <ClassroomModal errormessage={classroomErrormessage} isOpen={isClassroomModalOpen} onClose={() => {setClassroomModalOpen(false);}} onSubmit={(value) => {handleClassroomSubmit(value);}} />
+
+           </div>
+
+           
+       )
+}
+
+
+
+
+
+
+
 
 interface ClassroomProps {
   classrooms: Classroom[];
+  deleteClassroomMutation: any;
 }
 
-function Classroom({ classrooms: _classrooms, setClassrooms }: ClassroomProps & { setClassrooms: React.Dispatch<React.SetStateAction<Classroom[]>> }) {
+function Classroom({ classrooms: _classrooms, setClassrooms, deleteClassroomMutation }: ClassroomProps & { setClassrooms: React.Dispatch<React.SetStateAction<Classroom[]>> }) {
 
   const [openClassroomIds, setOpenClassroomIds] = useState<number[]>([]);
   console.log("open classrooms at start", openClassroomIds);
@@ -152,9 +122,8 @@ function Classroom({ classrooms: _classrooms, setClassrooms }: ClassroomProps & 
     );
   };
 
-  
-
- 
+  const [isDeleteClassroomModalOpen, setDeleteClassroomModalOpen] = useState(false);
+  const [deleteClassroomId, setDeleteClassroomId] = useState<number | null>(null);
 
 
   const [isStudentModalOpen, setStudentModalOpen] = useState(false);
@@ -162,81 +131,77 @@ function Classroom({ classrooms: _classrooms, setClassrooms }: ClassroomProps & 
   const [studentErrormessage, setStudentErrormessage] = useState<string>("");
 
 
-  //const handleStudentSubmit = (classid: number, inputValue: string) => {
-    //setStudentErrormessage(""); // Reset error at start
+  const handleStudentSubmit = (classid: number, inputValue: string) => {
+    setStudentErrormessage(""); // Reset error at start
     
-    //const exists = classrooms[classid].students.some((student: Student) => student.name.toLowerCase() === inputValue.toLowerCase());
+    const exists = _classrooms[classid].students.some((student: Student) => student.name.toLowerCase() === inputValue.toLowerCase());
 
-    //if(exists){
-      //setStudentErrormessage("Student with this name already exists!");
-      //setStudentModalOpen(true);
-    //} else {
-      //inputValue = inputValue.trim();
-      //let names = inputValue.split(" ");
-      //for (let i = 0; i < names.length; i++) {
-        //names[i] = names[i].charAt(0).toUpperCase() + names[i].slice(1).toLowerCase();
-      //}
-      //inputValue = names.join(" ");
-      //addStudent(classid, inputValue);
-      //setStudentErrormessage(""); // Clear error on success
-      //setStudentModalOpen(false); // Close modal on success
-      //setStudentModalClassroomId(null);
-    //}
-  //};
+    if(exists){
+      setStudentErrormessage("Student with this name already exists!");
+      setStudentModalOpen(true);
+    } else {
+      inputValue = inputValue.trim();
+      let names = inputValue.split(" ");
+      for (let i = 0; i < names.length; i++) {
+        names[i] = names[i].charAt(0).toUpperCase() + names[i].slice(1).toLowerCase();
+      }
+      inputValue = names.join(" ");
+      addStudent(classid, inputValue);
+      setStudentErrormessage(""); // Clear error on success
+      setStudentModalOpen(false); // Close modal on success
+      setStudentModalClassroomId(null);
+    }
+  };
 
 
-  //const addStudent = (classroomIndex: number, name: string) => {
-    //const classroom = classrooms[classroomIndex];
+  const addStudent = (classroomIndex: number, name: string) => {
+    const classroom = _classrooms[classroomIndex];
     
-    //const newStudent: Student = {
-      //id: classroom.students.length > 0 
-        //? Math.max(...classroom.students.map(s => s.id)) + 1 
-        //: 1,
-      //name,
-      //assignedVM: { 
-        //id: classroom.students.length > 0 
-          //? Math.max(...classroom.students.map(s => s.assignedVM?.id || 0)) + 1 
-          //: 201, 
-        //name: "debian", 
-        //state: "stopped" 
-      //},
-    //};
+    const newStudent: Student = {
+      id: classroom.students.length > 0 
+        ? Math.max(...classroom.students.map(s => s.id)) + 1 
+        : 1,
+      name,
+      assignedVM: { 
+        id: classroom.students.length > 0 
+          ? Math.max(...classroom.students.map(s => s.assignedVM?.id || 0)) + 1 
+          : 201, 
+        name: "debian", 
+        state: "stopped" 
+      },
+    };
     
-    //// Use setClassrooms to properly update state (don't mutate directly)
-    //setClassrooms((prev) => {
-      //const updated = [...prev];
-      //updated[classroomIndex] = {
-        //...updated[classroomIndex],
-        //students: [...updated[classroomIndex].students, newStudent]
-      //};
-      //return updated;
-    //});
+    // Use setClassrooms to properly update state (don't mutate directly)
+    setClassrooms((prev) => {
+      const updated = [...prev];
+      updated[classroomIndex] = {
+        ...updated[classroomIndex],
+        students: [...updated[classroomIndex].students, newStudent]
+      };
+      return updated;
+    });
     
-    //// Open the classroom if it's not already open
-    //if(!openClassroomIds.includes(classroom.id)){
-      //toggleClassroom(classroom.id);
-    //} 
-//};
+    // Open the classroom if it's not already open
+    if(!openClassroomIds.includes(classroom.id)){
+      toggleClassroom(classroom.id);
+    }
+  };
     
 
   
-  const [isDeleteClassroomModalOpen, setDeleteClassroomModalOpen] = useState(false);
-  const [deleteClassroomId, setDeleteClassroomId] = useState<number | null>(null);
 
-  //const handleDeleteClassroom = (index: number) => {
-    //classrooms.splice(index, 1);
-  //};
+
+  const handleDeleteClassroom = (index: number) => {
+      deleteClassroomMutation.mutate(_classrooms[index].id);
+  };
   
-  const classrooms = useQuery({
-    queryKey: ['classrooms'],
-    queryFn: () => getAllClassrooms(),
-  });
+  
 
   return (
     <div className="p-8 space-y-4 overflow-y-auto flex-1 max-h-[calc(100vh-10rem)]">
-      {classrooms.data?.map((classroom: any, index: number) => {
+      {_classrooms.map((classroom: any, index: number) => {
         const isOpen = openClassroomIds.includes(classroom.id);
-      
+        
         return (
           <div key={classroom.id} className="rounded-[8] bg-background border-2 border-lightforeground drop-shadow-sm">
             {/* Header */}

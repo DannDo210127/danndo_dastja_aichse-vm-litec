@@ -1,6 +1,6 @@
 import express from 'express';
 import config from './config/config';
-import { PrismaClient } from '../generated/prisma/client';
+import { PrismaClient } from '../generated/client';
 
 import AuthentificationRouter from './routes/authentification';
 import UserRouter from './routes/user';
