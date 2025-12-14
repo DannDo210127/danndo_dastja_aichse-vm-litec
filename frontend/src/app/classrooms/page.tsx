@@ -6,7 +6,7 @@ import { StandardInput } from "@/shared/StandardInput";
 import StandardModal from "@/shared/StandardModal";
 import { ConfirmModal } from "@/shared/ConfirmModal";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { createClassroom, deleteClassroom, getAllClassrooms, getAllStudentsInClassroom, removeStudentFromClassroom } from "@/api/classroom";
+import { addStudentToClassroom, createClassroom, deleteClassroom, getAllClassrooms, getAllStudentsInClassroom, removeStudentFromClassroom } from "@/api/classroom";
 
 interface Student {
   id: number;
@@ -153,6 +153,16 @@ function Classroom({ classrooms: _classrooms, setClassrooms, deleteClassroomMuta
     }
   };
 
+  const queryClient = useQueryClient();
+
+  const addStudentToClassroomMutation = useMutation({
+    mutationFn: ({ classroomId, userId }: { classroomId: number; userId: number }) => {
+      return addStudentToClassroom(classroomId, userId);
+    },                                                        //TODO: implement feature when backend search function is ready
+    onSuccess:()=>{
+      queryClient.invalidateQueries({ queryKey: ['classrooms'] });
+    }    
+  });
 
   const addStudent = (classroomIndex: number, name: string) => {
     const classroom = _classrooms[classroomIndex];
@@ -307,17 +317,19 @@ export function StudentList({ classroomId }: StudentListProps) {
   })
 
   const removeStudent = useMutation({
-    mutationFn: (studentId: number) => {
-      return removeStudentFromClassroom(classroomId!, studentId);
-    },}
-    
-  )
+    mutationFn: (userId: number) => {
+      return removeStudentFromClassroom(classroomId!, userId);
+    },
+    onSuccess:()=>{
+      students.refetch();
+    }});
   
     return (
         <ul className="space-y-2">
             {students.isLoading && <div>Loading...</div>}
-            {students.data?.length <= 0 && <div>No students found.</div>}
-            {students.data?.map((student: any, index: number) => (
+            {students.data?.length <= 0 ? 
+            <div>No students found.</div> : 
+            students.data?.map((student: any, index: number) => (
                 <li
                     key={student.id}
                     className="flex justify-between items-center px-3 py-2 bg-background rounded-[8]"
@@ -335,7 +347,8 @@ export function StudentList({ classroomId }: StudentListProps) {
                         </div>
                     </div>
             </li>
-            ))}
+            ))
+            }
              <DeleteStudentModal isOpen={isDeleteStudentModalOpen} onClose={() => setDeleteStudentModalOpen(false)} onSubmit={() => {
                     setDeleteStudentModalOpen(false);
                     removeStudent.mutate(deleteStudentId!);

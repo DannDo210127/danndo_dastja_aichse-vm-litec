@@ -9,6 +9,6 @@ ClassroomRouter.get('/', isAuthenticated, getAllClassrooms);
 ClassroomRouter.post('/:classroomId/add', isAuthenticated, addStudentToClassroom);
 ClassroomRouter.get('/:classroomId/students', isAuthenticated, getAllStudentsInClassroom);
 ClassroomRouter.delete('/delete/:classroomId', isAuthenticated, deleteClassroom);
-ClassroomRouter.delete('/:classroomId/:studentId', isAuthenticated, removeStudentFromClassroom);
+ClassroomRouter.delete('/:classroomId/:userId', isAuthenticated, removeStudentFromClassroom);
 
 export default ClassroomRouter;

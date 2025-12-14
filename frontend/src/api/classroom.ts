@@ -35,4 +35,13 @@ const removeStudentFromClassroom = async (classroomId: number, userId: number) =
     return response.data;
 }
 
-export { createClassroom, deleteClassroom, getAllClassrooms, getAllStudentsInClassroom, removeStudentFromClassroom }; 
+const addStudentToClassroom = async (classroomId: number, userId: number) => {
+    const response = await api.post(`/classroom/${classroomId}/add`,
+        { userId },
+        { withCredentials: true }
+    );
+    return response.data;
+    //TODO: implememnt feature when backend search function is ready
+}
+
+export { createClassroom, deleteClassroom, getAllClassrooms, getAllStudentsInClassroom, addStudentToClassroom, removeStudentFromClassroom }; 
