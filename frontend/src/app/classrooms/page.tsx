@@ -1,12 +1,13 @@
 'use client'
 import { StandardButton } from "@/shared/StandardButton"
 import { ChevronDown, ChevronUp, ComputerIcon, Icon, Pause, Play, PlusIcon, Trash2, Trash2Icon, User } from "lucide-react";
-import { FC, useEffect, useState } from "react";
+import { FC, Suspense, useEffect, useState } from "react";
 import { StandardInput } from "@/shared/StandardInput";
 import StandardModal from "@/shared/StandardModal";
 import { ConfirmModal } from "@/shared/ConfirmModal";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { addStudentToClassroom, createClassroom, deleteClassroom, getAllClassrooms, getAllStudentsInClassroom, removeStudentFromClassroom } from "@/api/classroom";
+import { LoadingScreen } from "@/shared/LoadingScreen";
 
 interface Student {
   id: number;
@@ -24,6 +25,8 @@ interface Classroom {
   students: Student[];
 }
 
+// global loading variable
+var isLoading = false;
 
 
 export default function ClassroomPage(){
@@ -33,16 +36,16 @@ export default function ClassroomPage(){
     const classrooms = useQuery({
       queryKey: ['classrooms'],
       queryFn: () => getAllClassrooms(),
+      
     });
 
-    const queryClient = useQueryClient();
+
 
 
     const createClassroomMutation = useMutation({
       mutationFn: (name: string) => createClassroom(name, ""),
       onSuccess: () => {
-        // React Query will auto-refetch
-        queryClient.invalidateQueries({ queryKey: ['classrooms'] });
+        classrooms.refetch();
         setClassroomModalOpen(false);
       }
     });
@@ -50,7 +53,7 @@ export default function ClassroomPage(){
     const deleteClassroomMutation = useMutation({
       mutationFn: (classroomId: number) => deleteClassroom(classroomId),
       onSuccess: () => {
-        queryClient.invalidateQueries({ queryKey: ['classrooms'] });
+        classrooms.refetch();
       }
     });
 
@@ -77,12 +80,13 @@ export default function ClassroomPage(){
           inputValue = inputValue.toUpperCase();
           handleAddClassroom(inputValue);
           setClassroomErrormessage("");
+          
         }
     };
 
 
-
     return (
+         classrooms.isFetching ? <LoadingScreen /> : 
            <div className="flex flex-col m-20 w-8/10 h-8/10 rounded-[8] bg-background">
                <div className="flex flex-row justify-between w-full h-1/12 bg-background border-b-2 border-lightforeground items-center">
                     <h2 className="m-5 p-2 text-2xl font-bold">Your Classrooms</h2>
@@ -91,12 +95,11 @@ export default function ClassroomPage(){
                     </StandardButton>
                </div>
                 <Classroom classrooms={classrooms.data || []} setClassrooms={() => {}} deleteClassroomMutation={deleteClassroomMutation}/>
-               <ClassroomModal errormessage={classroomErrormessage} isOpen={isClassroomModalOpen} onClose={() => {setClassroomModalOpen(false);}} onSubmit={(value) => {handleClassroomSubmit(value);}} />
+               <ClassroomModal errormessage={classroomErrormessage} isOpen={isClassroomModalOpen} onClose={() => {setClassroomModalOpen(false);}} onSubmit={(value) => {handleClassroomSubmit(value);}} isLoading={createClassroomMutation.isPending} />
 
            </div>
-
-           
-       )
+          
+      )
 }
 
 
@@ -160,7 +163,8 @@ function Classroom({ classrooms: _classrooms, setClassrooms, deleteClassroomMuta
       return addStudentToClassroom(classroomId, userId);
     },                                                        //TODO: implement feature when backend search function is ready
     onSuccess:()=>{
-      queryClient.invalidateQueries({ queryKey: ['classrooms'] });
+      queryClient.invalidateQueries({ queryKey: ['classrooms'] })
+      // isLoading = isLoading || queryClient.isFetching({ queryKey: ['classrooms'] }) > 0 ;
     }    
   });
 
@@ -310,6 +314,7 @@ export function StudentList({ classroomId }: StudentListProps) {
   const [isDeleteStudentModalOpen, setDeleteStudentModalOpen] = useState(false);
   const [deleteStudentId, setDeleteStudentId] = useState<number | null>(null);
 
+  const queryClient = useQueryClient();
 
   const students = useQuery({
     queryKey: ['students', classroomId],
@@ -321,14 +326,15 @@ export function StudentList({ classroomId }: StudentListProps) {
       return removeStudentFromClassroom(classroomId!, userId);
     },
     onSuccess:()=>{
-      students.refetch();
+      queryClient.invalidateQueries({ queryKey: ['students'] })
+      // isLoading = isLoading || queryClient.isFetching({ queryKey: ['students'] }) > 0 ;
     }});
   
     return (
         <ul className="space-y-2">
             {students.isLoading && <div>Loading...</div>}
             {students.data?.length <= 0 ? 
-            <div>No students found.</div> : 
+            <div>Nobody is here :(</div> : 
             students.data?.map((student: any, index: number) => (
                 <li
                     key={student.id}
@@ -371,15 +377,16 @@ interface ClassroomModalProps {
     onClose: () => void;
     onSubmit: (value: string) => void;
     errormessage: string;
+    isLoading?: boolean;
 }
 
 
-export function ClassroomModal({isOpen, onClose, onSubmit, errormessage}: ClassroomModalProps) {
+export function ClassroomModal({isOpen, onClose, onSubmit, errormessage, isLoading}: ClassroomModalProps) {
 
     const [classroomName, setClassroomName] = useState<string>("");
     const [showError, setShowError] = useState<boolean>(false);
 
-    const isCreateDisabled = classroomName.trim() === "";
+    const isCreateDisabled = classroomName.trim() === "" || isLoading;
 
     // Reset error visibility when modal closes
     useEffect(() => {
@@ -444,9 +451,9 @@ export function ClassroomModal({isOpen, onClose, onSubmit, errormessage}: Classr
                 </div>
                 
                 <div className="flex w-full justify-between mt-2">
-                    <div className="flex gap-4">
+                    <div className="w-full flex gap-4">
                         <StandardButton label="Cancel" onClick={onClose} className="px-6 py-3 bg-lightforeground" />
-                        <StandardButton label="Create" onClick={handleSubmit} className="px-6 py-3 bg-lightforeground" disabled={isCreateDisabled} />
+                        <StandardButton label="Create" onClick={handleSubmit} className={"ml-1 h-full px-10 py-3 bg-lightforeground "+(isCreateDisabled ? "" : "bg-contrast! text-background")} disabled={isCreateDisabled} />
                     </div>
                 </div>
             </div>
