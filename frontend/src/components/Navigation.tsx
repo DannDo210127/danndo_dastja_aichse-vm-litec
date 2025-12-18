@@ -1,5 +1,5 @@
 'use client'
-import { Codesandbox, LogIn, LogOut, Monitor, School, Settings, User as UserIcon } from "lucide-react";
+import { Codesandbox, LogIn, LogOut, Monitor, School, UserCog } from "lucide-react";
 import Link from "next/link";
 import { useAuth } from "@/hooks/useAuth";
 import { Fragment, useState } from "react";
@@ -31,21 +31,23 @@ export function Navigation(){
                     <NavigationButton label="Classrooms" icon={<School />} href="/classrooms" />
                     <NavigationButton label="VM" icon={<Monitor />} href="/vm" />
                 </div>
-            
                 {user.isAuthenticated ? (
                     <div className="mx-5 mb-10">
                         <p className="border-b-2 border-b-lightforeground mb-5"></p>
                         <div className="flex flex-col gap-4">
-                            <NavigationButton label={user.data?.firstName + " " + user.data?.lastName} icon={<UserIcon />} href="/profile" />
-                            <NavigationButton label="Settings" icon={<Settings />} href="/settings" />
+                            <NavigationButton
+                              label={user.data?.firstName + " " + user.data?.lastName}
+                              icon={<UserCog/>}
+                              href="/profile"
+                            />
                             <NavigationButton label="Logout" icon={<LogOut />} onClick={() => setLogoutModalOpen(true)} />
-                        </div>  
+                        </div>
                     </div>
                 ): (
                     <div className="flex flex-col mx-5 gap-4 mb-10">
                         <NavigationButton label="Login" icon={<LogIn />} onClick={() => setLoginModalOpen(true)} />
                         <NavigationButton label="Register" icon={<LogOut />} onClick={() => setRegisterModalOpen(true)} />
-                    </div>  
+                    </div>
                 )}
 
             </div>
@@ -61,5 +63,4 @@ export function Navigation(){
             }}/>
         </Fragment>
     )
-    
 }

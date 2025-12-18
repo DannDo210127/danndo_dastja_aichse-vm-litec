@@ -22,11 +22,11 @@ export default function ProfilePage(){
 
          <div className="flex flex-col m-20 w-8/10 h-8/10 rounded-[8] bg-background">
             <div className="flex flex-row justify-between items-center border-b-2 border-lightforeground">
-                <h2 className="m-5 p-2 text-2xl font-bold">{user.data?.firstName + " " + user.data?.lastName}</h2>  
+                <h2 className="m-5 p-2 text-3xl font-bold">{user.data?.firstName + " " + user.data?.lastName}</h2>  
                 <span className="font-bold text-gray-500"> {userRole.data?.name}</span>              
             </div>
             <div>{user.data?.role}</div>
-            <div className="p-4 m-4 flex flex-col justify-between">
+            <div className="mb-10 p-4 m-4 flex flex-col justify-between">
                 <div className="flex flex-row">
                     <span className="flex-grow font-2xl">Email:
                     </span> {user.data?.email}
@@ -34,7 +34,7 @@ export default function ProfilePage(){
                 
                 
             </div>
-            <SettingsPage />
+            <SettingsPage/>
         </div>
     )
 }
@@ -49,7 +49,7 @@ function SettingsPage() {
     return (
             <div className="">
                <div className="flex flex-row justify-between w-full h-1/12 bg-background border-b-2 border-lightforeground items-center">
-                    <h2 className="m-5 p-2 text-2xl font-bold">Your Settings</h2>
+                    <h4 className="m-5 p-2 text-2xl font-bold">Your Settings</h4>
                 </div>
                 <div className="flex flex-col m-4 p-4 bg-background gap-10">
                     <div className="flex items-center">
