@@ -16,7 +16,7 @@ const StandardModal: FC<StandardModalProps> = ({ title, description, isOpen, chi
 
     return createPortal(
         <Fragment>
-            {isOpen ? 
+            {isOpen ?
             (
                 <div
                     className="fixed inset-0 flex items-center justify-center bg-black/30 z-50"

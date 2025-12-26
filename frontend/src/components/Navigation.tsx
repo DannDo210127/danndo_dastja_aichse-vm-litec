@@ -2,11 +2,12 @@
 import { Codesandbox, LogIn, LogOut, Monitor, School, UserCog } from "lucide-react";
 import Link from "next/link";
 import { useAuth } from "@/hooks/useAuth";
-import { Fragment, useState } from "react";
+import { Fragment, useEffect, useState } from "react";
 import { ConfirmModal } from "@/shared/ConfirmModal";
 import { LoginModal } from "./LoginModal";
 import { NavigationButton } from "./NavigationButton";
 import { RegisterModal } from "./RegisterModal";
+import { LoadingScreen } from "@/shared/LoadingScreen";
 
 export function Navigation(){
     const user = useAuth();
@@ -16,8 +17,9 @@ export function Navigation(){
     const [isRegisterModalOpen, setRegisterModalOpen] = useState(false);
 
     return(
+        user.isLoading ? <LoadingScreen /> :
         <Fragment>
-
+            
             <div className="flex flex-col w-1/3 h-full bg-background justify-between drop-shadow-2xl">
 
                 <div className="flex flex-col gap-4 mx-5">

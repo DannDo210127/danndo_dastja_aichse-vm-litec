@@ -10,8 +10,14 @@ interface ThemeState {
   getTheme: () => Theme;
 }
 
+const getInitialTheme = (): Theme => {
+    if (typeof window === 'undefined') return 'light';
+    const stored = localStorage.getItem('theme') as Theme | null;
+    return stored || 'light';
+};
+
 export const useThemeStore = create<ThemeState>((set) => ({
-    theme: 'light',
+    theme: getInitialTheme(),
     toggleTheme: () => set((state) => {
         const storageTheme = localStorage.getItem('theme') as Theme | null;
         if(storageTheme == null){

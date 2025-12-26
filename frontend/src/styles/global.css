@@ -7,7 +7,7 @@
   --color-primary: #C8BCF6;
   --color-secondary: #cacaca;
   --color-font: var(--color-black);
-  --color-contrast: #000000;
+  --color-contrast: #000000; 
 }
 
 /* Dark theme overrides */
@@ -42,7 +42,7 @@ html,body{
 
 /* Track */
 ::-webkit-scrollbar-track {
-  background: #f1f1f1;
+  background: var(--color-background);
   border-radius: 8px;
   margin-top: 2px;
   margin-bottom: 2px;
@@ -50,11 +50,11 @@ html,body{
 
 /* Handle */
 ::-webkit-scrollbar-thumb {
-  background: var(--color-foreground);
+  background: var(--color-primary);
   border-radius: 8px;
 }
 
 /* Handle on hover */
 ::-webkit-scrollbar-thumb:hover {
-  background: #555;
+  background: var(--color-contrast);
 }

@@ -14,8 +14,6 @@ export default function ProfilePage(){
         queryFn: () => User.getUserRole(),
         enabled: user.isAuthenticated,
     });
-
-
     
     return (
         
@@ -40,11 +38,12 @@ export default function ProfilePage(){
 }
 
 function SettingsPage() {
-
-    const [isDarkMode, setDarkMode] = React.useState<boolean>(false); // Initialize with false
     const themeStore = useThemeStore();
+    const [mounted, setMounted] = React.useState(false);
 
-  
+    React.useEffect(() => {
+        setMounted(true);
+    }, []);
 
     return (
             <div className="">
@@ -54,6 +53,7 @@ function SettingsPage() {
                 <div className="flex flex-col m-4 p-4 bg-background gap-10">
                     <div className="flex items-center">
                         <span className="text-lg flex-grow">light/darkmode</span>
+                        {mounted && (
                         <DarkModeSwitch
                           checked={themeStore.theme === "dark"}
                           onChange={themeStore.toggleTheme}
@@ -61,6 +61,7 @@ function SettingsPage() {
                           sunColor="#FDB813"
                           moonColor="#F4F4F5"
                         />
+                        )}
                     </div>
                 </div>
             </div>

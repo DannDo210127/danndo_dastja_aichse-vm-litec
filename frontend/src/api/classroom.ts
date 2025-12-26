@@ -1,6 +1,6 @@
 import api from "./client";
 
-const createClassroom = async (name: string, description: string = "") => {
+const createClassroom = async (name: string, description: string) => {
     const response = await api.post("/classroom/new", 
         {
             name,

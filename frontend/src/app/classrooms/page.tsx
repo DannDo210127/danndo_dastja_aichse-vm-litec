@@ -1,13 +1,15 @@
 'use client'
 import { StandardButton } from "@/shared/StandardButton"
 import { ChevronDown, ChevronUp, ComputerIcon, Icon, Pause, Play, PlusIcon, Trash2, Trash2Icon, User } from "lucide-react";
-import { FC, Suspense, useEffect, useState } from "react";
+import { FC, Suspense, use, useEffect, useState } from "react";
 import { StandardInput } from "@/shared/StandardInput";
 import StandardModal from "@/shared/StandardModal";
 import { ConfirmModal } from "@/shared/ConfirmModal";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { addStudentToClassroom, createClassroom, deleteClassroom, getAllClassrooms, getAllStudentsInClassroom, removeStudentFromClassroom } from "@/api/classroom";
 import { LoadingScreen } from "@/shared/LoadingScreen";
+import { useAuth } from "@/hooks/useAuth";
+import { LoginModal } from "@/components/LoginModal";
 
 interface Student {
   id: number;
@@ -25,13 +27,8 @@ interface Classroom {
   students: Student[];
 }
 
-// global loading variable
-var isLoading = false;
-
-
 export default function ClassroomPage(){
     const [isClassroomModalOpen, setClassroomModalOpen] = useState(false);
-
 
     const classrooms = useQuery({
       queryKey: ['classrooms'],
@@ -43,7 +40,7 @@ export default function ClassroomPage(){
 
 
     const createClassroomMutation = useMutation({
-      mutationFn: (name: string) => createClassroom(name, ""),
+      mutationFn: ({ name, description }: { name: string; description: string }) => createClassroom(name, description),
       onSuccess: () => {
         classrooms.refetch();
         setClassroomModalOpen(false);
@@ -57,46 +54,52 @@ export default function ClassroomPage(){
       }
     });
 
-  
-
-
+    const user = useAuth();
 
     // errormessage for create-classroom modal
     const [classroomErrormessage, setClassroomErrormessage] = useState<string>("");
     
-    const handleAddClassroom = (name: string) => {
-      createClassroomMutation.mutate(name);
+    const handleAddClassroom = (name: string, description: string) => {
+      createClassroomMutation.mutate({ name, description });
     };
 
-    const handleClassroomSubmit = (inputValue: string) => {
+    const handleClassroomSubmit = (name: string, description: string) => {
           setClassroomErrormessage("");
          
-        const exists = classrooms.data?.some((classroom: { name: string; }) => classroom.name.toLowerCase() === inputValue.toLowerCase());
+        const exists = classrooms.data?.some((classroom: { name: string; }) => classroom.name.toLowerCase() === name.toLowerCase());
         if(exists){
           setClassroomErrormessage("Classroom with this name already exists!");
           setClassroomModalOpen(true);
         }else{
-          inputValue = inputValue.trim();
-          inputValue = inputValue.toUpperCase();
-          handleAddClassroom(inputValue);
+          name = name.trim();
+          description = description.trim();
+          handleAddClassroom(name, description);
           setClassroomErrormessage("");
           
         }
     };
 
+    const [isLoginModalOpen, setLoginModalOpen] = useState(false);
+
+    useEffect(() => {
+      if (!user.isAuthenticated) {
+        setLoginModalOpen(true);
+      }
+    }, [user.isAuthenticated]);
+
 
     return (
+      !user.isAuthenticated ? <LoginModal isOpen={isLoginModalOpen} onClose={() => setLoginModalOpen(false)} onSubmit={() => setLoginModalOpen(false)} /> :
          classrooms.isFetching ? <LoadingScreen /> : 
-           <div className="flex flex-col m-20 w-8/10 h-8/10 rounded-[8] bg-background">
-               <div className="flex flex-row justify-between w-full h-1/12 bg-background border-b-2 border-lightforeground items-center">
-                    <h2 className="m-5 p-2 text-2xl font-bold">Your Classrooms</h2>
-                    <StandardButton label="Create Classroom" onClick={() => {setClassroomModalOpen(true)}} className=" px-4 ml-8 bg-lightforeground drop-shadow-sm p-2.5! hover:bg-contrast! hover:scale-105 transition-all hover:text-background">
-                        <PlusIcon className="size-6 mr-1" />
+           <div className="flex flex-col bg-background m-20 rounded-[8] w-8/10 h-8/10">
+               <div className="flex flex-row justify-between items-center bg-background border-lightforeground border-b-2 w-full h-1/12">
+                    <h2 className="m-5 p-2 font-bold text-2xl">Your Classrooms</h2>
+                    <StandardButton label="Create Classroom" onClick={() => {setClassroomModalOpen(true)}} className="bg-lightforeground hover:bg-contrast! drop-shadow-sm ml-8 p-2.5! px-4 hover:text-background hover:scale-105 transition-all">
+                        <PlusIcon className="mr-1 size-6" />
                     </StandardButton>
                </div>
                 <Classroom classrooms={classrooms.data || []} setClassrooms={() => {}} deleteClassroomMutation={deleteClassroomMutation}/>
-               <ClassroomModal errormessage={classroomErrormessage} isOpen={isClassroomModalOpen} onClose={() => {setClassroomModalOpen(false);}} onSubmit={(value) => {handleClassroomSubmit(value);}} isLoading={createClassroomMutation.isPending} />
-
+                <ClassroomModal errormessage={classroomErrormessage} isOpen={isClassroomModalOpen} onClose={() => {setClassroomModalOpen(false);}} onSubmit={(name, description) => {handleClassroomSubmit(name, description);}} />
            </div>
           
       )
@@ -164,7 +167,6 @@ function Classroom({ classrooms: _classrooms, setClassrooms, deleteClassroomMuta
     },                                                        //TODO: implement feature when backend search function is ready
     onSuccess:()=>{
       queryClient.invalidateQueries({ queryKey: ['classrooms'] })
-      // isLoading = isLoading || queryClient.isFetching({ queryKey: ['classrooms'] }) > 0 ;
     }    
   });
 
@@ -212,26 +214,26 @@ function Classroom({ classrooms: _classrooms, setClassrooms, deleteClassroomMuta
   
 
   return (
-    <div className="p-8 space-y-4 overflow-y-auto flex-1 max-h-[calc(100vh-10rem)]">
+    <div className="flex-1 space-y-4 bg-background p-8 max-h-[calc(100vh-10rem)] overflow-y-auto">
       {_classrooms.map((classroom: any, index: number) => {
         const isOpen = openClassroomIds.includes(classroom.id);
         
         return (
-          <div key={classroom.id} className="rounded-[8] bg-background border-2 border-lightforeground drop-shadow-sm">
+          <div key={classroom.id} className="bg-background drop-shadow-sm border-2 border-lightforeground rounded-[8]">
             {/* Header */}
-            <div className="flex items-center px-4 py-2 cursor-pointer border-b-2 border-lightforeground bg-lightforeground" >
+            <div className="flex items-center bg-lightforeground px-4 py-2 border-lightforeground border-b-2 cursor-pointer" >
 
-              <div className="flex-1 flex items-center space-x-4" onClick={() => toggleClassroom(classroom.id)} >  
+              <div className="flex flex-1 items-center space-x-4" onClick={() => toggleClassroom(classroom.id)} >  
                 {isOpen ? 
                     <ClassButton className="bg-transparent!" label={classroom.name} icon={<ChevronUp size={18} />} /> : 
                     <ClassButton className="bg-transparent!" label={classroom.name} icon={<ChevronDown size={18} />} />}
               </div>
             
               <div className="flex flex-row space-x-2">
-                <StandardButton className="px-2 py-1 bg-transparent!" label="Add student" onClick={() => { setStudentModalClassroomId(index); setStudentModalOpen(true); }}>
-                  <PlusIcon className="size-6 mr-1" />
+                <StandardButton className="bg-transparent! px-2 py-1" label="Add student" onClick={() => { setStudentModalClassroomId(index); setStudentModalOpen(true); }}>
+                  <PlusIcon className="mr-1 size-6" />
                 </StandardButton>
-                <StandardButton className="px-2 py-1 bg-transparent!" label="" onClick={() => { setDeleteClassroomId(index); setDeleteClassroomModalOpen(true); }}>
+                <StandardButton className="bg-transparent! px-2 py-1" label="" onClick={() => { setDeleteClassroomId(index); setDeleteClassroomModalOpen(true); }}>
                   <Trash2Icon className="size-6" />
                 </StandardButton>
               </div>
@@ -327,7 +329,6 @@ export function StudentList({ classroomId }: StudentListProps) {
     },
     onSuccess:()=>{
       queryClient.invalidateQueries({ queryKey: ['students'] })
-      // isLoading = isLoading || queryClient.isFetching({ queryKey: ['students'] }) > 0 ;
     }});
   
     return (
@@ -338,16 +339,16 @@ export function StudentList({ classroomId }: StudentListProps) {
             students.data?.map((student: any, index: number) => (
                 <li
                     key={student.id}
-                    className="flex justify-between items-center px-3 py-2 bg-background rounded-[8]"
+                    className="flex justify-between items-center bg-background px-3 py-2 rounded-[8]"
                 >
 
                     <div className="flex flex-row w-full">
-                        <div className="flex flex-row w-fit items-center">
+                        <div className="flex flex-row items-center w-fit">
                             <Icon iconNode={[]} className="w-fit size-6"><User /></Icon>
                             <span className="ml-3">{student.user.firstName} {student.user.lastName}</span>
                         </div>
-                        <div className="flex flex-row grow justify-end items-center">
-                            <button className="w-fit ml-4 size-8 rounded-[8] bg-background hover:bg-secondary" onClick={() => {setDeleteStudentId(student.user.id);setDeleteStudentModalOpen(true);}}>
+                        <div className="flex flex-row justify-end items-center grow">
+                            <button className="bg-background hover:bg-secondary ml-4 rounded-[8] w-fit size-8" onClick={() => {setDeleteStudentId(student.user.id);setDeleteStudentModalOpen(true);}}>
                               <Trash2 className="size-6"/>
                             </button>
                         </div>
@@ -375,18 +376,18 @@ export function StudentList({ classroomId }: StudentListProps) {
 interface ClassroomModalProps {
     isOpen: boolean;
     onClose: () => void;
-    onSubmit: (value: string) => void;
+    onSubmit: (name: string, description: string) => void;
     errormessage: string;
-    isLoading?: boolean;
 }
 
 
-export function ClassroomModal({isOpen, onClose, onSubmit, errormessage, isLoading}: ClassroomModalProps) {
+export function ClassroomModal({isOpen, onClose, onSubmit, errormessage}: ClassroomModalProps) {
 
     const [classroomName, setClassroomName] = useState<string>("");
+    const [classroomDescription, setClassroomDescription] = useState<string>("");
     const [showError, setShowError] = useState<boolean>(false);
 
-    const isCreateDisabled = classroomName.trim() === "" || isLoading;
+    const isCreateDisabled = classroomName.trim() === "";
 
     // Reset error visibility when modal closes
     useEffect(() => {
@@ -406,7 +407,7 @@ export function ClassroomModal({isOpen, onClose, onSubmit, errormessage, isLoadi
     const handleSubmit = () => {
         if (isCreateDisabled) return;
         setShowError(true);
-        onSubmit(classroomName);
+        onSubmit(classroomName, classroomDescription);
     };
 
     useEffect(() => {
@@ -439,7 +440,7 @@ export function ClassroomModal({isOpen, onClose, onSubmit, errormessage, isLoadi
         <StandardModal className="w-96" title={"Create Classroom"} description={""} isOpen={isOpen}>
             <div className="flex flex-col space-y-4 mt-4">
                 <StandardInput  placeholder="Classname" onValueChange={(value: string) => setClassroomName(value)} />
-                
+                <StandardInput  placeholder="add description" onValueChange={(value: string) => setClassroomDescription(value)} />
                 <div 
                     className={`
                         overflow-hidden transition-all duration-300 ease-in-out
@@ -450,9 +451,9 @@ export function ClassroomModal({isOpen, onClose, onSubmit, errormessage, isLoadi
                     {errormessage}
                 </div>
                 
-                <div className="flex w-full justify-between mt-2">
-                    <div className="w-full flex gap-4">
-                        <StandardButton label="Cancel" onClick={onClose} className="px-6 py-3 bg-lightforeground" />
+                <div className="flex justify-between mt-2 w-full">
+                    <div className="flex gap-4 w-full">
+                        <StandardButton label="Cancel" onClick={onClose} className="bg-lightforeground px-6 py-3" />
                         <StandardButton label="Create" onClick={handleSubmit} className={"ml-1 h-full px-10 py-3 bg-lightforeground "+(isCreateDisabled ? "" : "bg-contrast! text-background")} disabled={isCreateDisabled} />
                     </div>
                 </div>
@@ -547,10 +548,10 @@ export function StudentModal({isOpen, onClose, onSubmit, errormessage}: StudentM
                 >
                     {errormessage}
                 </div>              
-                <div className="flex w-full justify-between mt-2">
+                <div className="flex justify-between mt-2 w-full">
                     <div className="flex gap-4">
-                        <StandardButton label="Cancel" onClick={onClose} className="px-6 py-3 bg-lightforeground" />
-                        <StandardButton label="Create" onClick={handleSubmit} className="px-6 py-3 bg-lightforeground" disabled={isCreateDisabled} />
+                        <StandardButton label="Cancel" onClick={onClose} className="bg-lightforeground px-6 py-3" />
+                        <StandardButton label="Create" onClick={handleSubmit} className="bg-lightforeground px-6 py-3" disabled={isCreateDisabled} />
                     </div>
                 </div>
             </div>
