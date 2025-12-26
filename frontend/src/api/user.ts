@@ -11,9 +11,15 @@ const logout = async () => {
     return response.data;
 }
 
+const getUserRole = async () => {
+    const response = await api.get("/user/role", { withCredentials: true });
+    return response.data;
+}
+
 const User = {
     getUser,
-    logout
+    getUserRole,
+    logout,
 }
 
 export default User;

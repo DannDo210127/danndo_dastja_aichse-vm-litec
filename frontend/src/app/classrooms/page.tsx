@@ -1,65 +1,15 @@
 'use client'
 import { StandardButton } from "@/shared/StandardButton"
 import { ChevronDown, ChevronUp, ComputerIcon, Icon, Pause, Play, PlusIcon, Trash2, Trash2Icon, User } from "lucide-react";
-import { FC, useEffect, useState } from "react";
+import { FC, Suspense, use, useEffect, useState } from "react";
 import { StandardInput } from "@/shared/StandardInput";
 import StandardModal from "@/shared/StandardModal";
 import { ConfirmModal } from "@/shared/ConfirmModal";
-
-export default function ClassroomPage(){
-
-
-    const [classrooms, setClassrooms] = useState<Classroom[]>(classroomsData);
-
-    // errormessage for create-classroom modal
-    const [classroomErrormessage, setClassroomErrormessage] = useState<string>("");
-    
-    const addClassroom = (name: string) => {
-      const newClassroom: Classroom = {
-        id: classrooms.length + 1,
-        name,
-        students: [],
-      };
-      setClassrooms((prev) => [...prev, newClassroom]);
-    };
-
-    const handleClassroomSubmit = (inputValue: string) => {
-          setClassroomErrormessage("");
-         
-        const exists = classrooms.some(classroom => classroom.name.toLowerCase() === inputValue.toLowerCase());
-        if(exists){
-          setClassroomErrormessage("Classroom with this name already exists!");
-          setClassroomModalOpen(true);
-        }else{
-          inputValue = inputValue.trim();
-          inputValue = inputValue.toUpperCase();
-          addClassroom(inputValue);
-          setClassroomErrormessage("");
-          setClassroomModalOpen(false);
-        }
-    };
-
-
-    const [isClassroomModalOpen, setClassroomModalOpen] = useState(false);
-
-    return (
-           <div className="flex flex-col m-20 w-8/10 h-8/10 rounded-[8] bg-background">
-               <div className="flex flex-row justify-between w-full h-1/12 bg-background border-b-2 border-lightforeground items-center">
-                    <h2 className="m-5 p-2 text-2xl font-bold">Your Classrooms</h2>
-                    <StandardButton label="Create Classroom" onClick={() => {setClassroomModalOpen(true)}} className=" px-4 ml-8 bg-lightforeground drop-shadow-sm p-2.5! hover:bg-contrast! hover:scale-105 transition-all hover:text-background">
-                        <PlusIcon className="size-6 mr-1" />
-                    </StandardButton>
-               </div>
-                <Classroom classrooms={classrooms} setClassrooms={setClassrooms}/>
-               <ClassroomModal errormessage={classroomErrormessage} isOpen={isClassroomModalOpen} onClose={() => {setClassroomModalOpen(false);}} onSubmit={(value) => {handleClassroomSubmit(value);}} />
-
-           </div>
-
-           
-       )
-}
-
-
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { addStudentToClassroom, createClassroom, deleteClassroom, getAllClassrooms, getAllStudentsInClassroom, removeStudentFromClassroom } from "@/api/classroom";
+import { LoadingScreen } from "@/shared/LoadingScreen";
+import { useAuth } from "@/hooks/useAuth";
+import { LoginModal } from "@/components/LoginModal";
 
 interface Student {
   id: number;
@@ -71,75 +21,103 @@ interface Student {
   };
 }
 
-
-
 interface Classroom {
   id: number;
   name: string;
   students: Student[];
 }
 
-const classroomsData: Classroom[] = [
-  {
-    id: 1,
-    name: "5AHIT",
-    students:[
-      {
-        id: 1,
-        name: "Alice Müller",
-        assignedVM: { id: 201, name: "debian", state: "stopped" },
-      },
-      {
-        id: 2,
-        name: "Ben Schmidt",
-        assignedVM: { id: 202, name: "debian", state: "stopped" },
-      },
-      {
-        id: 3,
-        name: "Carla Novak",
-        assignedVM: { id: 203, name: "debian", state: "stopped" },
-      },
-      {
-        id: 4,
-        name: "Daniel Rossi",
-        assignedVM: { id: 204, name: "debian", state: "stopped" },
-      },
-      {
-        id: 5,
-        name: "Elena García",
-        assignedVM: { id: 204, name: "debian", state: "stopped" },
-      },
-      {
-        id: 6,
-        name: "Filip Nowak",
-        assignedVM: { id: 205, name: "debian", state: "stopped" },
-      },
-      {
-        id: 7,
-        name: "Greta Svensson",
-        assignedVM: { id: 206, name: "debian", state: "stopped" },
-      },
-      {
-        id: 8,
-        name: "Hugo Dubois",
-        assignedVM: { id: 205, name: "debian", state: "stopped" },
-      }
-    
+export default function ClassroomPage(){
+    const [isClassroomModalOpen, setClassroomModalOpen] = useState(false);
 
-    ],
-  },
-  {
-    id: 2,
-    name: "4BHIT",
-    students: [],
-  },
-];
+    const classrooms = useQuery({
+      queryKey: ['classrooms'],
+      queryFn: () => getAllClassrooms(),
+      
+    });
+
+
+
+
+    const createClassroomMutation = useMutation({
+      mutationFn: ({ name, description }: { name: string; description: string }) => createClassroom(name, description),
+      onSuccess: () => {
+        classrooms.refetch();
+        setClassroomModalOpen(false);
+      }
+    });
+
+    const deleteClassroomMutation = useMutation({
+      mutationFn: (classroomId: number) => deleteClassroom(classroomId),
+      onSuccess: () => {
+        classrooms.refetch();
+      }
+    });
+
+    const user = useAuth();
+
+    // errormessage for create-classroom modal
+    const [classroomErrormessage, setClassroomErrormessage] = useState<string>("");
+    
+    const handleAddClassroom = (name: string, description: string) => {
+      createClassroomMutation.mutate({ name, description });
+    };
+
+    const handleClassroomSubmit = (name: string, description: string) => {
+          setClassroomErrormessage("");
+         
+        const exists = classrooms.data?.some((classroom: { name: string; }) => classroom.name.toLowerCase() === name.toLowerCase());
+        if(exists){
+          setClassroomErrormessage("Classroom with this name already exists!");
+          setClassroomModalOpen(true);
+        }else{
+          name = name.trim();
+          description = description.trim();
+          handleAddClassroom(name, description);
+          setClassroomErrormessage("");
+          
+        }
+    };
+
+    const [isLoginModalOpen, setLoginModalOpen] = useState(false);
+
+    useEffect(() => {
+      if (!user.isAuthenticated) {
+        setLoginModalOpen(true);
+      }
+    }, [user.isAuthenticated]);
+
+
+    return (
+      !user.isAuthenticated ? <LoginModal isOpen={isLoginModalOpen} onClose={() => setLoginModalOpen(false)} onSubmit={() => setLoginModalOpen(false)} /> :
+         classrooms.isFetching ? <LoadingScreen /> : 
+           <div className="flex flex-col bg-background m-20 rounded-[8] w-8/10 h-8/10">
+               <div className="flex flex-row justify-between items-center bg-background border-lightforeground border-b-2 w-full h-1/12">
+                    <h2 className="m-5 p-2 font-bold text-2xl">Your Classrooms</h2>
+                    <StandardButton label="Create Classroom" onClick={() => {setClassroomModalOpen(true)}} className="bg-lightforeground hover:bg-contrast! drop-shadow-sm ml-8 p-2.5! px-4 hover:text-background hover:scale-105 transition-all">
+                        <PlusIcon className="mr-1 size-6" />
+                    </StandardButton>
+               </div>
+                <Classroom classrooms={classrooms.data || []} setClassrooms={() => {}} deleteClassroomMutation={deleteClassroomMutation}/>
+                <ClassroomModal errormessage={classroomErrormessage} isOpen={isClassroomModalOpen} onClose={() => {setClassroomModalOpen(false);}} onSubmit={(name, description) => {handleClassroomSubmit(name, description);}} />
+           </div>
+          
+      )
+}
+
+
+
+
+
+
+
 
 interface ClassroomProps {
   classrooms: Classroom[];
+  deleteClassroomMutation: any;
 }
 
-function Classroom({ classrooms, setClassrooms }: ClassroomProps & { setClassrooms: React.Dispatch<React.SetStateAction<Classroom[]>> }) {
+function Classroom({ classrooms: _classrooms, setClassrooms, deleteClassroomMutation }: ClassroomProps & { setClassrooms: React.Dispatch<React.SetStateAction<Classroom[]>> }) {
 
   const [openClassroomIds, setOpenClassroomIds] = useState<number[]>([]);
   console.log("open classrooms at start", openClassroomIds);
@@ -150,9 +128,8 @@ function Classroom({ classrooms, setClassrooms }: ClassroomProps & { setClassroo
     );
   };
 
-  
-
- 
+  const [isDeleteClassroomModalOpen, setDeleteClassroomModalOpen] = useState(false);
+  const [deleteClassroomId, setDeleteClassroomId] = useState<number | null>(null);
 
 
   const [isStudentModalOpen, setStudentModalOpen] = useState(false);
@@ -163,7 +140,7 @@ function Classroom({ classrooms, setClassrooms }: ClassroomProps & { setClassroo
   const handleStudentSubmit = (classid: number, inputValue: string) => {
     setStudentErrormessage(""); // Reset error at start
     
-    const exists = classrooms[classid].students.some((student: Student) => student.name.toLowerCase() === inputValue.toLowerCase());
+    const exists = _classrooms[classid].students.some((student: Student) => student.name.toLowerCase() === inputValue.toLowerCase());
 
     if(exists){
       setStudentErrormessage("Student with this name already exists!");
@@ -182,9 +159,19 @@ function Classroom({ classrooms, setClassrooms }: ClassroomProps & { setClassroo
     }
   };
 
+  const queryClient = useQueryClient();
+
+  const addStudentToClassroomMutation = useMutation({
+    mutationFn: ({ classroomId, userId }: { classroomId: number; userId: number }) => {
+      return addStudentToClassroom(classroomId, userId);
+    },                                                        //TODO: implement feature when backend search function is ready
+    onSuccess:()=>{
+      queryClient.invalidateQueries({ queryKey: ['classrooms'] })
+    }    
+  });
 
   const addStudent = (classroomIndex: number, name: string) => {
-    const classroom = classrooms[classroomIndex];
+    const classroom = _classrooms[classroomIndex];
     
     const newStudent: Student = {
       id: classroom.students.length > 0 
@@ -213,40 +200,40 @@ function Classroom({ classrooms, setClassrooms }: ClassroomProps & { setClassroo
     // Open the classroom if it's not already open
     if(!openClassroomIds.includes(classroom.id)){
       toggleClassroom(classroom.id);
-    } 
-};
+    }
+  };
     
 
   
-  const [isDeleteClassroomModalOpen, setDeleteClassroomModalOpen] = useState(false);
-  const [deleteClassroomId, setDeleteClassroomId] = useState<number | null>(null);
+
 
   const handleDeleteClassroom = (index: number) => {
-    classrooms.splice(index, 1);
+      deleteClassroomMutation.mutate(_classrooms[index].id);
   };
+  
   
 
   return (
-    <div className="p-8 space-y-4 overflow-y-auto flex-1 max-h-[calc(100vh-10rem)]">
-      {classrooms.map((classroom, index) => {
+    <div className="flex-1 space-y-4 bg-background p-8 max-h-[calc(100vh-10rem)] overflow-y-auto">
+      {_classrooms.map((classroom: any, index: number) => {
         const isOpen = openClassroomIds.includes(classroom.id);
-      
+        
         return (
-          <div key={classroom.id} className="rounded-[8] bg-background border-2 border-lightforeground drop-shadow-sm">
+          <div key={classroom.id} className="bg-background drop-shadow-sm border-2 border-lightforeground rounded-[8]">
             {/* Header */}
-            <div className="flex items-center px-4 py-2 cursor-pointer border-b-2 border-lightforeground bg-lightforeground" >
+            <div className="flex items-center bg-lightforeground px-4 py-2 border-lightforeground border-b-2 cursor-pointer" >
 
-              <div className="flex-1 flex items-center space-x-4" onClick={() => toggleClassroom(classroom.id)} >  
+              <div className="flex flex-1 items-center space-x-4" onClick={() => toggleClassroom(classroom.id)} >  
                 {isOpen ? 
                     <ClassButton className="bg-transparent!" label={classroom.name} icon={<ChevronUp size={18} />} /> : 
                     <ClassButton className="bg-transparent!" label={classroom.name} icon={<ChevronDown size={18} />} />}
               </div>
             
               <div className="flex flex-row space-x-2">
-                <StandardButton className="px-2 py-1 bg-transparent!" label="Add student" onClick={() => { setStudentModalClassroomId(index); setStudentModalOpen(true); }}>
-                  <PlusIcon className="size-6 mr-1" />
+                <StandardButton className="bg-transparent! px-2 py-1" label="Add student" onClick={() => { setStudentModalClassroomId(index); setStudentModalOpen(true); }}>
+                  <PlusIcon className="mr-1 size-6" />
                 </StandardButton>
-                <StandardButton className="px-2 py-1 bg-transparent!" label="" onClick={() => { setDeleteClassroomId(index); setDeleteClassroomModalOpen(true); }}>
+                <StandardButton className="bg-transparent! px-2 py-1" label="" onClick={() => { setDeleteClassroomId(index); setDeleteClassroomModalOpen(true); }}>
                   <Trash2Icon className="size-6" />
                 </StandardButton>
               </div>
@@ -258,12 +245,7 @@ function Classroom({ classrooms, setClassrooms }: ClassroomProps & { setClassroo
             {/* Dropdown / Collapsible Section */}
             {isOpen && (
               <div className="p-4 transition-all duration-300">
-                {classroom.students.length > 0 ? (
-
-                  <StudentList students={classroom.students}></StudentList>
-                ) : (
-                  <p className="text-sm text-font">No students yet.</p>
-                )}
+                  <StudentList classroomId={classroom.id}></StudentList>
               </div>
             )}
       
@@ -326,46 +308,57 @@ export function ClassButton({
 
 
 interface StudentListProps {
-   students: Student[];
+  classroomId?: number;
 }
 
-export function StudentList({ students }: StudentListProps) {
+export function StudentList({ classroomId }: StudentListProps) {
 
   const [isDeleteStudentModalOpen, setDeleteStudentModalOpen] = useState(false);
   const [deleteStudentId, setDeleteStudentId] = useState<number | null>(null);
 
+  const queryClient = useQueryClient();
 
-  const handleDeleteStudent = (studentId: number) => {
-    if(students.includes(students[studentId]) === false){
-    }else{
-      students.splice(studentId, 1);
-    }
-  };
+  const students = useQuery({
+    queryKey: ['students', classroomId],
+    queryFn: () => getAllStudentsInClassroom(classroomId!),
+  })
+
+  const removeStudent = useMutation({
+    mutationFn: (userId: number) => {
+      return removeStudentFromClassroom(classroomId!, userId);
+    },
+    onSuccess:()=>{
+      queryClient.invalidateQueries({ queryKey: ['students'] })
+    }});
+  
     return (
         <ul className="space-y-2">
-            {students.map((student, index) => (
+            {students.isLoading && <div>Loading...</div>}
+            {students.data?.length <= 0 ? 
+            <div>Nobody is here :(</div> : 
+            students.data?.map((student: any, index: number) => (
                 <li
                     key={student.id}
-                    className="flex justify-between items-center px-3 py-2 bg-background rounded-[8]"
+                    className="flex justify-between items-center bg-background px-3 py-2 rounded-[8]"
                 >
+
                     <div className="flex flex-row w-full">
-                        <div className="flex flex-row w-fit items-center">
+                        <div className="flex flex-row items-center w-fit">
                             <Icon iconNode={[]} className="w-fit size-6"><User /></Icon>
-                            <span className="ml-3">{student.name}</span>
+                            <span className="ml-3">{student.user.firstName} {student.user.lastName}</span>
                         </div>
-                        <div className="flex flex-row grow justify-end items-center">
-                            <button className="w-fit ml-4 size-8 rounded-[8] bg-background hover:bg-secondary" onClick={() => {setDeleteStudentId(index);setDeleteStudentModalOpen(true);}}>
+                        <div className="flex flex-row justify-end items-center grow">
+                            <button className="bg-background hover:bg-secondary ml-4 rounded-[8] w-fit size-8" onClick={() => {setDeleteStudentId(student.user.id);setDeleteStudentModalOpen(true);}}>
                               <Trash2 className="size-6"/>
                             </button>
                         </div>
                     </div>
             </li>
-            ))}
+            ))
+            }
              <DeleteStudentModal isOpen={isDeleteStudentModalOpen} onClose={() => setDeleteStudentModalOpen(false)} onSubmit={() => {
-                    if (deleteStudentId !== null) {
-                      handleDeleteStudent(deleteStudentId);
-                    }
                     setDeleteStudentModalOpen(false);
+                    removeStudent.mutate(deleteStudentId!);
                     setDeleteStudentId(null);
             }} />
         </ul>
@@ -377,14 +370,13 @@ export function StudentList({ students }: StudentListProps) {
 
 }
 
-
 // Modals for ClassroomHandling
 
 
 interface ClassroomModalProps {
     isOpen: boolean;
     onClose: () => void;
-    onSubmit: (value: string) => void;
+    onSubmit: (name: string, description: string) => void;
     errormessage: string;
 }
 
@@ -392,6 +384,7 @@ interface ClassroomModalProps {
 export function ClassroomModal({isOpen, onClose, onSubmit, errormessage}: ClassroomModalProps) {
 
     const [classroomName, setClassroomName] = useState<string>("");
+    const [classroomDescription, setClassroomDescription] = useState<string>("");
     const [showError, setShowError] = useState<boolean>(false);
 
     const isCreateDisabled = classroomName.trim() === "";
@@ -412,16 +405,42 @@ export function ClassroomModal({isOpen, onClose, onSubmit, errormessage}: Classr
     }, [errormessage]);
 
     const handleSubmit = () => {
-        setShowError(true); // Trigger animation when clicking Create
-        onSubmit(classroomName);
+        if (isCreateDisabled) return;
+        setShowError(true);
+        onSubmit(classroomName, classroomDescription);
     };
+
+    useEffect(() => {
+        if (isOpen) {
+          document.getElementsByName("StandardInput")[0]?.focus();
+        }
+      }, [isOpen]);
+    
+
+    // Handler for Enter key to submit the form
+    useEffect(() => {
+        const handleKeyDown = (e: KeyboardEvent) => {
+            if (e.key === "Enter") {
+                handleSubmit();
+            }else if(e.key === "Escape"){
+                onClose();
+            }
+        };
+
+        if (isOpen) {
+            document.addEventListener("keydown", handleKeyDown);
+        }
+
+        return () => {
+            document.removeEventListener("keydown", handleKeyDown);
+        };
+    }, [isOpen, classroomName, onClose]); // Add dependencies
 
     return (
         <StandardModal className="w-96" title={"Create Classroom"} description={""} isOpen={isOpen}>
             <div className="flex flex-col space-y-4 mt-4">
-                <StandardInput placeholder="Classname" onValueChange={(value: string) => setClassroomName(value)} />
-                
-                {/* Error message with smooth expand/collapse triggered by button click */}
+                <StandardInput  placeholder="Classname" onValueChange={(value: string) => setClassroomName(value)} />
+                <StandardInput  placeholder="add description" onValueChange={(value: string) => setClassroomDescription(value)} />
                 <div 
                     className={`
                         overflow-hidden transition-all duration-300 ease-in-out
@@ -432,10 +451,10 @@ export function ClassroomModal({isOpen, onClose, onSubmit, errormessage}: Classr
                     {errormessage}
                 </div>
                 
-                <div className="flex w-full justify-between mt-2">
-                    <div className="flex gap-4">
-                        <StandardButton label="Cancel" onClick={onClose} className="px-6 py-3 bg-lightforeground" />
-                        <StandardButton label="Create" onClick={() => {handleSubmit();}} className="px-6 py-3 bg-lightforeground" disabled={isCreateDisabled} />
+                <div className="flex justify-between mt-2 w-full">
+                    <div className="flex gap-4 w-full">
+                        <StandardButton label="Cancel" onClick={onClose} className="bg-lightforeground px-6 py-3" />
+                        <StandardButton label="Create" onClick={handleSubmit} className={"ml-1 h-full px-10 py-3 bg-lightforeground "+(isCreateDisabled ? "" : "bg-contrast! text-background")} disabled={isCreateDisabled} />
                     </div>
                 </div>
             </div>
@@ -474,12 +493,10 @@ interface StudentModalProps {
 
 export function StudentModal({isOpen, onClose, onSubmit, errormessage}: StudentModalProps) {
     const [showError, setShowError] = useState<boolean>(false);
-
     const [studentName, setStudentName] = useState<string>("");
 
     const isCreateDisabled = studentName.trim() === "";
 
-     // Reset error visibility when modal closes
     useEffect(() => {
         if (!isOpen) {
             setShowError(false);
@@ -487,7 +504,6 @@ export function StudentModal({isOpen, onClose, onSubmit, errormessage}: StudentM
         }
     }, [isOpen]);
 
-    // Show error when errormessage changes and is not empty
     useEffect(() => {
         if (errormessage) {
             setShowError(true);
@@ -495,10 +511,29 @@ export function StudentModal({isOpen, onClose, onSubmit, errormessage}: StudentM
     }, [errormessage]);
 
     const handleSubmit = () => {
-        setShowError(true); // Trigger animation when clicking Create
+        if (isCreateDisabled) return;
+        setShowError(true);
         onSubmit(studentName);
     };
 
+    // Handler for Enter key to submit the form
+    useEffect(() => {
+        const handleKeyDown = (e: KeyboardEvent) => {
+            if (e.key === "Enter") {
+                handleSubmit();
+            } else if(e.key === "Escape"){
+                onClose();
+            }
+        };
+
+        if (isOpen) {
+            document.addEventListener("keydown", handleKeyDown);
+        }
+
+        return () => {
+            document.removeEventListener("keydown", handleKeyDown);
+        };
+    }, [isOpen, studentName, onClose]); 
 
     return (
         <StandardModal className="w-96" title={"Add Student"} description={"Enter student name:"} isOpen={isOpen}>
@@ -513,12 +548,11 @@ export function StudentModal({isOpen, onClose, onSubmit, errormessage}: StudentM
                 >
                     {errormessage}
                 </div>              
-                <div className="flex w-full justify-between mt-2">
-                <div className="flex gap-4">
-                    <StandardButton label="Cancel" onClick={onClose} className="px-6 py-3 bg-lightforeground" />
-                    <StandardButton label="Create" onClick={() => handleSubmit()} className="px-6 py-3 bg-lightforeground" disabled={isCreateDisabled} />
-                </div>
-
+                <div className="flex justify-between mt-2 w-full">
+                    <div className="flex gap-4">
+                        <StandardButton label="Cancel" onClick={onClose} className="bg-lightforeground px-6 py-3" />
+                        <StandardButton label="Create" onClick={handleSubmit} className="bg-lightforeground px-6 py-3" disabled={isCreateDisabled} />
+                    </div>
                 </div>
             </div>
         </StandardModal>
@@ -536,10 +570,11 @@ interface DeleteStudentModalProps {
 
 
 export function DeleteStudentModal({ isOpen, onClose, onSubmit }: DeleteStudentModalProps) {
+
+
     return (
-       <ConfirmModal title={"Delete Student"} description={"Are you sure you want to delete this student? This action cannot be undone."} isOpen={isOpen} onClose={onClose} onConfirm={() => onSubmit()} />
+       <ConfirmModal title={"Remove student from classroom"} description={"Are you sure you want to remove this student from the classroom?"} isOpen={isOpen} onClose={onClose} onConfirm={() => onSubmit()} />
     )
+
 }
-
-
 

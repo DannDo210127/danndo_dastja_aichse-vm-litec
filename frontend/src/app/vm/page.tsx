@@ -9,6 +9,8 @@ import {Menu, MenuButton, MenuItem, MenuItems } from "@headlessui/react";
 import { ImageResponse } from "next/server";
 import { ConfirmModal } from "@/shared/ConfirmModal";
 import { useRouter } from "next/navigation";
+import { useAuth } from "@/hooks/useAuth";
+import { LoginModal } from "@/components/LoginModal";
 
 interface VmComponent{
         id: number;
@@ -47,12 +49,21 @@ export default function VMPage(){
 
     const [vmErrorMessage, setVmErrorMessage] = useState<string>("");
 
-     return (
-            <div className="flex flex-col m-20 w-8/10 h-8/10 rounded-[8] bg-background">
-                <div className="flex flex-row justify-between items-center border-b-2 border-lightforeground">
-                    <h2 className="m-5 p-2 text-2xl font-bold">Your Virtual Machines</h2>
-                    <StandardButton className="drop-shadow-sm bg-lightforeground hover:bg-contrast! hover:scale-105 transition-all hover:text-background p-2.5!" label="Create VM" onClick={() => {setVmModalOpen(true);}} >
-                        <PlusIcon className="size-6 mr-1" />
+    const [isLoginModalOpen, setLoginModalOpen] = useState(false);
+    const user = useAuth();
+
+    useEffect(() => {
+      if (!user.isAuthenticated) {
+        setLoginModalOpen(true);
+      }}, [user.isAuthenticated]);
+
+    return (
+        !user.isAuthenticated ? <LoginModal isOpen={isLoginModalOpen} onClose={() => setLoginModalOpen(false)} onSubmit={() => setLoginModalOpen(false)} /> :
+            <div className="flex flex-col bg-background m-20 rounded-[8] w-8/10 h-8/10">
+                <div className="flex flex-row justify-between items-center border-lightforeground border-b-2">
+                    <h2 className="m-5 p-2 font-bold text-2xl">Your Virtual Machines</h2>
+                    <StandardButton className="bg-lightforeground hover:bg-contrast! drop-shadow-sm p-2.5! hover:text-background hover:scale-105 transition-all" label="Create VM" onClick={() => {setVmModalOpen(true);}} >
+                        <PlusIcon className="mr-1 size-6" />
                     </StandardButton>
                 </div>
                
@@ -127,10 +138,10 @@ export const CreateVmModal: FC<CreateVmModalProps> = ({ isOpen, onClose, onSubmi
                 <div>
                     {/* VM Type Selection Menu */}
                     <Menu>
-                        <MenuButton className="w-full bg-lightforeground text-left px-4 py-2 rounded-[8]">
+                        <MenuButton className="bg-lightforeground px-4 py-2 rounded-[8] w-full text-left">
                             {selectedImage ? selectedImage.name : "Select VM Type"}
                         </MenuButton>
-                        <MenuItems className="absolute z-50 mt-2 w-fit bg-lightforeground drop-shadow-md border border-lightforeground rounded-[8]">
+                        <MenuItems className="z-50 absolute bg-lightforeground drop-shadow-md mt-2 border border-lightforeground rounded-[8] w-fit">
                             {images.map((image) => (
                                 <MenuItem key={image.id}>
                                     {({ active }) => (
@@ -158,10 +169,10 @@ export const CreateVmModal: FC<CreateVmModalProps> = ({ isOpen, onClose, onSubmi
                     {errormessage}
                 </div>             
 
-                <div className="flex w-full justify-between mt-2">
+                <div className="flex justify-between mt-2 w-full">
                 <div className="flex gap-4">
-                    <StandardButton label="Cancel" onClick={onClose} className="px-6 py-3 bg-lightforeground" />
-                    <StandardButton label="Create" onClick={() => onSubmit(VmName, selectedImage?.image || "")} className="px-6 py-3 bg-gray-200" disabled={isCreateDisabled} />
+                    <StandardButton label="Cancel" onClick={onClose} className="bg-lightforeground px-6 py-3" />
+                    <StandardButton label="Create" onClick={() => onSubmit(VmName, selectedImage?.image || "")} className={"ml-1 h-full px-10 py-3 bg-lightforeground "+(isCreateDisabled ? "" : "bg-contrast! text-background")} disabled={isCreateDisabled} />
                 </div>
 
                 </div>
@@ -211,23 +222,23 @@ export function VmComponent(props: VmComponentProps){
 
 
     return (
-        <div className="flex flex-col m-5 p-2 rounded-[8]">
+        <div className="flex flex-col flex-1 space-y-4 bg-background m-5 p-2 rounded-[8] max-h-[calc(100vh-10rem)] overflow-y-auto">
             <ul>
                 {props.assignedVms.map((vm) => (
-                    <li key={vm.id} className="mb-4 p-2 bg-lightforeground border-2 border-lightforeground rounded-[8]">
-                        <div className="flex flex-row h-full w-full ">
+                    <li key={vm.id} className="bg-lightforeground mb-4 p-2 border-2 border-lightforeground rounded-[8]">
+                        <div className="flex flex-row w-full h-full">
                             <div className="flex flex-row flex-grow">
-                                <ComputerIcon className="w-6 h-6  ml-1 self-center"/>
-                                <span className="ml-4 text-lg w-5/10 h-fit self-center">{vm.name}</span>
+                                <ComputerIcon className="self-center ml-1 w-6 h-6"/>
+                                <span className="self-center ml-4 w-5/10 h-fit text-lg">{vm.name}</span>
                             </div>
                             <StandardButton label="connect" className="" onClick={() => { router.push(`/vnc`); }} >
-                                <ScreenShareIcon className="size-5 mr-1" />
+                                <ScreenShareIcon className="mr-1 size-5" />
                             </StandardButton>
                             <StandardButton label={getVmState(vm.id) === 'running' ? 'Stop' : 'Start'} className="ml-1" onClick={() => { toggleVmState(vm.id); }} >
-                                <CirclePowerIcon className="size-5 mr-1" />
+                                <CirclePowerIcon className="mr-1 size-5" />
                             </StandardButton>
                             <StandardButton label="" className="ml-1" onClick={() => {setDeleteVmModalOpen(true); setVmModalId(vm.id);}} >
-                                <Trash2Icon className="p-0.5 self-center rounded-[8] cursor-pointer" />
+                                <Trash2Icon className="self-center p-0.5 rounded-[8] cursor-pointer" />
                             </StandardButton>
                             <DeleteVmModal isOpen={isDeleteVmModalOpen} onClose={() => {
                                 setDeleteVmModalOpen(false);

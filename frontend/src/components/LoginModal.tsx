@@ -5,12 +5,13 @@ import StandardModal from "@/shared/StandardModal";
 import { useAuthStore } from "@/store/token-store";
 import { useMutation } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
-import { FC, useState } from "react";
+import { FC, useEffect, useState } from "react";
 
 interface LoginModalProps {
     isOpen: boolean;
     onClose: () => void;
     onSubmit: () => void;
+    isLoading?: boolean;
 }
 
 export const LoginModal: FC<LoginModalProps> = ({ isOpen, onClose, onSubmit }) => {
@@ -20,7 +21,7 @@ export const LoginModal: FC<LoginModalProps> = ({ isOpen, onClose, onSubmit }) =
    const router = useRouter();
    const authStore = useAuthStore((state) => state);
 
-  const loginUser = useMutation({
+   const loginUser = useMutation({
     mutationFn: async () => {
       const { data } = await api.post("/auth/login", {
         email,
@@ -32,14 +33,38 @@ export const LoginModal: FC<LoginModalProps> = ({ isOpen, onClose, onSubmit }) =
 
     onSuccess: (data) => {
       console.log("Login successful", data);
-      router.push("/");
+      router.refresh();
     }
+
+  
+
   });
+    
+    // Handler for Enter key to submit the form
+    useEffect(() => {
+        const handleKeyDown = (e: KeyboardEvent) => {
+            if (e.key === "Enter") {
+                if (!checkCredentials(email, password)) return false;
+                        loginUser.mutate();
+                        onSubmit();
+            }else if(e.key === "Escape"){
+                onClose();
+            }
+        };
+
+        if (isOpen) {
+            document.addEventListener("keydown", handleKeyDown);
+        }
+
+        return () => {
+            document.removeEventListener("keydown", handleKeyDown);
+        };
+    }, [isOpen,email, password, onClose]); // Add dependencies
 
     return (
         <StandardModal
             title="Login Required"
-            description="Please log in to access all feature of Virtual Classroom."
+            description="for full access of Virtual Classroom."
             isOpen={isOpen}
             className="w-1/4"
         >
@@ -48,7 +73,7 @@ export const LoginModal: FC<LoginModalProps> = ({ isOpen, onClose, onSubmit }) =
                 <StandardInput placeholder="Email" onValueChange={(value: string) => setEmail(value)} />
                 <StandardInput type="password" placeholder="Password" onValueChange={(value: string) => setPassword(value)} />
 
-                <div className="flex w-full justify-between mt-2">
+                <div className="flex justify-between mt-2 w-full">
 
                     {/* PLACEHOLDER FOR OAUTH BUTTONS. PLACE OAUTH BUTTONS HERE */}
 

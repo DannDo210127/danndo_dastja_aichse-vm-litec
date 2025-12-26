@@ -4,6 +4,8 @@ import Link from 'next/link';
 
 export default function IndexPage() {
 
+  
+
   return (
     <div className="flex flex-col m-20 w-8/10 h-8/10 rounded-[8] bg-background">
       <div className="flex flex-row justify-between w-full h-1/12 bg-background border-b-2 border-lightforeground items-center">

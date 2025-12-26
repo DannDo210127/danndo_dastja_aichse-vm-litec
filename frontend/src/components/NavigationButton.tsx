@@ -29,8 +29,10 @@ export function NavigationButton({
                 (className ? " " + className : "") + 
                 (isActive ? " bg-foreground" : "")}
     >
-      {icon && <span className="mr-4">{icon}</span>}
-      <span className="">{label}</span>
+      {icon && 
+        <span className="mr-4">{icon}</span>
+      }
+      <span className="truncate">{label}</span>
     </button>
   );
 }

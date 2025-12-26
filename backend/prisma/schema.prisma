@@ -9,14 +9,15 @@ generator client {
 }
 
 model User {
-  id        Int     @id @default(autoincrement())
-  email     String  @unique
-  firstName String
-  lastName  String
-  password  String
-  roleId    Int
-  role      Role    @relation(fields: [roleId], references: [id])
-  tokens    Token[]
+  id                    Int                      @id @default(autoincrement())
+  email                 String                   @unique
+  firstName             String
+  lastName              String
+  password              String
+  roleId                Int
+  role                  Role                     @relation(fields: [roleId], references: [id])
+  tokens                Token[]
+  classrooms            ClassroomUser[]          @relation("UserClassrooms")
 }
 
 model Role {
@@ -30,7 +31,7 @@ model Flag {
   id     Int    @id @default(autoincrement())
   value  String
   roleId Int
-  role   Role   @relation(fields: [roleId], references: [id], onDelete: Cascade)
+  role   Role   @relation(fields: [roleId], references: [id])
 }
 
 model Token {
@@ -42,3 +43,18 @@ model Token {
   expiresAt DateTime
 }
 
+model Classroom {
+  id       Int              @id @default(autoincrement())
+  name     String
+  description String?
+  users    ClassroomUser[]
+}
+
+model ClassroomUser {
+  id          Int       @id @default(autoincrement())
+  classroomId Int
+  classroom   Classroom @relation(fields: [classroomId], references: [id], onDelete: Cascade)
+  userId      Int
+  user        User      @relation("UserClassrooms", fields: [userId], references: [id])
+  @@unique([classroomId, userId])
+}

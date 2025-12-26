@@ -1,11 +1,12 @@
 import express from 'express';
 import config from './config/config';
-import { PrismaClient } from '../generated/prisma/client';
+import { PrismaClient } from '../generated/client';
 
 import AuthentificationRouter from './routes/authentification';
 import UserRouter from './routes/user';
 import cors from 'cors';
 import cookieParser from 'cookie-parser';
+import ClassroomRouter from './routes/classroom';
 
 const prisma = new PrismaClient();
 const app = express();
@@ -24,6 +25,7 @@ app.use(express.json());
 
 app.use('/auth', AuthentificationRouter);
 app.use('/user', UserRouter);
+app.use('/classroom', ClassroomRouter);
 
 
 prisma.$connect().then(() => {

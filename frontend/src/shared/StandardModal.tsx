@@ -1,4 +1,4 @@
-import { FC, Fragment } from "react";
+import { FC, Fragment, useEffect } from "react";
 import { createPortal } from "react-dom";
 
 interface StandardModalProps {
@@ -16,7 +16,7 @@ const StandardModal: FC<StandardModalProps> = ({ title, description, isOpen, chi
 
     return createPortal(
         <Fragment>
-            {isOpen ? 
+            {isOpen ?
             (
                 <div
                     className="fixed inset-0 flex items-center justify-center bg-black/30 z-50"
