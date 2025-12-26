@@ -71,7 +71,7 @@ export default function ClassroomPage(){
           setClassroomErrormessage("Classroom with this name already exists!");
           setClassroomModalOpen(true);
         }else{
-          name = name.trim();
+          name = name.trim().toUpperCase();
           description = description.trim();
           handleAddClassroom(name, description);
           setClassroomErrormessage("");
@@ -85,12 +85,13 @@ export default function ClassroomPage(){
       if (!user.isAuthenticated) {
         setLoginModalOpen(true);
       }
+      classrooms.refetch();
     }, [user.isAuthenticated]);
 
 
     return (
-      !user.isAuthenticated ? <LoginModal isOpen={isLoginModalOpen} onClose={() => setLoginModalOpen(false)} onSubmit={() => setLoginModalOpen(false)} /> :
-         classrooms.isFetching ? <LoadingScreen /> : 
+      classrooms.isFetching ? <LoadingScreen /> : 
+       !user.isAuthenticated ? <LoginModal isOpen={isLoginModalOpen} onClose={() => setLoginModalOpen(false)} onSubmit={() => setLoginModalOpen(false)} /> :
            <div className="flex flex-col bg-background m-20 rounded-[8] w-8/10 h-8/10">
                <div className="flex flex-row justify-between items-center bg-background border-lightforeground border-b-2 w-full h-1/12">
                     <h2 className="m-5 p-2 font-bold text-2xl">Your Classrooms</h2>
