@@ -16,7 +16,7 @@ app.use(
       origin: 'http://localhost:3000',
       credentials: true,
     }),
-  );
+);
 
 app.use(cookieParser())
 

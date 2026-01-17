@@ -1,8 +1,8 @@
 export default function VncPage() {
   return (
-    <div className="w-full min-h-screen bg-black flex flex-col">
+    <div className="flex flex-col bg-black w-full min-h-screen">
       <iframe className="w-full h-dvh"
-        src="/novnc/vnc.html?host=127.0.0.1&port=6080&autoconnect=true"
+        src="/novnc/vnc.html?host=localhost&port=3001&path=websockify&autoconnect=true"
         title="VNC Viewer"
       />
     </div>
