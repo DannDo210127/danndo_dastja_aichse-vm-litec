@@ -16,10 +16,18 @@ const getUserRole = async () => {
     return response.data;
 }
 
+const findUserByName = async (searchQuery: string) => {
+    const response = await api.get(`/user/find?query=${encodeURIComponent(searchQuery)}`);
+    return response.data;
+}
+
 const User = {
     getUser,
     getUserRole,
+    findUserByName,
     logout,
 }
+
+
 
 export default User;

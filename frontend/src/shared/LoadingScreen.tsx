@@ -12,13 +12,13 @@ export function LoadingScreen(props: LoadingScreenProps){
     return (
         <Fragment>
                  <div
-                    className="fixed inset-0 flex items-center justify-center bg-black/30 z-50"
+                    className="z-50 fixed inset-0 flex justify-center items-center bg-background"
                 >
                     <div
                         className={`bg-transparent rounded-lg p-6 flex flex-col ${className}`}                            
                 >
-                    <div className="rounded-full  bg-transparent animate-spin scale-140 p-1">
-                        <div className="border-1 border-t-6 border-t-white border-transparent rounded-full h-12 w-12"></div>
+                    <div className="bg-transparent p-1 rounded-full scale-140 animate-spin">
+                        <div className="border-1 border-transparent border-t-6 border-t-foreground rounded-full w-12 h-12"></div>
                     </div>
                     </div>
                 </div>

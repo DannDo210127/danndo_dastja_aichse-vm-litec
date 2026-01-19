@@ -13,6 +13,7 @@
     "@nextui-org/react": "^2.6.11",
     "@nextui-org/system": "^2.4.6",
     "@novnc/novnc": "^1.6.0",
+    "@syncfusion/ej2-react-dropdowns": "^32.1.23",
     "@tanstack/react-query": "^5.90.3",
     "@tanstack/react-query-devtools": "^5.90.2",
     "axios": "^1.12.2",
