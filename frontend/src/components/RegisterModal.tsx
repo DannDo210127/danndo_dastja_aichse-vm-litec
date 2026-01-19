@@ -5,7 +5,7 @@ import StandardModal from "@/shared/StandardModal";
 import { useAuthStore } from "@/store/token-store";
 import { useMutation } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
-import { FC, useState } from "react";
+import { FC, useEffect, useState } from "react";
 
 interface RegisterModalProps {
     isOpen: boolean;
@@ -40,6 +40,30 @@ export const RegisterModal: FC<RegisterModalProps> = ({ isOpen, onClose, onSubmi
     }
   });
 
+
+     useEffect(() => {
+            const handleKeyDown = (e: KeyboardEvent) => {
+                if (e.key === "Enter") {
+                     if (!checkCredentials(email, firstName, lastName, password))
+                                return false;
+
+                            registerUser.mutate();
+                            onSubmit();
+                }else if(e.key === "Escape"){
+                    onClose();
+                }
+            };
+    
+            if (isOpen) {
+                document.addEventListener("keydown", handleKeyDown);
+            }
+    
+            return () => {
+                document.removeEventListener("keydown", handleKeyDown);
+            };
+        }, [isOpen,email, firstName, lastName, password, onClose]); // Add dependencies
+    
+
     return (
         <StandardModal
             title="Register"
@@ -54,7 +78,7 @@ export const RegisterModal: FC<RegisterModalProps> = ({ isOpen, onClose, onSubmi
                 <StandardInput placeholder="Email" onValueChange={(value: string) => setEmail(value)} />
                 <StandardInput type="password" placeholder="Password" onValueChange={(value: string) => setPassword(value)} />
 
-                <div className="flex w-full justify-between mt-2">
+                <div className="flex justify-between mt-2 w-full">
 
                     {/* PLACEHOLDER FOR OAUTH BUTTONS. PLACE OAUTH BUTTONS HERE */}
 
