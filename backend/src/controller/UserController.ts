@@ -24,7 +24,46 @@ const getUserRole: RequestHandler = async (req, res) => {
     res.status(200).json(role);
 };
 
+const findUserById: RequestHandler = async (req, res) => {
+    const id = parseInt(req.params.id);
+
+    return await prisma.user.findUnique({
+        where: {
+            id,
+        },
+    });
+}
+
+/** 
+ * Find users by their first or last name.
+ * The search is case insensitive and matches any part of the name.
+ * Returns a maximum of 5 users ordered by first name ascending.
+ * 
+ * Route: GET /user/find?query=<search_query>
+ */
+const findUserByName: RequestHandler = async (req, res) => {
+    const searchQuery = req.query.query;
+
+    const queryData = await prisma.userSearchView.findMany({
+        where: {
+            fullName: {
+                contains: searchQuery as string,
+                mode: 'insensitive',
+            },
+        },
+        take: 5,
+        orderBy: {
+            fullName: 'asc',
+        }
+    });
+
+    res.status(200).json(queryData);
+
+}
+
 export {
     getUser,
-    getUserRole
+    getUserRole,
+    findUserById,
+    findUserByName
 };

@@ -5,7 +5,8 @@ datasource db {
 
 generator client {
   provider = "prisma-client-js"
-  previewFeatures = ["relationJoins"]
+  previewFeatures = ["relationJoins", "views"]
+  binaryTargets = ["native", "darwin-arm64"]
 }
 
 model User {
@@ -18,6 +19,15 @@ model User {
   role                  Role                     @relation(fields: [roleId], references: [id])
   tokens                Token[]
   classrooms            ClassroomUser[]          @relation("UserClassrooms")
+}
+
+view UserSearchView {
+  id        Int    @map("id")
+  firstName String @map("firstName")
+  lastName  String @map("lastName")
+  fullName  String @map("fullname")
+
+  @@map("user_search_view")
 }
 
 model Role {
