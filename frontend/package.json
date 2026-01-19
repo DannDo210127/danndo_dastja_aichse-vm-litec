@@ -28,6 +28,7 @@
     "react-toggle-dark-mode": "^1.1.1",
     "react-vnc": "^3.1.0",
     "react-vnc-display": "^2.0.1",
+    "websockify": "^0.7.1",
     "zustand": "^5.0.8"
   },
   "devDependencies": {
