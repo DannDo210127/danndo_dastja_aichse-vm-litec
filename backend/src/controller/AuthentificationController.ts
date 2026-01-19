@@ -3,6 +3,7 @@ import DatabaseClient from "../db/client";
 import { generateAccessToken, generateRefreshToken } from "../auth/token";
 import { User } from "@prisma/client";
 import bcrypt from "bcryptjs";
+import { errorMessage } from "../util/Error";
 
 const prisma = DatabaseClient.getInstance().prisma;
 
@@ -10,12 +11,13 @@ const prisma = DatabaseClient.getInstance().prisma;
 const refreshTokenExpiry = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000) // 7 Days
 
 /**
- * Login a user and return generated JWT token 
- * @returns 
+ * Login a user and provide access and refresh tokens.
+ * 
+ * Route: POST /auth/login
  */
 const login: RequestHandler = async (req, res) => {
   if (!req.body.email || !req.body.password) {
-    return res.status(400).json({ message: 'Email and password are required' });
+    return res.status(400).json(errorMessage(101, 'Email and password are required'));
   }
 
   const user = await prisma.user.findUnique({
@@ -25,11 +27,11 @@ const login: RequestHandler = async (req, res) => {
   });
 
   if (!user) {
-    return res.status(401).json({ message: 'Auth failed' });
+    return res.status(401).json(errorMessage(102, 'User not found'));
   }
 
   if (!await bcrypt.compare(req.body.password, user.password)) {
-    return res.status(401).json({ message: 'Password wronge' });
+    return res.status(401).json(errorMessage(103, 'Password wrong'));
   }
 
   // Delete all old Tokens
@@ -58,9 +60,14 @@ const login: RequestHandler = async (req, res) => {
   res.send({ accessToken });
 }
 
+/**
+ * Register a new user.
+ * 
+ * Route: POST /auth/register
+ */
 const register: RequestHandler = async (req, res) => {
   if (!req.body.firstName || !req.body.lastName || !req.body.email || !req.body.password) {
-    return res.status(400).json({ message: 'First name, last name, email and password are required' });
+    return res.status(400).json(errorMessage(104, 'First name, last name, email and password are required'));
   }
 
   const salt = bcrypt.genSaltSync(10);
@@ -73,7 +80,7 @@ const register: RequestHandler = async (req, res) => {
     email: req.body.email,
     password: passwordHash,
 
-    // Default ADMIN role
+    // TODO: Default ADMIN role
     roleId: 1,
   }
 
@@ -93,8 +100,9 @@ const register: RequestHandler = async (req, res) => {
 }
 
 /**
- * Route to generate new access token using refresh token 
- * @returns 
+ * Generate a new access token using the refresh token
+ * 
+ * Route: POST /auth/token
  */
 const token: RequestHandler = async (req, res) => {
   const refreshToken = req.cookies.refreshToken;
@@ -116,21 +124,22 @@ const token: RequestHandler = async (req, res) => {
 } 
 
 /**
- * Logout Route
- * @returns 
+ * Logout a user by deleting the refresh token
+ * 
+ * Route: POST /auth/logout
  */
 const logout: RequestHandler = async (req, res) => {
   const refreshToken = req.cookies.refreshToken;
 
   if(!refreshToken)
-    return res.sendStatus(400).send('No refresh token provided');
+    return res.sendStatus(400).json(errorMessage(105, 'Refresh token is required'));
 
   const deletedToken = await prisma.token.delete({
     where: { token: refreshToken }
   })
   
   if(!deletedToken)
-    return res.sendStatus(400).send('Token not found');
+    return res.sendStatus(400).json(errorMessage(106, 'Token not found'));
 
 
   res.cookie("refreshToken", "", {

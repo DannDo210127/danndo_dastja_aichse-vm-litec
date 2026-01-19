@@ -3,6 +3,11 @@ import DatabaseClient from "../db/client";
 
 const prisma = DatabaseClient.getInstance().prisma;
 
+/**
+ * Create a new classroom.
+ * 
+ * Route: POST /classroom/
+ */
 export const createClassroom: RequestHandler = async (req, res) => {
     // CHECK IF USER HAS PERMISSIONS TO CREATE CLASSROOM
 
@@ -23,6 +28,11 @@ export const getAllClassrooms: RequestHandler = async (req, res) => {
     res.status(200).json(await prisma.classroom.findMany());
 }
 
+/**
+ * Add a student to a classroom.
+ * 
+ * Route: POST /classroom/:classroomId/student
+ */
 export const addStudentToClassroom: RequestHandler = async (req, res) => {
     const classroomId = Number(req.params.classroomId);
     const userId = req.body.userId;
@@ -37,6 +47,11 @@ export const addStudentToClassroom: RequestHandler = async (req, res) => {
     res.send("User " + userId + " added to classroom " + classroomId);
 }
 
+/**
+ * Remove a student from a classroom.
+ * 
+ * Route: DELETE /classroom/:classroomId/student/:userId
+ */
 export const removeStudentFromClassroom: RequestHandler = async (req, res) => {
     const classroomId = Number(req.params.classroomId);
     const userId = Number(req.params.userId);
@@ -53,6 +68,11 @@ export const removeStudentFromClassroom: RequestHandler = async (req, res) => {
     res.send("User " + userId + " removed from classroom " + classroomId);
 }
 
+/**
+ * Get all students in a classroom.
+ * 
+ * Route: GET /classroom/:classroomId/students
+ */
 export const getAllStudentsInClassroom: RequestHandler = async (req, res) => {
     const classroomId = req.params.classroomId;
 
@@ -68,6 +88,11 @@ export const getAllStudentsInClassroom: RequestHandler = async (req, res) => {
     res.status(200).json(students);
 }
 
+/**
+ * Delete a classroom by its ID.
+ * 
+ * Route: DELETE /classroom/:classroomId
+ */
 export const deleteClassroom: RequestHandler = async (req, res) => {
     const classroomId = Number(req.params.classroomId);
     
