@@ -11,6 +11,7 @@ import  UserApi  from "@/api/user";
 import { LoadingScreen } from "@/shared/LoadingScreen";
 import { useAuth } from "@/hooks/useAuth";
 import { LoginModal } from "@/components/LoginModal";
+import Snackbar from "@/shared/Snackbar";
 
 // Types from database schema
 interface User {
@@ -104,6 +105,8 @@ export default function ClassroomPage(){
     return (
       classrooms.isFetching ? <LoadingScreen /> : 
        !user.isAuthenticated ? <LoginModal isOpen={isLoginModalOpen} onClose={() => setLoginModalOpen(false)} onSubmit={() => setLoginModalOpen(false)} /> :
+                           
+
            <div className="flex flex-col bg-background m-20 rounded-[8] w-8/10 h-8/10">
                <div className="flex flex-row justify-between items-center bg-background border-lightforeground border-b-2 w-full h-1/12">
                     <h2 className="m-5 p-2 font-bold text-2xl">Your Classrooms</h2>
@@ -123,7 +126,7 @@ interface ClassroomProps {
   deleteClassroomMutation: any;
 }
 
-function ClassroomComponent({setClassrooms, deleteClassroomMutation, classrooms }: ClassroomProps & { setClassrooms: React.Dispatch<React.SetStateAction<Classroom[]>>, classrooms: Classroom[] }) {
+function ClassroomComponent({deleteClassroomMutation, classrooms }: ClassroomProps & { setClassrooms: React.Dispatch<React.SetStateAction<Classroom[]>>, classrooms: Classroom[] }) {
 
   const [openClassroomIds, setOpenClassroomIds] = useState<number[]>([]);
   console.log("open classrooms at start", openClassroomIds);
@@ -169,9 +172,9 @@ function ClassroomComponent({setClassrooms, deleteClassroomMutation, classrooms 
         const isOpen = openClassroomIds.includes(classroom.id);
         
         return (
-          <div key={classroom.id} className="bg-background border-2 border-lightforeground rounded-[8]">
+          <div key={classroom.id} className={`bg-background shadow-md border-2 border-lightforeground ${isOpen ? "rounded-t-[8]" : "rounded-[8]"}`}>
             {/* Header */}
-            <div className="flex items-center bg-lightforeground drop-shadow-sm px-4 py-2 border-lightforeground border-b-2 cursor-pointer" >
+            <div className={`flex items-center bg-lightforeground drop-shadow-sm px-4 py-2 border-lightforeground border-b-2 ${isOpen ? "rounded-t-[4]" : "rounded-[4]"} cursor-pointer`} >
 
               <div className="flex flex-1 items-center space-x-4" onClick={() => toggleClassroom(classroom.id)} >  
                 {isOpen ? 
@@ -207,10 +210,7 @@ function ClassroomComponent({setClassrooms, deleteClassroomMutation, classrooms 
           setStudentModalOpen(false);
           setStudentModalClassroomId(null);
         }} 
-        onSubmit={(value) => { 
-          // This is for the manual add student by name (old behavior)
-          // Can be removed if you only want to use the dropdown
-        }} 
+   
       />
       <DeleteClassroomModal isOpen={isDeleteClassroomModalOpen} onClose={() => setDeleteClassroomModalOpen(false)} onSubmit={() => {
         if (deleteClassroomId !== null) {
@@ -436,24 +436,25 @@ export function DeleteClassroomModal({ isOpen, onClose, onSubmit }: DeleteClassr
 interface StudentModalProps {
     isOpen: boolean;
     onClose: () => void;
-    onSubmit: (value: string) => void;
     errormessage: string;
     classroomId?: number;
 }
 
-export function StudentModal({isOpen, onClose, onSubmit, errormessage, classroomId}: StudentModalProps) {
+export function StudentModal({isOpen, onClose, errormessage, classroomId}: StudentModalProps) {
     const [showError, setShowError] = useState<boolean>(false);
-    const [student, setStudent] = useState<[string,number]>(["", 0]);
+    const [studentInput, setStudentInput] = useState<[string,number]>(["", 0]);
+    const [selectedStudent, setSelectedStudent] = useState<[string,number]>(["", 0]);
+
     const [showDropdown, setShowDropdown] = useState<boolean>(false);
 
-    const isCreateDisabled = student[0].trim() === "";
+     const [isCreateDisabled, setIsCreateDisabled] = useState<boolean>(studentInput[0].trim() === selectedStudent[0].trim());
 
    
 
     const queryClient = useQueryClient();
     const searchStudentsQuery = useQuery({
         queryKey: ['students'],
-        queryFn: () => UserApi.findUserByName(student[0]),
+        queryFn: () => UserApi.findUserByName(studentInput[0]),
         enabled: false,
     });
     const addStudentToClassroomMutation = useMutation({
@@ -472,7 +473,7 @@ export function StudentModal({isOpen, onClose, onSubmit, errormessage, classroom
     useEffect(() => {
         if (!isOpen) {
             setShowError(false);
-            setStudent(["", 0]);
+            setStudentInput(["", 0]);
             setShowDropdown(false);
         }
     }, [isOpen]);
@@ -485,19 +486,37 @@ export function StudentModal({isOpen, onClose, onSubmit, errormessage, classroom
 
     const handleModalClose = () => {
         setShowError(false);
-        setStudent(["", 0]);
+        setStudentInput(["", 0]);
         setShowDropdown(false);
         onClose();
     };
 
     const handleSubmit = () => {
-        if (isCreateDisabled) return;
-        setShowError(true);
-        addStudentToClassroomMutation.mutate({ classroomId: classroomId!, userId: student[1] });
+        // Check if input is empty
+        if (studentInput[0].trim() === "") {
+            setShowError(true);
+            return;
+        }
+        
+        // Check if input matches selected student
+        if (studentInput[0].trim() !== selectedStudent[0].trim()) {
+            setShowError(true);
+            return;
+        }
+        
+        // Check if a student was actually selected (has valid ID)
+        if (selectedStudent[1] === 0) {
+            setShowError(true);
+            return;
+        }
+        
+        addStudentToClassroomMutation.mutate({ classroomId: classroomId!, userId: selectedStudent[1] });
     };
 
     const handleDropdownSelect = (student: User) => {
-        setStudent([`${student.firstName} ${student.lastName}`, student.id]);
+        setSelectedStudent([`${student.firstName} ${student.lastName}`, student.id]);
+        setStudentInput([`${student.firstName} ${student.lastName}`, student.id]);
+        setIsCreateDisabled(false);
         setShowDropdown(false);
     };
 
@@ -518,17 +537,18 @@ export function StudentModal({isOpen, onClose, onSubmit, errormessage, classroom
         return () => {
             document.removeEventListener("keydown", handleKeyDown);
         };
-    }, [isOpen, student[0], onClose]); 
+    }, [isOpen, studentInput[0], onClose]); 
 
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const value = e.target.value;
-        setStudent([value, 0]);
+        setStudentInput([value, 0]);
         
-        // Show dropdown when user starts typing
+        const isDisabled = value.trim() === "" || value.trim() !== selectedStudent[0].trim();
+        setIsCreateDisabled(isDisabled);
+        
         if (value.trim().length > 0) {
             setShowDropdown(true);
-            
             searchStudentsQuery.refetch();
         } else {
             setShowDropdown(false);
@@ -536,7 +556,6 @@ export function StudentModal({isOpen, onClose, onSubmit, errormessage, classroom
     };
 
     const handleBlur = () => {
-        // Close dropdown after a small delay to allow click on dropdown items
         setTimeout(() => {
             setShowDropdown(false);
         }, 100);
@@ -558,23 +577,24 @@ export function StudentModal({isOpen, onClose, onSubmit, errormessage, classroom
                         placeholder="Search Student Name" 
                         onChange={(e) => handleChange(e)}
                         onBlur={handleBlur}
-                        value={student[0]}
+                        value={studentInput[0]}
                     />
+
                     
                     {/* Dropdown for search results */}
                     {showDropdown && (
-                        <div className="top-full right-0 left-0 z-50 absolute bg-lightforeground shadow-lg drop-shadow-xl mt-1 border-foreground rounded-[8] max-h-64">
+                        <div className="top-full right-0 left-0 z-50 absolute bg-lightforeground shadow-lg drop-shadow-xl mt-1 border-foreground rounded-[8] w-full max-w-full max-h-64">
                             {searchStudentsQuery.isFetching ? (
-                                <LoadingScreen />
+                                <div className="p-3 text-font text-sm text-center">Loading...</div>
                             ) : (searchStudentsQuery.data.length > 0 ? 
                                (
                                 searchStudentsQuery.data.map((student: User) => (
                                     <button
                                         key={student.id}
                                         onClick={() => handleDropdownSelect(student)}
-                                        className="hover:bg-foreground px-4 py-3 first:rounded-t-[8] last:rounded-b-[8] w-full overflow-visible text-font text-left transition-colors"
+                                        className="flex flex-row hover:bg-foreground px-4 py-3 first:rounded-t-[8] last:rounded-b-[8] w-full overflow-visible text-font text-left transition-colors"
                                     > 
-                                        {student.firstName} {student.lastName}
+                                        <p className="flex-grow">{student.firstName} {student.lastName}</p><p className="mr-2 text-gray-500">{student.id}</p>
                                     </button>
                                 ))
                             ) : (
@@ -589,11 +609,11 @@ export function StudentModal({isOpen, onClose, onSubmit, errormessage, classroom
                 <div 
                     className={`
                         overflow-hidden transition-all duration-300 ease-in-out
-                        ${showError && errormessage ? 'max-h-20 opacity-100 py-2 px-4' : 'max-h-0 opacity-0'}
+                        ${showError && (errormessage || studentInput[0].trim() === "" || studentInput[0].trim() !== selectedStudent[0].trim() || selectedStudent[1] === 0) ? 'max-h-20 opacity-100 py-2 px-4' : 'max-h-0 opacity-0'}
                         bg-red-400 rounded-[8] text-font text-sm 
                     `}
                 >
-                    {errormessage}
+                    {errormessage || (studentInput[0].trim() === "" ? "Please enter a student name" : studentInput[0].trim() !== selectedStudent[0].trim() ? "Please select a student from the dropdown list" : selectedStudent[1] === 0 ? "Please select a valid student" : "")}
                 </div>              
                 <div className="flex justify-between mt-2 w-full">
                     <div className="flex gap-4">
