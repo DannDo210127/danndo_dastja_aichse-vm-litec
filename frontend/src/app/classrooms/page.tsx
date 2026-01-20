@@ -29,7 +29,7 @@ import UserApi from "@/api/user";
 import { LoadingScreen } from "@/shared/LoadingScreen";
 import { useAuth } from "@/hooks/useAuth";
 import { LoginModal } from "@/components/LoginModal";
-import Snackbar from "@/shared/Snackbar";
+import { useErrorStore } from '@/store/error-store';
 
 // Types from database schema
 interface User {
@@ -220,6 +220,7 @@ function ClassroomList({
         const isOpen = openClassroomIds.includes(classroom.id);
 
         return (
+          <div key={classroom.id} className={`bg-background shadow-md border-2 border-lightforeground rounded-[8] transition-all duration-300`}>
           <div
             key={classroom.id}
             className={`bg-background shadow-md border-2 border-lightforeground ${isOpen ? "rounded-t-[8]" : "rounded-[8]"}`}
@@ -340,6 +341,8 @@ interface StudentListProps {
 export function StudentList({ classroomId }: StudentListProps) {
   const [isDeleteStudentModalOpen, setDeleteStudentModalOpen] = useState(false);
   const [deleteStudentId, setDeleteStudentId] = useState<number | null>(null);
+
+  const { showError, showSuccess } = useErrorStore();
 
   const queryClient = useQueryClient();
 
