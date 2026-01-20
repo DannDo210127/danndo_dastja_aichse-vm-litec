@@ -134,14 +134,14 @@ const logout: RequestHandler = async (req, res) => {
   if(!refreshToken)
     return res.sendStatus(400).json(errorMessage(105, 'Refresh token is required'));
 
-  const deletedToken = await prisma.token.delete({
-    where: { token: refreshToken }
-  })
+  try {
+    await prisma.token.delete({
+      where: { token: refreshToken }
+    })
+  } catch (error) {
+    res.sendStatus(400).json(errorMessage(106, 'Something went wrong during logout'));
+  }
   
-  if(!deletedToken)
-    return res.sendStatus(400).json(errorMessage(106, 'Token not found'));
-
-
   res.cookie("refreshToken", "", {
     httpOnly: true,
     maxAge: 0,
