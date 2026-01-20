@@ -11,7 +11,7 @@ import  UserApi  from "@/api/user";
 import { LoadingScreen } from "@/shared/LoadingScreen";
 import { useAuth } from "@/hooks/useAuth";
 import { LoginModal } from "@/components/LoginModal";
-import Snackbar from "@/shared/Snackbar";
+import { useErrorStore } from '@/store/error-store';
 
 // Types from database schema
 interface User {
@@ -172,7 +172,7 @@ function ClassroomComponent({deleteClassroomMutation, classrooms }: ClassroomPro
         const isOpen = openClassroomIds.includes(classroom.id);
         
         return (
-          <div key={classroom.id} className={`bg-background shadow-md border-2 border-lightforeground ${isOpen ? "rounded-t-[8]" : "rounded-[8]"}`}>
+          <div key={classroom.id} className={`bg-background shadow-md border-2 border-lightforeground rounded-[8] transition-all duration-300`}>
             {/* Header */}
             <div className={`flex items-center bg-lightforeground drop-shadow-sm px-4 py-2 border-lightforeground border-b-2 ${isOpen ? "rounded-t-[4]" : "rounded-[4]"} cursor-pointer`} >
 
@@ -266,6 +266,8 @@ export function StudentList({ classroomId }: StudentListProps) {
   const [isDeleteStudentModalOpen, setDeleteStudentModalOpen] = useState(false);
   const [deleteStudentId, setDeleteStudentId] = useState<number | null>(null);
 
+  const { showError, showSuccess } = useErrorStore();
+
   const queryClient = useQueryClient();
 
   const students = useQuery({
@@ -279,6 +281,7 @@ export function StudentList({ classroomId }: StudentListProps) {
     },
     onSuccess:()=>{
       queryClient.invalidateQueries({ queryKey: ['students'] })
+      showSuccess("Student removed from classroom successfully");
     }});
   
     return (
@@ -441,15 +444,14 @@ interface StudentModalProps {
 }
 
 export function StudentModal({isOpen, onClose, errormessage, classroomId}: StudentModalProps) {
-    const [showError, setShowError] = useState<boolean>(false);
     const [studentInput, setStudentInput] = useState<[string,number]>(["", 0]);
     const [selectedStudent, setSelectedStudent] = useState<[string,number]>(["", 0]);
 
     const [showDropdown, setShowDropdown] = useState<boolean>(false);
 
-     const [isCreateDisabled, setIsCreateDisabled] = useState<boolean>(studentInput[0].trim() === selectedStudent[0].trim());
+    const [isCreateDisabled, setIsCreateDisabled] = useState<boolean>(studentInput[0].trim() === selectedStudent[0].trim());
 
-   
+    const { showError, showSuccess, showInfo } = useErrorStore();
 
     const queryClient = useQueryClient();
     const searchStudentsQuery = useQuery({
@@ -464,28 +466,21 @@ export function StudentModal({isOpen, onClose, errormessage, classroomId}: Stude
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['classrooms'] });
             handleModalClose();
+            showSuccess("Student added to classroom successfully");
         },
         onError: () => {
-            setShowError(true);
+            showError("Failed to add student to classroom");
         }
     });
 
     useEffect(() => {
         if (!isOpen) {
-            setShowError(false);
             setStudentInput(["", 0]);
             setShowDropdown(false);
         }
     }, [isOpen]);
 
-    useEffect(() => {
-        if (errormessage) {
-            setShowError(true);
-        }
-    }, [errormessage]);
-
     const handleModalClose = () => {
-        setShowError(false);
         setStudentInput(["", 0]);
         setShowDropdown(false);
         onClose();
@@ -494,19 +489,19 @@ export function StudentModal({isOpen, onClose, errormessage, classroomId}: Stude
     const handleSubmit = () => {
         // Check if input is empty
         if (studentInput[0].trim() === "") {
-            setShowError(true);
+            showError("Student name cannot be empty");
             return;
         }
         
         // Check if input matches selected student
         if (studentInput[0].trim() !== selectedStudent[0].trim()) {
-            setShowError(true);
+            showError("Please select a student from the dropdown list");
             return;
         }
         
         // Check if a student was actually selected (has valid ID)
         if (selectedStudent[1] === 0) {
-            setShowError(true);
+            showError("Please select a valid student from the dropdown list");
             return;
         }
         
@@ -605,16 +600,6 @@ export function StudentModal({isOpen, onClose, errormessage, classroomId}: Stude
                         </div>
                     )}
                 </div>
-
-                <div 
-                    className={`
-                        overflow-hidden transition-all duration-300 ease-in-out
-                        ${showError && (errormessage || studentInput[0].trim() === "" || studentInput[0].trim() !== selectedStudent[0].trim() || selectedStudent[1] === 0) ? 'max-h-20 opacity-100 py-2 px-4' : 'max-h-0 opacity-0'}
-                        bg-red-400 rounded-[8] text-font text-sm 
-                    `}
-                >
-                    {errormessage || (studentInput[0].trim() === "" ? "Please enter a student name" : studentInput[0].trim() !== selectedStudent[0].trim() ? "Please select a student from the dropdown list" : selectedStudent[1] === 0 ? "Please select a valid student" : "")}
-                </div>              
                 <div className="flex justify-between mt-2 w-full">
                     <div className="flex gap-4">
                         <StandardButton label="Cancel" onClick={handleModalClose} className="bg-lightforeground px-6 py-3" />
