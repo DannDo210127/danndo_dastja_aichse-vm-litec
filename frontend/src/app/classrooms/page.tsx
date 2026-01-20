@@ -61,6 +61,7 @@ export default function ClassroomPage(){
     
     const handleAddClassroom = (name: string, description: string) => {
       createClassroomMutation.mutate({ name, description });
+      setClassroomModalOpen(false);
     };
 
     const handleClassroomSubmit = (name: string, description: string) => {
@@ -220,9 +221,9 @@ function Classroom({ classrooms: _classrooms, setClassrooms, deleteClassroomMuta
         const isOpen = openClassroomIds.includes(classroom.id);
         
         return (
-          <div key={classroom.id} className="bg-background drop-shadow-sm border-2 border-lightforeground rounded-[8]">
+          <div key={classroom.id} className="bg-background border-2 border-lightforeground rounded-[8]">
             {/* Header */}
-            <div className="flex items-center bg-lightforeground px-4 py-2 border-lightforeground border-b-2 cursor-pointer" >
+            <div className="flex items-center bg-lightforeground drop-shadow-sm px-4 py-2 border-lightforeground border-b-2 cursor-pointer" >
 
               <div className="flex flex-1 items-center space-x-4" onClick={() => toggleClassroom(classroom.id)} >  
                 {isOpen ? 
