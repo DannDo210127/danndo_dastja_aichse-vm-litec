@@ -3,6 +3,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { useEffect, useState } from 'react'
 import { Navigation } from '@/components/Navigation'
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
+import Snackbar from '@/shared/Snackbar'
 
 import '../styles/global.css'
 import { Theme, useThemeStore } from '@/store/theme-store'
@@ -27,6 +28,9 @@ function LayoutContent({ children }: { children: React.ReactNode }) {
       <main className="bg-background w-full h-full">
         {children}
       </main>
+
+      {/* Snackbar for notifications */}
+      <Snackbar />
 
       {/* Portal Div for Modals */}
       <div id="modal-root"></div>
