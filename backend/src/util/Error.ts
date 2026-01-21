@@ -2,14 +2,16 @@ interface VirtualClassroomError {
     error: {
         code: number;
         message: string;
+        silent?: boolean;
     }
 }
 
-export const errorMessage = (code: number, message: string) => {
+export const errorMessage = (code: number, message: string, silent: boolean = false) => {
     return {
         error: {
             code: code,
-            message: message, 
+            message: message,
+            silent: silent
         }
     } as VirtualClassroomError;
 }

@@ -1,5 +1,6 @@
 import { RequestHandler } from "express";
 import DatabaseClient from "../db/client";
+import { errorMessage } from "../util/Error";
 
 const prisma = DatabaseClient.getInstance().prisma;
 
@@ -37,12 +38,17 @@ export const addStudentToClassroom: RequestHandler = async (req, res) => {
     const classroomId = Number(req.params.classroomId);
     const userId = req.body.userId;
 
-    await prisma.classroomUser.create({
-        data: {
-            classroomId,
-            userId,
-        }
-    })
+    try {
+        await prisma.classroomUser.create({
+            data: {
+                classroomId,
+                userId,
+            }
+        })
+    } catch {
+        return res.status(400).json(errorMessage(11, 'User is already in the classroom'));
+        
+    }
 
     res.send("User " + userId + " added to classroom " + classroomId);
 }

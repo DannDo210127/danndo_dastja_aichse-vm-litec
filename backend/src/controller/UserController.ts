@@ -79,7 +79,7 @@ const findUserByName: RequestHandler = async (req, res) => {
     const searchQuery = req.query.query;
 
     if (!searchQuery || typeof searchQuery !== 'string') {
-        return res.status(400).json(errorMessage(1, 'Query parameter is not valid'));
+        return res.status(400).json(errorMessage(1, 'Query parameter is not valid', true));
     }
 
     const queryData = await prisma.userSearchView.findMany({
@@ -96,7 +96,7 @@ const findUserByName: RequestHandler = async (req, res) => {
     });
 
     if(queryData.length === 0 || !queryData) {
-        return res.status(404).json(errorMessage(2, 'No user found'));
+        return res.status(404).json(errorMessage(2, 'No user found', true));
     }
 
     res.status(200).json(queryData);
