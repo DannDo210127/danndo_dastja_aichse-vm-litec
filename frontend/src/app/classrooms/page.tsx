@@ -220,7 +220,6 @@ function ClassroomList({
         const isOpen = openClassroomIds.includes(classroom.id);
 
         return (
-          <div key={classroom.id} className={`bg-background shadow-md border-2 border-lightforeground rounded-[8] transition-all duration-300`}>
           <div
             key={classroom.id}
             className={`bg-background shadow-md border-2 border-lightforeground ${isOpen ? "rounded-t-[8]" : "rounded-[8]"}`}
@@ -727,7 +726,7 @@ export function AddStudentModal({
                 <div className="p-3 text-font text-sm text-center">
                   Loading...
                 </div>
-              ) : searchStudentsQuery.data.length > 0 ? (
+              ) : !searchStudentsQuery.isError ? (
                 searchStudentsQuery.data.map((student: User) => (
                   <button
                     key={student.id}
@@ -776,6 +775,7 @@ export function AddStudentModal({
               label="Add"
               onClick={handleSubmit}
               className="bg-lightforeground px-6 py-3"
+              isLoading={addStudentToClassroomMutation.isPending}
               disabled={isCreateDisabled}
             />
           </div>

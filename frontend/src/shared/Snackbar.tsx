@@ -26,7 +26,7 @@ export default function Snackbar(){
     const getBgColor = () => {
         switch(type) {
             case 'error':
-                return ' border-3 border-red-400';
+                return ' border-1 border-white drop-shadow-md';
             case 'success':
                 return 'border-3 border-green-400';
             case 'info':

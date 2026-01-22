@@ -15,25 +15,14 @@ interface LoginModalProps {
     isLoading?: boolean;
 }
 
-// TODO: Implement better error handling
-const checkCredentials = (email: string, password: string) => {
-    if (!email && !password) return false;
-    return true;
-};
-
 const handleSubmit = (
     e: FormEvent | undefined,
     email: string,
     password: string,
     login: () => void,
-    onSubmitCb: () => void
 ) => {
     e?.preventDefault();
-
-    if (!checkCredentials(email, password)) return false;
-
     login();
-    onSubmitCb();
 };
 
 export const LoginModal: FC<LoginModalProps> = ({ isOpen, onClose, onSubmit }) => {
@@ -54,7 +43,8 @@ export const LoginModal: FC<LoginModalProps> = ({ isOpen, onClose, onSubmit }) =
     },
 
     onSuccess: (data) => {
-      router.refresh();
+        onSubmit();
+        router.refresh();
     }
 
   
@@ -84,7 +74,7 @@ export const LoginModal: FC<LoginModalProps> = ({ isOpen, onClose, onSubmit }) =
             <div className="flex flex-col space-y-4 mt-4">
                 <form
                     onSubmit={(e) =>
-                        handleSubmit(e, email, password, () => loginUser.mutate(), onSubmit)
+                        handleSubmit(e, email, password, () => loginUser.mutate())
                     }
                     className="flex flex-col space-y-4"
                 >

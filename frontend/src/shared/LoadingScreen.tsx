@@ -1,5 +1,6 @@
 import { FC, Fragment, useEffect } from "react";
 import { createPortal } from "react-dom";
+import Spinner from "@/shared/Spinner";
 
 
 interface LoadingScreenProps {
@@ -17,9 +18,7 @@ export function LoadingScreen(props: LoadingScreenProps){
                     <div
                         className={`bg-transparent rounded-lg p-6 flex flex-col ${className}`}                            
                 >
-                    <div className="bg-transparent p-1 rounded-full scale-140 animate-spin">
-                        <div className="border-1 border-transparent border-t-6 border-t-contrast rounded-full w-12 h-12"></div>
-                    </div>
+                    <Spinner outerClass="p-1 rounded-full scale-140" innerClass="w-12 h-12 border-t-6" />
                     </div>
                 </div>
         </Fragment>
