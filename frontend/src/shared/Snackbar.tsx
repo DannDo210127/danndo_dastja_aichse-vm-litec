@@ -15,11 +15,11 @@ export default function Snackbar(){
     const getIcon = () => {
         switch(type) {
             case 'error':
-                return <AlertTriangle className="flex-shrink-0 size-6 text-red-500" />;
+                return <AlertTriangle className="flex-shrink-0 size-6 text-red-400" />;
             case 'success':
-                return <CheckCircle2 className="flex-shrink-0 size-6 text-green-500" />;
+                return <CheckCircle2 className="flex-shrink-0 size-6 text-green-400" />;
             case 'info':
-                return <Info className="flex-shrink-0 size-6 text-blue-500" />;
+                return <Info className="flex-shrink-0 size-6 text-blue-400" />;
         }
     };
 
@@ -37,22 +37,22 @@ export default function Snackbar(){
     const getTextColor = () => {
         switch(type) {
             case 'error':
-                return 'text-red-900';
+                return 'text-red-400';
             case 'success':
-                return 'text-green-900';
+                return 'text-green-400';
             case 'info':
-                return 'text-blue-900';
+                return 'text-blue-400';
         }
     };
 
     const getDescColor = () => {
         switch(type) {
             case 'error':
-                return 'text-red-700';
+                return 'text-red-400';
             case 'success':
-                return 'text-green-700';
+                return 'text-green-400';
             case 'info':
-                return 'text-blue-700';
+                return 'text-blue-400';
         }
     };
 
@@ -65,7 +65,8 @@ export default function Snackbar(){
                 duration-500 transition-all ease-in-out
                 cursor-pointer hover:shadow-lg
                 shadow-md z-[9999]
-                bg-background
+                bg-lightforeground
+
                 ${getBgColor()}
                 flex gap-4
                 ${isVisible && message ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-20 pointer-events-none'}
