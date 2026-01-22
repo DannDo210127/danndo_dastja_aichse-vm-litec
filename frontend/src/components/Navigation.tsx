@@ -20,10 +20,10 @@ export function Navigation(){
         user.isLoading ? <LoadingScreen /> :
         <Fragment>
             
-            <div className="flex flex-col w-1/3 h-full bg-background justify-between drop-shadow-2xl">
+            <div className="flex flex-col justify-between bg-background drop-shadow-2xl w-1/3 h-full">
 
                 <div className="flex flex-col gap-4 mx-5">
-                    <div className="border-b-2 border-b-lightforeground mx-2 my-4">
+                    <div className="mx-2 my-4 border-b-2 border-b-lightforeground">
                         <Link href={"/"} className="flex flex-row items-center m-5">
                             <Codesandbox className="mr-2"/>
                             Virtual Classroom
@@ -35,7 +35,7 @@ export function Navigation(){
                 </div>
                 {user.isAuthenticated ? (
                     <div className="mx-5 mb-10">
-                        <p className="border-b-2 border-b-lightforeground mb-5"></p>
+                        <p className="mb-5 border-b-2 border-b-lightforeground"></p>
                         <div className="flex flex-col gap-4">
                             <NavigationButton
                               label={user.data?.firstName + " " + user.data?.lastName}
@@ -46,7 +46,7 @@ export function Navigation(){
                         </div>
                     </div>
                 ): (
-                    <div className="flex flex-col mx-5 gap-4 mb-10">
+                    <div className="flex flex-col gap-4 mx-5 mb-10">
                         <NavigationButton label="Login" icon={<LogIn />} onClick={() => setLoginModalOpen(true)} />
                         <NavigationButton label="Register" icon={<LogOut />} onClick={() => setRegisterModalOpen(true)} />
                     </div>

@@ -30,87 +30,70 @@ import { LoadingScreen } from "@/shared/LoadingScreen";
 import { useAuth } from "@/hooks/useAuth";
 import { LoginModal } from "@/components/LoginModal";
 import { useErrorStore } from '@/store/error-store';
+import { DeleteStudentModal } from "@/components/deleteStudentModal";
+import { ClassroomModal } from "@/components/createClassroomModal";
+import { DeleteClassroomModal } from "@/components/deleteClassroomModal";
+import { AddStudentModal } from "@/components/addStudentModal";
 
-// Types from database schema
-interface User {
-  id: number;
-  email: string;
-  firstName: string;
-  lastName: string;
-  roleId: number;
+
+interface ClassroomProps {
+  deleteClassroomMutation: any;
 }
 
-interface ClassroomUser {
-  id: number;
-  classroomId: number;
-  userId: number;
-  user: User;
-}
+export default function ClassroomPage(){
+    const [isClassroomModalOpen, setClassroomModalOpen] = useState(false);
 
-interface Classroom {
-  id: number;
-  name: string;
-  description?: string;
-  users: ClassroomUser[];
-}
+    const classrooms = useQuery({
+      queryKey: ['classrooms'],
+      queryFn: () => getAllClassrooms(),
+      
+    });
 
-export default function ClassroomPage() {
-  const [isClassroomModalOpen, setClassroomModalOpen] = useState(false);
 
-  const classrooms = useQuery({
-    queryKey: ["classrooms"],
-    queryFn: () => getAllClassrooms(),
-  });
 
-  const createClassroomMutation = useMutation({
-    mutationFn: ({
-      name,
-      description,
-    }: {
-      name: string;
-      description: string;
-    }) => createClassroom(name, description),
-    onSuccess: () => {
-      classrooms.refetch();
+
+    const createClassroomMutation = useMutation({
+      mutationFn: ({ name, description }: { name: string; description: string }) => createClassroom(name, description),
+      onSuccess: () => {
+        classrooms.refetch();
+        setClassroomModalOpen(false);
+      }
+    });
+
+    const deleteClassroomMutation = useMutation({
+      mutationFn: (classroomId: number) => deleteClassroom(classroomId),
+      onSuccess: () => {
+        classrooms.refetch();
+      }
+    });
+
+    const user = useAuth();
+
+    // errormessage for create-classroom modal
+    const [classroomErrormessage, setClassroomErrormessage] = useState<string>("");
+    
+    const handleAddClassroom = (name: string, description: string) => {
+      createClassroomMutation.mutate({ name, description });
       setClassroomModalOpen(false);
-    },
-  });
+    };
 
-  const deleteClassroomMutation = useMutation({
-    mutationFn: (classroomId: number) => deleteClassroom(classroomId),
-    onSuccess: () => {
-      classrooms.refetch();
-    },
-  });
+    const handleClassroomSubmit = (name: string, description: string) => {
+          setClassroomErrormessage("");
+         
+        const exists = classrooms.data?.some((classroom: { name: string; }) => classroom.name.toLowerCase() === name.toLowerCase());
+        if(exists){
+          setClassroomErrormessage("Classroom with this name already exists!");
+          setClassroomModalOpen(true);
+        }else{
+          name = name.trim().toUpperCase();
+          description = description.trim();
+          handleAddClassroom(name, description);
+          setClassroomErrormessage("");
+          
+        }
+    };
 
-  const user = useAuth();
 
-  // errormessage for create-classroom modal
-  const [classroomErrormessage, setClassroomErrormessage] =
-    useState<string>("");
-
-  const handleAddClassroom = (name: string, description: string) => {
-    createClassroomMutation.mutate({ name, description });
-    setClassroomModalOpen(false);
-  };
-
-  const handleClassroomSubmit = (name: string, description: string) => {
-    setClassroomErrormessage("");
-
-    const exists = classrooms.data?.some(
-      (classroom: { name: string }) =>
-        classroom.name.toLowerCase() === name.toLowerCase(),
-    );
-    if (exists) {
-      setClassroomErrormessage("Classroom with this name already exists!");
-      setClassroomModalOpen(true);
-    } else {
-      name = name.trim().toUpperCase();
-      description = description.trim();
-      handleAddClassroom(name, description);
-      setClassroomErrormessage("");
-    }
-  };
 
   const [isLoginModalOpen, setLoginModalOpen] = useState(false);
 
@@ -143,18 +126,18 @@ export default function ClassroomPage() {
           <PlusIcon className="mr-1 size-6" />
         </StandardButton>
       </div>
-      <ClassroomList
+      <ClassroomComponent
         classrooms={classrooms.data || []}
         setClassrooms={() => {}}
         deleteClassroomMutation={deleteClassroomMutation}
       />
-      <CreateClassroomModal
+      <ClassroomModal
         errormessage={classroomErrormessage}
         isOpen={isClassroomModalOpen}
         onClose={() => {
           setClassroomModalOpen(false);
         }}
-        onSubmit={(name, description) => {
+        onSubmit={(name: string, description: string) => {
           handleClassroomSubmit(name, description);
         }}
       />
@@ -162,17 +145,9 @@ export default function ClassroomPage() {
   );
 }
 
-interface ClassroomListProps {
-  deleteClassroomMutation: any;
-}
 
-function ClassroomList({
-  deleteClassroomMutation,
-  classrooms,
-}: ClassroomListProps & {
-  setClassrooms: React.Dispatch<React.SetStateAction<Classroom[]>>;
-  classrooms: Classroom[];
-}) {
+function ClassroomComponent({deleteClassroomMutation, classrooms, setClassrooms }: ClassroomProps & { setClassrooms: React.Dispatch<React.SetStateAction<Classroom[]>>, classrooms: Classroom[] }) {
+
   const [openClassroomIds, setOpenClassroomIds] = useState<number[]>([]);
 
   const toggleClassroom = (id: number) => {
@@ -181,11 +156,8 @@ function ClassroomList({
     );
   };
 
-  const [isDeleteClassroomModalOpen, setDeleteClassroomModalOpen] =
-    useState(false);
-  const [deleteClassroomId, setDeleteClassroomId] = useState<number | null>(
-    null,
-  );
+  const [isDeleteClassroomModalOpen, setDeleteClassroomModalOpen] = useState(false);
+  const [deleteClassroomId, setDeleteClassroomId] = useState<number | null>(null);
 
   const [isStudentModalOpen, setStudentModalOpen] = useState(false);
   const [studentModalClassroomId, setStudentModalClassroomId] = useState<
@@ -195,23 +167,10 @@ function ClassroomList({
 
   const queryClient = useQueryClient();
 
-  const addStudentToClassroomMutation = useMutation({
-    mutationFn: ({
-      classroomId,
-      userId,
-    }: {
-      classroomId: number;
-      userId: number;
-    }) => {
-      return addStudentToClassroom(classroomId, userId);
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["classrooms"] });
-    },
-  });
 
   const handleDeleteClassroom = (index: number) => {
-    deleteClassroomMutation.mutate(classrooms[index].id);
+      deleteClassroomMutation.mutate(classrooms[index].id);
+      
   };
 
   return (
@@ -277,59 +236,29 @@ function ClassroomList({
                 <StudentList classroomId={classroom.id}></StudentList>
               </div>
             )}
-
-            <AddStudentModal
-              errormessage={studentErrormessage}
-              isOpen={isStudentModalOpen}
-              classroomId={
-                studentModalClassroomId !== null
-                  ? classrooms[studentModalClassroomId]?.id
-                  : undefined
-              }
-              onClose={() => {
-                setStudentModalOpen(false);
-                setStudentModalClassroomId(null);
-              }}
-            />
-            <DeleteClassroomModal
-              isOpen={isDeleteClassroomModalOpen}
-              onClose={() => setDeleteClassroomModalOpen(false)}
-              onSubmit={() => {
-                if (deleteClassroomId !== null) {
-                  handleDeleteClassroom(deleteClassroomId);
-                }
-                setDeleteClassroomModalOpen(false);
-                setDeleteClassroomId(null);
-              }}
-            />
-          </div>
+      
+      <AddStudentModal 
+        errormessage={studentErrormessage}
+        isOpen={isStudentModalOpen}
+        classroomId={studentModalClassroomId !== null ? classrooms[studentModalClassroomId]?.id : undefined}
+        onClose={() => {
+          setStudentModalOpen(false);
+          setStudentModalClassroomId(null);
+        }} 
+   
+      />
+      <DeleteClassroomModal isOpen={isDeleteClassroomModalOpen} onClose={() => setDeleteClassroomModalOpen(false)} onSubmit={() => {
+        if (deleteClassroomId !== null) {
+          handleDeleteClassroom(deleteClassroomId);
+        }
+        setDeleteClassroomModalOpen(false);
+        setDeleteClassroomId(null);
+      }} />
+    </div>
+          
         );
       })}
     </div>
-  );
-}
-
-interface ClassButtonProps {
-  icon?: React.ReactNode;
-  label: string;
-  onClick?: () => void;
-  className?: string;
-}
-
-export function ClassButton({
-  icon,
-  label,
-  onClick,
-  className,
-}: ClassButtonProps) {
-  return (
-    <button
-      onClick={onClick}
-      className={`flex items-center rounded-[8] p-2 bg-foreground${className ? ` ${className}` : ""}`}
-    >
-      <span className="">{label}</span>
-      {icon && <span className="mr-4">{icon}</span>}
-    </button>
   );
 }
 
@@ -407,404 +336,32 @@ export function StudentList({ classroomId }: StudentListProps) {
   );
 }
 
-// Modals for ClassroomHandling
 
-interface CreateClassroomModalProps {
-  isOpen: boolean;
-  onClose: () => void;
-  onSubmit: (name: string, description: string) => void;
-  errormessage: string;
+
+
+interface ClassButtonProps {
+  icon?: React.ReactNode;
+  label: string;
+  onClick?: () => void;
+  className?: string;
 }
 
-export function CreateClassroomModal({
-  isOpen,
-  onClose,
-  onSubmit,
-  errormessage,
-}: CreateClassroomModalProps) {
-  const [classroomName, setClassroomName] = useState<string>("");
-  const [classroomDescription, setClassroomDescription] = useState<string>("");
-  const [showError, setShowError] = useState<boolean>(false);
+export function ClassButton({
+  icon,
+  label,
+  onClick,
+  className,
+}: ClassButtonProps) {
 
-  const isCreateDisabled = classroomName.trim() === "";
-
-  // Reset error visibility when modal closes
-  useEffect(() => {
-    if (!isOpen) {
-      setShowError(false);
-      setClassroomName("");
-    }
-  }, [isOpen]);
-
-  // Show error when errormessage changes and is not empty
-  useEffect(() => {
-    if (errormessage) {
-      setShowError(true);
-    }
-  }, [errormessage]);
-
-  const handleSubmit = () => {
-    if (isCreateDisabled) return;
-    setShowError(true);
-    onSubmit(classroomName, classroomDescription);
-  };
-
-  useEffect(() => {
-    if (isOpen) {
-      document.getElementsByName("StandardInput")[0]?.focus();
-    }
-  }, [isOpen]);
-
-  // Handler for Enter key to submit the form
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === "Enter") {
-        handleSubmit();
-      } else if (e.key === "Escape") {
-        onClose();
-      }
-    };
-
-    if (isOpen) {
-      document.addEventListener("keydown", handleKeyDown);
-    }
-
-    return () => {
-      document.removeEventListener("keydown", handleKeyDown);
-    };
-  }, [isOpen, classroomName, onClose]); // Add dependencies
 
   return (
-    <StandardModal
-      className="w-96"
-      title={"Create Classroom"}
-      description={""}
-      isOpen={isOpen}
+    <button
+      onClick={onClick}
+      className={"flex items-center rounded-[8] p-2 bg-foreground" + 
+                (className ? " " + className : "")}
     >
-      <div className="flex flex-col space-y-4 mt-4">
-        <StandardInput
-          placeholder="Classname"
-          onValueChange={(value: string) => setClassroomName(value)}
-        />
-        <StandardInput
-          placeholder="add description"
-          onValueChange={(value: string) => setClassroomDescription(value)}
-        />
-        <div
-          className={`
-                        overflow-hidden transition-all duration-300 ease-in-out
-                        ${showError && errormessage ? "max-h-20 opacity-100 py-2 px-4" : "max-h-0 opacity-0"}
-                        bg-red-400 rounded-[8] text-font text-sm 
-                    `}
-        >
-          {errormessage}
-        </div>
-
-        <div className="flex justify-between mt-2 w-full">
-          <div className="flex gap-4 w-full">
-            <StandardButton
-              label="Cancel"
-              onClick={onClose}
-              className="bg-lightforeground px-6 py-3"
-            />
-            <StandardButton
-              label="Create"
-              onClick={handleSubmit}
-              className={
-                "ml-1 h-full px-10 py-3 bg-lightforeground " +
-                (isCreateDisabled ? "" : "bg-contrast! text-background")
-              }
-              disabled={isCreateDisabled}
-            />
-          </div>
-        </div>
-      </div>
-    </StandardModal>
-  );
-}
-
-interface DeleteClassroomModalProps {
-  isOpen: boolean;
-  onClose: () => void;
-  onSubmit: () => void;
-}
-
-export function DeleteClassroomModal({
-  isOpen,
-  onClose,
-  onSubmit,
-}: DeleteClassroomModalProps) {
-  return (
-    <ConfirmModal
-      title={"Delete Classroom"}
-      description={
-        "Are you sure you want to delete this classroom? This action cannot be undone."
-      }
-      isOpen={isOpen}
-      onClose={onClose}
-      onConfirm={() => onSubmit()}
-    />
-  );
-}
-
-// Modals for StudentHandling
-
-interface AddStudentModalProps {
-  isOpen: boolean;
-  onClose: () => void;
-  errormessage: string;
-  classroomId?: number;
-}
-
-export function AddStudentModal({
-  isOpen,
-  onClose,
-  errormessage,
-  classroomId,
-}: AddStudentModalProps) {
-  const [showError, setShowError] = useState<boolean>(false);
-  const [studentInput, setStudentInput] = useState<[string, number]>(["", 0]);
-  const [selectedStudent, setSelectedStudent] = useState<[string, number]>([
-    "",
-    0,
-  ]);
-
-  const [showDropdown, setShowDropdown] = useState<boolean>(false);
-
-  const [isCreateDisabled, setIsCreateDisabled] = useState<boolean>(
-    studentInput[0].trim() === selectedStudent[0].trim(),
-  );
-
-  const queryClient = useQueryClient();
-  const searchStudentsQuery = useQuery({
-    queryKey: ["students"],
-    queryFn: () => UserApi.findUserByName(studentInput[0]),
-    enabled: false,
-  });
-  const addStudentToClassroomMutation = useMutation({
-    mutationFn: ({
-      classroomId,
-      userId,
-    }: {
-      classroomId: number;
-      userId: number;
-    }) => {
-      return addStudentToClassroom(classroomId, userId);
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["classrooms"] });
-      handleModalClose();
-    },
-    onError: () => {
-      setShowError(true);
-    },
-  });
-
-  useEffect(() => {
-    if (!isOpen) {
-      setShowError(false);
-      setStudentInput(["", 0]);
-      setShowDropdown(false);
-    }
-  }, [isOpen]);
-
-  useEffect(() => {
-    if (errormessage) {
-      setShowError(true);
-    }
-  }, [errormessage]);
-
-  const handleModalClose = () => {
-    setShowError(false);
-    setStudentInput(["", 0]);
-    setShowDropdown(false);
-    onClose();
-  };
-
-  const handleSubmit = () => {
-    // Check if input is empty
-    if (studentInput[0].trim() === "") {
-      setShowError(true);
-      return;
-    }
-
-    // Check if input matches selected student
-    if (studentInput[0].trim() !== selectedStudent[0].trim()) {
-      setShowError(true);
-      return;
-    }
-
-    // Check if a student was actually selected (has valid ID)
-    if (selectedStudent[1] === 0) {
-      setShowError(true);
-      return;
-    }
-
-    addStudentToClassroomMutation.mutate({
-      classroomId: classroomId!,
-      userId: selectedStudent[1],
-    });
-  };
-
-  const handleDropdownSelect = (student: User) => {
-    setSelectedStudent([
-      `${student.firstName} ${student.lastName}`,
-      student.id,
-    ]);
-    setStudentInput([`${student.firstName} ${student.lastName}`, student.id]);
-    setIsCreateDisabled(false);
-    setShowDropdown(false);
-  };
-
-  // Handler for Enter key to submit the form
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === "Enter") {
-        handleSubmit();
-      } else if (e.key === "Escape") {
-        handleModalClose();
-      }
-    };
-
-    if (isOpen) {
-      document.addEventListener("keydown", handleKeyDown);
-    }
-
-    return () => {
-      document.removeEventListener("keydown", handleKeyDown);
-    };
-  }, [isOpen, studentInput[0], onClose]);
-
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value;
-    setStudentInput([value, 0]);
-
-    const isDisabled =
-      value.trim() === "" || value.trim() !== selectedStudent[0].trim();
-    setIsCreateDisabled(isDisabled);
-
-    if (value.trim().length > 0) {
-      setShowDropdown(true);
-      searchStudentsQuery.refetch();
-    } else {
-      setShowDropdown(false);
-    }
-  };
-
-  const handleBlur = () => {
-    setTimeout(() => {
-      setShowDropdown(false);
-    }, 100);
-  };
-
-  useEffect(() => {
-    if (searchStudentsQuery.data) {
-      searchStudentsQuery.refetch();
-    }
-  }, [searchStudentsQuery.data]);
-
-  return (
-    <StandardModal
-      className="w-96"
-      title={"Add Student"}
-      description={"Search for students:"}
-      isOpen={isOpen}
-    >
-      <div className="flex flex-col space-y-4 mt-4">
-        <div className="relative">
-          <StandardInput
-            placeholder="Search Student Name"
-            onChange={(e) => handleChange(e)}
-            onBlur={handleBlur}
-            value={studentInput[0]}
-          />
-
-          {/* Dropdown for search results */}
-          {showDropdown && (
-            <div className="top-full right-0 left-0 z-50 absolute bg-lightforeground shadow-lg drop-shadow-xl mt-1 border-foreground rounded-[8] w-full max-w-full max-h-64">
-              {searchStudentsQuery.isFetching ? (
-                <div className="p-3 text-font text-sm text-center">
-                  Loading...
-                </div>
-              ) : !searchStudentsQuery.isError ? (
-                searchStudentsQuery.data.map((student: User) => (
-                  <button
-                    key={student.id}
-                    onClick={() => handleDropdownSelect(student)}
-                    className="flex flex-row hover:bg-foreground px-4 py-3 first:rounded-t-[8] last:rounded-b-[8] w-full overflow-visible text-font text-left transition-colors"
-                  >
-                    <p className="flex-grow">
-                      {student.firstName} {student.lastName}
-                    </p>
-                    <p className="mr-2 text-gray-500">{student.id}</p>
-                  </button>
-                ))
-              ) : (
-                <div className="p-3 text-gray-400 text-sm text-center">
-                  No students found
-                </div>
-              )}
-            </div>
-          )}
-        </div>
-
-        <div
-          className={`
-                        overflow-hidden transition-all duration-300 ease-in-out
-                        ${showError && (errormessage || studentInput[0].trim() === "" || studentInput[0].trim() !== selectedStudent[0].trim() || selectedStudent[1] === 0) ? "max-h-20 opacity-100 py-2 px-4" : "max-h-0 opacity-0"}
-                        bg-red-400 rounded-[8] text-font text-sm 
-                    `}
-        >
-          {errormessage ||
-            (studentInput[0].trim() === ""
-              ? "Please enter a student name"
-              : studentInput[0].trim() !== selectedStudent[0].trim()
-                ? "Please select a student from the dropdown list"
-                : selectedStudent[1] === 0
-                  ? "Please select a valid student"
-                  : "")}
-        </div>
-        <div className="flex justify-between mt-2 w-full">
-          <div className="flex gap-4">
-            <StandardButton
-              label="Cancel"
-              onClick={handleModalClose}
-              className="bg-lightforeground px-6 py-3"
-            />
-            <StandardButton
-              label="Add"
-              onClick={handleSubmit}
-              className="bg-lightforeground px-6 py-3"
-              isLoading={addStudentToClassroomMutation.isPending}
-              disabled={isCreateDisabled}
-            />
-          </div>
-        </div>
-      </div>
-    </StandardModal>
-  );
-}
-
-interface DeleteStudentModalProps {
-  isOpen: boolean;
-  onClose: () => void;
-  onSubmit: () => void;
-}
-
-export function DeleteStudentModal({
-  isOpen,
-  onClose,
-  onSubmit,
-}: DeleteStudentModalProps) {
-  return (
-    <ConfirmModal
-      title={"Remove student from classroom"}
-      description={
-        "Are you sure you want to remove this student from the classroom?"
-      }
-      isOpen={isOpen}
-      onClose={onClose}
-      onConfirm={() => onSubmit()}
-    />
+      <span className="">{label}</span>
+      {icon && <span className="mr-4">{icon}</span>}
+    </button>
   );
 }
