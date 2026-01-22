@@ -148,8 +148,7 @@ export default function ClassroomPage(){
 
 function ClassroomComponent({deleteClassroomMutation, classrooms, setClassrooms }: ClassroomProps & { setClassrooms: React.Dispatch<React.SetStateAction<Classroom[]>>, classrooms: Classroom[] }) {
 
-  const [openClassroomIds, setOpenClassroomIds] = useState<number[]>([]);
-
+  const [openClassroomIds, setOpenClassroomIds] = useState<number[]>([]);  
   const toggleClassroom = (id: number) => {
     setOpenClassroomIds((prev) =>
       prev.includes(id) ? prev.filter((i) => i !== id) : [...prev, id],

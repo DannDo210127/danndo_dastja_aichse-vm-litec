@@ -62,14 +62,20 @@ export const removeStudentFromClassroom: RequestHandler = async (req, res) => {
     const classroomId = Number(req.params.classroomId);
     const userId = Number(req.params.userId);
 
-    await prisma.classroomUser.delete({
-        where: {
-            classroomId_userId: {
-                classroomId,
-                userId,
+    try {
+        await prisma.classroomUser.delete({
+            where: {
+                classroomId_userId: {
+                    classroomId,
+                    userId,
+                }
             }
-        }
-    })
+        })
+        
+    } catch {
+        return res.status(400).json(errorMessage(16, 'User is not in classroom anymore'));
+        
+    }
 
     res.send("User " + userId + " removed from classroom " + classroomId);
 }

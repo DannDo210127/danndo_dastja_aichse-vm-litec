@@ -15,44 +15,44 @@ export default function Snackbar(){
     const getIcon = () => {
         switch(type) {
             case 'error':
-                return <AlertTriangle className="flex-shrink-0 size-6 text-red-400" />;
+                return <AlertTriangle className="flex-shrink-0 size-8 text-error" />;
             case 'success':
-                return <CheckCircle2 className="flex-shrink-0 size-6 text-green-400" />;
+                return <CheckCircle2 className="flex-shrink-0 size-8 text-success" />;
             case 'info':
-                return <Info className="flex-shrink-0 size-6 text-blue-400" />;
+                return <Info className="flex-shrink-0 size-8 text-info" />;
         }
     };
 
     const getBgColor = () => {
         switch(type) {
             case 'error':
-                return ' border-1 border-white drop-shadow-md';
+                return ' border-3 border-error';
             case 'success':
-                return 'border-3 border-green-400';
+                return 'border-3 border-success';
             case 'info':
-                return 'border-3 border-blue-400';
+                return 'border-3 border-info';
         }
     };
 
     const getTextColor = () => {
         switch(type) {
             case 'error':
-                return 'text-red-400';
+                return 'text-error';
             case 'success':
-                return 'text-green-400';
+                return 'text-success';
             case 'info':
-                return 'text-blue-400';
+                return 'text-info';
         }
-    };
+    }; 
 
     const getDescColor = () => {
         switch(type) {
             case 'error':
-                return 'text-red-400';
+                return 'text-error';
             case 'success':
-                return 'text-green-400';
+                return 'text-success';
             case 'info':
-                return 'text-blue-400';
+                return 'text-info';
         }
     };
 
@@ -63,7 +63,7 @@ export default function Snackbar(){
                 fixed bottom-6 left-1/2 -translate-x-1/2 
                 rounded-lg w-2/6 p-5 drop-shadow-lg
                 duration-500 transition-all ease-in-out
-                cursor-pointer hover:shadow-lg
+                cursor-pointer
                 shadow-md z-[9999]
                 bg-lightforeground
 
@@ -74,10 +74,10 @@ export default function Snackbar(){
         >
             {getIcon()}
             <div className="flex-1">
-                <h3 className={`font-semibold text-sm ${getTextColor()}`}>
+                <h3 className={`font-bold text-xl ${getTextColor()}`}>
                     {type === 'error' ? 'Error' : type === 'success' ? 'Success' : 'Info'}
                 </h3>
-                <p className={`text-sm ${getDescColor()} mt-1`}>
+                <p className={`font-light text-md ${getDescColor()} mt-1`}>
                     {message || ''}
                 </p>
             </div>
