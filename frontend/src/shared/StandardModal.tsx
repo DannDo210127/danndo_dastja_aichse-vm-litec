@@ -20,7 +20,7 @@ const StandardModal: FC<StandardModalProps> = ({ title, description, isOpen, chi
             {isOpen ?
             (
                 <div
-                    className={`z-50 fixed inset-0 flex justify-center items-center bg-black/50`}
+                    className={`z-50 fixed inset-0 flex justify-center items-center bg-black/20`}
                 >
                     <div
                         className={`bg-background rounded-lg p-6  flex flex-col ${className}`}

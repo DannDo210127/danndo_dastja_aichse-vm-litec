@@ -33,7 +33,7 @@ function LayoutContent({ children }: { children: React.ReactNode }) {
       <Snackbar />
 
       {/* Portal Div for Modals */}
-      <div id="modal-root"></div>
+      <div id="modal-root" ></div>
 
       {/* React Query Dev Tools only for Development */}
     </div>

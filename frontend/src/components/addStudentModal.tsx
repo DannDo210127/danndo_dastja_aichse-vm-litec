@@ -173,7 +173,7 @@ export function AddStudentModal({isOpen, onClose, errormessage, classroomId}: St
                 <div className="flex justify-between mt-2 w-full">
                     <div className="flex gap-4">
                         <StandardButton label="Cancel" onClick={handleModalClose} className="bg-lightforeground px-6 py-3" />
-                        <StandardButton label="Add" onClick={handleSubmit} className="bg-lightforeground hover:bg-contrast px-6 py-3 hover:text-background" disabled={isCreateDisabled} />
+                        <StandardButton label="Add" onClick={handleSubmit} className="bg-lightforeground hover:bg-contrast px-6 py-3 hover:text-background" disabled={isCreateDisabled} isLoading={addStudentToClassroomMutation.isPending} />
                     </div>
                 </div>
             </div>
