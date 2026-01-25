@@ -1,36 +1,92 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Frontend - Dokumentation
 
-## Getting Started
+## Overview
+Next.js + React basierte Web-Anwendung für Classroom-Management und VM-Verwaltung mit JWT-Authentifizierung und Echtzeit-UI-Updates.
 
-First, run the development server:
+---
+
+## 📁 Projektstruktur
+
+### `/src/app`
+**Next.js App Router & Pages**
+- `layout.tsx` - Root Layout mit Navigation & Authentifizierung
+- `page.tsx` - Dashboard/Startseite
+- `classrooms/` - Classroom-Management & Student-Verwaltung
+- `profile/` - Benutzerprofil
+- `vm/` - Virtuelle Maschinen Übersicht
+- `vnc/` - VNC-Viewer für VM-Zugriff
+
+### `/src/components`
+**Spezifische Modal- & Feature-Komponenten**
+- `LoginModal.tsx` - Login-Authentifizierung
+- `RegisterModal.tsx` - Benutzer-Registrierung
+- `createClassroomModal.tsx` - Neues Classroom erstellen
+- `deleteClassroomModal.tsx` - Classroom löschen
+- `addStudentModal.tsx` - Schüler hinzufügen
+- `deleteStudentModal.tsx` - Schüler entfernen
+- `Navigation.tsx` - Haupt-Navigationsbar
+- `NavigationButton.tsx` - Wiederverwendbarer Nav-Button
+
+### `/src/shared`
+**Generische, wiederverwendbare UI-Komponenten**
+- `StandardButton.tsx` - Button mit customisierbar Styling
+- `StandardInput.tsx` - Input-Feld mit Validierung
+- `StandardModal.tsx` - Modal-Container (Basis)
+- `ConfirmModal.tsx` - Bestätigungsdialog
+- `LoadingScreen.tsx` - Vollbild-Ladebildschirm
+- `Spinner.tsx` - Lade-Spinner
+- `Snackbar.tsx` - Toast-Benachrichtigungen
+
+### `/src/api`
+**API-Client & HTTP-Kommunikation**
+- `client.ts` - Axios-Instanz mit Interceptors
+- `user.ts` - User-Endpoints
+- `classroom.ts` - Classroom-Endpoints
+
+### `/src/hooks`
+**Custom React Hooks**
+- `useAuth.ts` - Authentication State & User Management
+
+### `/src/store`
+**Zustand State Management**
+- `token-store.ts` - JWT Token Persistence
+- `snackbar-store.ts` - Notifications
+- `theme-store.ts` - Theme Settings
+- `error-store.ts` - Error Management
+
+### `/src/types`
+**TypeScript Definitionen**
+- `global.tsx` - Globale Interfaces
+
+---
+
+## 🔑 Hauptfeatures
+
+| Feature | Beschreibung |
+|---------|-------------|
+| **Authentication** | Login/Register mit JWT, Auto-Refresh, Logout |
+| **Classrooms** | CRUD-Operationen |
+| **Student Management** | Schüler hinzufügen/entfernen |
+| **Virtual Machines** | VM-Verwaltung |
+| **VNC Viewer** | Remote Desktop zu VMs |
+| **Notifications** | Error & Success Snackbars |
+
+---
+
+## 🚀 Setup
 
 ```bash
+cd frontend
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+**Port:** `http://localhost:3000`
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
-
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+**Abhängigkeiten:**
+- Next.js 14+
+- React 18+
+- React Query
+- Axios
+- Zustand
+- Tailwind CSS
