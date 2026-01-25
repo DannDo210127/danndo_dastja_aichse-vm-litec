@@ -6,7 +6,7 @@ import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
 import Snackbar from '@/shared/Snackbar'
 
 import '../styles/global.css'
-import { Theme, useThemeStore } from '@/store/theme-store'
+import { useThemeStore } from '@/store/theme-store'
 import { useAuth } from '@/hooks/useAuth'
 
 function LayoutContent({ children }: { children: React.ReactNode }) {
@@ -25,7 +25,7 @@ function LayoutContent({ children }: { children: React.ReactNode }) {
       <Navigation/>
       
       {/* Page Content */}
-      <main className="bg-background w-full h-full">
+      <main className="bg-background h-full grow">
         {children}
       </main>
 
