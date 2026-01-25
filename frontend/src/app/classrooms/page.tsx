@@ -89,7 +89,7 @@ export default function ClassroomPage(){
       classrooms.isFetching ? <LoadingScreen /> : 
        !user.isAuthenticated ? <LoginModal isOpen={isLoginModalOpen} onClose={() => setLoginModalOpen(false)} onSubmit={() => setLoginModalOpen(false)} /> :
                            
-           <div className="flex flex-col bg-background m-20 mx-30 rounded-[8] h-8/10 grow">
+           <div className="flex flex-col bg-background m-20 mx-25 rounded-[8] h-8/10 grow">
                <div className="flex flex-row justify-between items-center bg-background border-lightforeground border-b-2 w-full h-1/12">
                     <h2 className="m-5 p-2 font-bold text-2xl">Your Classrooms</h2>
                     <StandardButton label="Create Classroom" onClick={() => {setClassroomModalOpen(true)}} className="bg-lightforeground hover:bg-contrast! drop-shadow-sm ml-8 p-2.5! px-4 hover:text-background hover:scale-105 transition-all">
