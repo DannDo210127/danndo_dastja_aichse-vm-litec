@@ -8,7 +8,7 @@
   --color-secondary: #cacaca;
   --color-font: var(--color-black);
   --color-contrast: #000000; 
-  --color-error: var(--color-red-600);
+  --color-error: #f51936;
   --color-success: var(--color-green-600);
   --color-info: var(--color-blue-600);
 
@@ -23,7 +23,7 @@
   --color-secondary: #4A4A4A;
   --color-font: var(--color-white);
   --color-contrast: #FFFFFF;
-  --color-error: var(--color-red-400);
+  --color-error: #f51936;
   --color-success: var(--color-green-400);
   --color-info: var(--color-blue-400);
 }

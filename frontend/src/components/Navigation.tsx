@@ -19,36 +19,37 @@ export function Navigation(){
     return(
         user.isLoading ? <LoadingScreen /> :
         <Fragment>
+        
+                <div className={` w-25 hover:w-1/3 ${useThemeStore.getState().theme == 'light' ? "border-r-4 border-lightforeground" : ""} drop-shadow-lg ease-in-out transition-[width] duration-350 flex flex-col justify-between bg-background  h-full`}>
+                    <div className={`flex flex-col gap-4 mx-5`}>  
+                    
+                        <NavigationButton className="!bg-background hover:!bg-background my-5 border-b-2 border-b-foreground !rounded-none" label="Virtual Classroom" icon={<Codesandbox />} href="/" />
 
-            <div className={` w-25 hover:w-1/3 ${useThemeStore.getState().theme == 'light' ? "border-r-4 border-lightforeground" : ""} drop-shadow-lg ease-in-out transition-[width] duration-350 flex flex-col justify-between bg-background  h-full`}>
-                <div className={`flex flex-col gap-4 mx-5`}>
-                 
-                    <NavigationButton className="!bg-background hover:!bg-background my-4 mt-6 border-b-2 border-b-lightforeground !rounded-none" label="Virtual Classroom" icon={<Codesandbox />} href="/" />
-
-                    <NavigationButton label="Classrooms" icon={<School />} href="/classrooms"/>
-                    <NavigationButton label="VM" icon={<Monitor />} href="/vm" />
-                  
-                </div>
-                {user.isAuthenticated ? (
-                    <div className="mx-5 mb-10">
-                        <p className="mb-5 border-b-2 border-b-lightforeground"></p>
-                        <div className="flex flex-col gap-4">
-                            <NavigationButton
-                              label={user.data?.firstName + " " + user.data?.lastName}
-                              icon={<UserCog/>}
-                              href="/profile"
-                            />  
-                            <NavigationButton label="Logout" icon={<LogOut />} onClick={() => setLogoutModalOpen(true)} />
+                        <NavigationButton label="Classrooms" icon={<School />} href="/classrooms"/>
+                        <NavigationButton label="VM" icon={<Monitor />} href="/vm" />
+                    </div>
+                    
+                    {user.isAuthenticated ? (
+                        <div className="mx-5 mb-10">
+                            <p className="mb-5 border-b-2 border-b-foreground"/>
+                            <div className="flex flex-col gap-4">
+                                <NavigationButton
+                                label={user.data?.firstName + " " + user.data?.lastName}
+                                icon={<UserCog/>}
+                                href="/profile"
+                                />  
+                                <NavigationButton className="text-error" label="Logout" icon={<LogOut />} onClick={() => setLogoutModalOpen(true)} />
+                            </div>
                         </div>
-                    </div>
-                ): (
-                    <div className="flex flex-col gap-4 mx-5 mb-10">
-                        <NavigationButton label="Login" icon={<LogIn />} onClick={() => setLoginModalOpen(true)} />
-                        <NavigationButton label="Register" icon={<LogOut />} onClick={() => setRegisterModalOpen(true)} />
-                    </div>
-                )}
-
-            </div>
+                    ): (
+                        <div className="flex flex-col gap-4 mb-10">
+                            <NavigationButton label="Login" icon={<LogIn />} onClick={() => setLoginModalOpen(true)} />
+                            <NavigationButton label="Register" icon={<LogOut  />} onClick={() => setRegisterModalOpen(true)} />
+                        </div>
+                    )}
+                
+                </div>
+          
 
             <RegisterModal isOpen={isRegisterModalOpen} onClose={() => setRegisterModalOpen(false)} onSubmit={() => setRegisterModalOpen(false)} />
             <LoginModal isOpen={isLoginModalOpen} onClose={() => setLoginModalOpen(false)} onSubmit={() => setLoginModalOpen(false)} />
