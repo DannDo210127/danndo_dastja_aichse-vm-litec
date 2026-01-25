@@ -79,14 +79,14 @@ export const LoginModal: FC<LoginModalProps> = ({ isOpen, onClose, onSubmit }) =
 
                     <div className="flex gap-4">
                         <StandardButton label="Cancel" onClick={onClose} className="px-6 py-3" />
-                        <StandardButton label="Login" onClick={() => {
+                        <StandardButton label="Login"  onClick={() => {
 
                             if (!checkCredentials(email, password))
                                 return false;
 
                             loginUser.mutate();
                             onSubmit();
-                        }} className="px-6 py-3" />
+                        }} className="px-6 py-3 w-min text-center" />
                     </div> 
 
                 </div>

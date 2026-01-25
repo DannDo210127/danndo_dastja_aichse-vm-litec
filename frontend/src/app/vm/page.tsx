@@ -59,7 +59,7 @@ export default function VMPage(){
 
     return (
         !user.isAuthenticated ? <LoginModal isOpen={isLoginModalOpen} onClose={() => setLoginModalOpen(false)} onSubmit={() => setLoginModalOpen(false)} /> :
-            <div className="flex flex-col bg-background m-20 rounded-[8] w-8/10 h-8/10">
+            <div className="flex flex-col bg-background m-20 mx-30 rounded-[8] h-8/10 grow">
                 <div className="flex flex-row justify-between items-center border-lightforeground border-b-2">
                     <h2 className="m-5 p-2 font-bold text-2xl">Your Virtual Machines</h2>
                     <StandardButton className="bg-lightforeground hover:bg-contrast! drop-shadow-sm p-2.5! hover:text-background hover:scale-105 transition-all" label="Create VM" onClick={() => {setVmModalOpen(true);}} >
@@ -222,7 +222,7 @@ export function VmComponent(props: VmComponentProps){
 
 
     return (
-        <div className="flex flex-col flex-1 space-y-4 bg-background m-5 p-2 rounded-[8] max-h-[calc(100vh-10rem)] overflow-y-auto">
+        <div className="flex flex-col space-y-4 bg-background m-5 rounded-[8] h-full">
             <ul>
                 {props.assignedVms.map((vm) => (
                     <li key={vm.id} className="bg-lightforeground mb-4 p-2 border-2 border-lightforeground rounded-[8]">

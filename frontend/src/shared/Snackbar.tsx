@@ -26,11 +26,11 @@ export default function Snackbar(){
     const getBgColor = () => {
         switch(type) {
             case 'error':
-                return ' border-3 border-error';
+                return ' border-2 border-error';
             case 'success':
-                return 'border-3 border-success';
+                return 'border-2 border-success';
             case 'info':
-                return 'border-3 border-info';
+                return 'border-2 border-info';
         }
     };
 
