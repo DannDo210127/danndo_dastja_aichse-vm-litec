@@ -1,8 +1,6 @@
 // store/theme-store.ts (Zustand)
 import { create } from "zustand";
 
-export type Theme = 'light' | 'dark';
-
 interface ThemeState {
   theme: Theme;  
   toggleTheme: () => void;
