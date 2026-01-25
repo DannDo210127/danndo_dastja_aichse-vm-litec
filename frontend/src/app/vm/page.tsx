@@ -59,7 +59,7 @@ export default function VMPage(){
 
     return (
         !user.isAuthenticated ? <LoginModal isOpen={isLoginModalOpen} onClose={() => setLoginModalOpen(false)} onSubmit={() => setLoginModalOpen(false)} /> :
-            <div className="flex flex-col bg-background m-20 mx-30 rounded-[8] h-8/10 grow">
+            <div className="flex flex-col bg-background m-20 mx-25 rounded-[8] h-8/10 grow">
                 <div className="flex flex-row justify-between items-center border-lightforeground border-b-2">
                     <h2 className="m-5 p-2 font-bold text-2xl">Your Virtual Machines</h2>
                     <StandardButton className="bg-lightforeground hover:bg-contrast! drop-shadow-sm p-2.5! hover:text-background hover:scale-105 transition-all" label="Create VM" onClick={() => {setVmModalOpen(true);}} >
