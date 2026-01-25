@@ -35,9 +35,10 @@ html,body{
   overflow: hidden;
   flex-direction: row;
   font-family: "Notable", sans-serif;
+  font-optical-sizing: auto;
   font-weight: 600;
-  color: var(--color-font);
   font-style: normal;
+  color: var(--color-font);
   font-size: small;
 }
 
