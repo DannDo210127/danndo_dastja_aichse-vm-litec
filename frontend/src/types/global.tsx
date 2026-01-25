@@ -22,6 +22,7 @@ declare global{
     description?: string;
     users: ClassroomUser[];
   }
+  type Theme = 'light' | 'dark'
 }
 
 export{};
