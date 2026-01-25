@@ -12,24 +12,19 @@ import {
   Trash2Icon,
   User as UserIcon,
 } from "lucide-react";
-import { FC, useEffect, useState } from "react";
-import { StandardInput } from "@/shared/StandardInput";
-import StandardModal from "@/shared/StandardModal";
-import { ConfirmModal } from "@/shared/ConfirmModal";
+import { useEffect, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
-  addStudentToClassroom,
   createClassroom,
   deleteClassroom,
   getAllClassrooms,
   getAllStudentsInClassroom,
   removeStudentFromClassroom,
 } from "@/api/classroom";
-import UserApi from "@/api/user";
 import { LoadingScreen } from "@/shared/LoadingScreen";
 import { useAuth } from "@/hooks/useAuth";
 import { LoginModal } from "@/components/LoginModal";
-import { useErrorStore } from '@/store/error-store';
+import { useSnackbarStore } from '@/store/snackbar-store';
 import { DeleteStudentModal } from "@/components/deleteStudentModal";
 import { ClassroomModal } from "@/components/createClassroomModal";
 import { DeleteClassroomModal } from "@/components/deleteClassroomModal";
@@ -48,9 +43,6 @@ export default function ClassroomPage(){
       queryFn: () => getAllClassrooms(),
       
     });
-
-
-
 
     const createClassroomMutation = useMutation({
       mutationFn: ({ name, description }: { name: string; description: string }) => createClassroom(name, description),
@@ -104,14 +96,14 @@ export default function ClassroomPage(){
     classrooms.refetch();
   }, [user.isAuthenticated]);
 
-  return classrooms.isFetching ? (
-    <LoadingScreen />
-  ) : !user.isAuthenticated ? (
+  return !user.isAuthenticated ? (
     <LoginModal
       isOpen={isLoginModalOpen}
       onClose={() => setLoginModalOpen(false)}
       onSubmit={() => setLoginModalOpen(false)}
     />
+  ) : classrooms.isFetching ? (
+    <LoadingScreen />
   ) : (
     <div className="flex flex-col bg-background m-20 rounded-[8] w-9/10 h-8/10">
       <div className="flex flex-row justify-between items-center bg-background border-lightforeground border-b-2 w-full h-1/12">
@@ -269,7 +261,7 @@ export function StudentList({ classroomId }: StudentListProps) {
   const [isDeleteStudentModalOpen, setDeleteStudentModalOpen] = useState(false);
   const [deleteStudentId, setDeleteStudentId] = useState<number | null>(null);
 
-  const { showError, showSuccess } = useErrorStore();
+  const { showError, showSuccess } = useSnackbarStore();
 
   const queryClient = useQueryClient();
 

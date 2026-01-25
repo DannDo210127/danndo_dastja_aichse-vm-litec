@@ -10,7 +10,7 @@ interface SnackbarState {
     hideSnackbar: () => void;
 }
 
-export const useErrorStore = create<SnackbarState>((set) => ({
+export const useSnackbarStore = create<SnackbarState>((set) => ({
     message: null,
     type: 'error',
     isVisible: false,

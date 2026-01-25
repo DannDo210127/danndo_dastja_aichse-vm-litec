@@ -1,6 +1,6 @@
 // lib/apiClient.ts
 import { useAuthStore } from "@/store/token-store";
-import { useErrorStore } from "@/store/error-store";
+import { useSnackbarStore } from "@/store/snackbar-store";
 import axios from "axios";
 
 const api = axios.create({
@@ -48,7 +48,7 @@ api.interceptors.response.use(
       const err = error?.response?.data?.error;
       if (err && !err.silent) {
         // showError acts as the snackbar trigger
-        useErrorStore.getState().showError(
+        useSnackbarStore.getState().showError(
           err.message
         );
       }
@@ -59,5 +59,23 @@ api.interceptors.response.use(
     return Promise.reject(error);
   },
 );
+
+// Success interceptor: checks for 200 status and success item in response data
+api.interceptors.response.use(
+  (res) => {
+    try {
+      if (res.status === 200 && res.data?.success && !res.data.success.silent) {
+        useSnackbarStore.getState().showSuccess(
+          res.data.success.message
+        );
+      }
+    } catch (e) {
+      alert("FATAL ERROR WHILE PROCESSING SNACKBAR");
+    }
+    return res;
+  },
+);
+
+
 
 export default api;

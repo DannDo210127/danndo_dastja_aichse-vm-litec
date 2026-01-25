@@ -4,6 +4,7 @@ import { generateAccessToken, generateRefreshToken } from "../auth/token";
 import { User } from "@prisma/client";
 import bcrypt from "bcryptjs";
 import { errorMessage } from "../util/Error";
+import { successMessage } from "../util/Success";
 
 const prisma = DatabaseClient.getInstance().prisma;
 
@@ -23,7 +24,7 @@ const login: RequestHandler = async (req, res) => {
   const user = await prisma.user.findUnique({
     where: {
       email: req.body.email,
-    }
+    },
   });
 
   if (!user) {
@@ -57,7 +58,7 @@ const login: RequestHandler = async (req, res) => {
     maxAge: refreshTokenExpiry.getTime() - Date.now(),
   })
 
-  res.send({ accessToken });
+  res.status(200).send({ accessToken, ...successMessage(0, 'Successfully logged in as ' + user.firstName + ' ' + user.lastName) });
 }
 
 /**
@@ -96,7 +97,7 @@ const register: RequestHandler = async (req, res) => {
     maxAge: refreshTokenExpiry.getTime() - Date.now(),
   })
 
-  res.status(201).json({ accessToken });
+  res.status(201).json({ accessToken, ...successMessage(1, 'User registered successfully') });
 }
 
 /**
@@ -139,7 +140,7 @@ const logout: RequestHandler = async (req, res) => {
       where: { token: refreshToken }
     })
   } catch (error) {
-    res.sendStatus(400).json(errorMessage(106, 'Something went wrong during logout'));
+    return res.sendStatus(400).json(errorMessage(106, 'Something went wrong during logout'));
   }
   
   res.cookie("refreshToken", "", {
@@ -147,7 +148,7 @@ const logout: RequestHandler = async (req, res) => {
     maxAge: 0,
   })
 
-  res.sendStatus(200).send('Logged out successfully');
+  res.status(200).send(successMessage(2, 'Successfully logged out'));
 } 
 
 export {

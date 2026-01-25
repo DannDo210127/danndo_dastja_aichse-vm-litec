@@ -26,6 +26,8 @@ export const createClassroom: RequestHandler = async (req, res) => {
 }
 
 export const getAllClassrooms: RequestHandler = async (req, res) => {
+    const user = req.user;
+
     res.status(200).json(await prisma.classroom.findMany());
 }
 
@@ -88,16 +90,25 @@ export const removeStudentFromClassroom: RequestHandler = async (req, res) => {
 export const getAllStudentsInClassroom: RequestHandler = async (req, res) => {
     const classroomId = req.params.classroomId;
 
-    const students = await prisma.classroomUser.findMany({
-        where: {
-            classroomId: Number(classroomId),
-        },
-        include: {
-            user: true,
-        }
-    });
+    if(isNaN(Number(classroomId))) {
+        return res.status(400).json(errorMessage(3, 'Classroom ID is not valid'));
+    }
+
+    try {
+        const students = await prisma.classroomUser.findMany({
+            where: {
+                classroomId: Number(classroomId),
+            },
+            include: {
+                user: true,
+            }
+        });
+        
+        return res.status(200).json(students);
+    } catch {
+        return res.status(400).json(errorMessage(12, 'Could not retrieve students'));
+    }
     
-    res.status(200).json(students);
 }
 
 /**
