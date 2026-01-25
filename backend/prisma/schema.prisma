@@ -67,13 +67,3 @@ model ClassroomUser {
   user        User      @relation("UserClassrooms", fields: [userId], references: [id])
   @@unique([classroomId, userId])
 }
-
-model VirtuelMachine {
-  id          Int      @id @default(autoincrement())
-  name        String
-  hostname String
-  description String?
-  operatingSystem String?
-  ownerId     Int
-  owner       User     @relation(fields: [ownerId], references: [id])
-}

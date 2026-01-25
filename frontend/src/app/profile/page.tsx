@@ -23,7 +23,6 @@ export default function ProfilePage(){
                 <h2 className="m-5 p-2 font-bold text-3xl">{user.data?.firstName + " " + user.data?.lastName}</h2>  
                 <span className="font-bold text-gray-500"> {userRole.data?.name}</span>              
             </div>
-            <div>{user.data?.role}</div>
             <div className="flex flex-col justify-between m-4 mb-10 p-4">
                 <div className="flex flex-row">
                     <span className="flex-grow font-2xl">Email:

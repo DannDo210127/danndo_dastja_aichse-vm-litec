@@ -172,7 +172,7 @@ function ClassroomComponent({deleteClassroomMutation, classrooms, setClassrooms 
         return (
           <div
             key={classroom.id}
-            className={`bg-background shadow-md border-2 border-lightforeground ${isOpen ? "rounded-t-[8]" : "rounded-[8]"}`}
+            className={`bg-background shadow-md border-2 border-lightforeground rounded-[8]`}
           >
             {/* Header */}
             <div
