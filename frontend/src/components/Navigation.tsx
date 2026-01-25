@@ -20,7 +20,7 @@ export function Navigation(){
         user.isLoading ? <LoadingScreen /> :
         <Fragment>
         
-                <div className={` w-25 hover:md:w-1/4 hover:sm:w-1/3 ${useThemeStore.getState().theme == 'light' ? "border-r-4 border-lightforeground" : ""} drop-shadow-lg ease-in-out transition-[width] duration-350 flex flex-col justify-between bg-background  h-full`}>
+                <div className={`w-25.5 hover:lg:w-1/5 hover:md:w-1/4 hover:w-1/3 ${useThemeStore.getState().theme == 'light' ? "border-r-4 border-lightforeground" : ""} drop-shadow-lg ease-in-out transition-[width] duration-350 flex flex-col justify-between bg-background  h-full`}>
                     <div className={`flex flex-col gap-4 mx-5`}>  
                     
                         <NavigationButton className="!bg-background hover:!bg-background my-5 border-b-2 border-b-foreground !rounded-none" label="Virtual Classroom" icon={<Codesandbox />} href="/" />
@@ -30,7 +30,7 @@ export function Navigation(){
                     </div>
                     
                     {user.isAuthenticated ? (
-                        <div className="mx-5 mb-10">
+                        <div className="mx-5 mb-5">
                             <p className="mb-5 border-b-2 border-b-foreground"/>
                             <div className="flex flex-col gap-4">
                                 <NavigationButton

@@ -18,7 +18,7 @@ export default function ProfilePage(){
     return (
         
 
-         <div className="flex flex-col bg-background m-20 mx-30 rounded-[8] h-8/10 grow">
+         <div className="flex flex-col bg-background m-20 mx-25 rounded-[8] h-8/10 grow">
             <div className="flex flex-row justify-between items-center border-lightforeground border-b-2">
                 <h2 className="m-5 p-2 font-bold text-3xl">{user.data?.firstName + " " + user.data?.lastName}</h2>  
                 <span className="font-bold text-gray-500"> {userRole.data?.name}</span>              
