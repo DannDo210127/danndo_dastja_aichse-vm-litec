@@ -1,5 +1,5 @@
 import { addStudentToClassroom } from "@/api/classroom";
-import { useErrorStore } from "@/store/error-store";
+import { useSnackbarStore } from "@/store/snackbar-store";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 import UserApi from "@/api/user";
@@ -25,7 +25,7 @@ export function AddStudentModal({isOpen, onClose, errormessage, classroomId}: St
 
     const [isCreateDisabled, setIsCreateDisabled] = useState<boolean>(studentInput[0].trim() === selectedStudent[0].trim());
 
-    const { showError, showSuccess } = useErrorStore();
+    const { showError, showSuccess } = useSnackbarStore();
 
     const queryClient = useQueryClient();
     const searchStudentsQuery = useQuery({
@@ -40,11 +40,7 @@ export function AddStudentModal({isOpen, onClose, errormessage, classroomId}: St
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['classrooms'] });
             handleModalClose();
-            showSuccess("Student added to classroom successfully");
         },
-        onError: () => {
-            showError("Failed to add student to classroom");
-        }
     });
 
     useEffect(() => {

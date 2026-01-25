@@ -1,9 +1,9 @@
 import { useEffect } from 'react';
-import { useErrorStore } from '@/store/error-store';
+import { useSnackbarStore } from '@/store/snackbar-store';
 import { AlertTriangle, CheckCircle2, Info } from 'lucide-react';
 
 export default function Snackbar(){
-    const { message, type, isVisible, hideSnackbar } = useErrorStore();
+    const { message, type, isVisible, hideSnackbar } = useSnackbarStore();
 
     useEffect(() => {
         if (isVisible && message) {
