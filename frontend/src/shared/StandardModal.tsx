@@ -1,3 +1,4 @@
+import { useThemeStore } from "@/store/theme-store";
 import { FC, Fragment, useEffect } from "react";
 import { createPortal } from "react-dom";
 
@@ -19,15 +20,15 @@ const StandardModal: FC<StandardModalProps> = ({ title, description, isOpen, chi
             {isOpen ?
             (
                 <div
-                    className="fixed inset-0 flex items-center justify-center bg-black/30 z-50"
+                    className={`z-50 fixed inset-0 flex justify-center items-center bg-black/50`}
                 >
                     <div
-                        className={`bg-background rounded-lg p-6 shadow-lg flex flex-col ${className}`}
+                        className={`bg-background rounded-lg p-6  flex flex-col ${className}`}
                         onClick={(e) => e.stopPropagation()}
                     >
-                        <div className="flex flex-col gap-0 border-b-1 border-b-lightforeground pb-3">
-                            <h2 className="text-xl font-semibold">{title}</h2>
-                            <p className="text-sm text-font font-light">{description}</p>
+                        <div className="flex flex-col gap-0 pb-3 border-b-1 border-b-lightforeground">
+                            <h2 className="font-semibold text-xl">{title}</h2>
+                            <p className="font-light text-font text-sm">{description}</p>
                         </div>
                         {children}
                     </div>
