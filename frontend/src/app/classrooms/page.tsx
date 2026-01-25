@@ -113,7 +113,7 @@ export default function ClassroomPage(){
       onSubmit={() => setLoginModalOpen(false)}
     />
   ) : (
-    <div className="flex flex-col bg-background m-20 rounded-[8] w-8/10 h-8/10">
+    <div className="flex flex-col bg-background m-20 rounded-[8] w-9/10 h-8/10">
       <div className="flex flex-row justify-between items-center bg-background border-lightforeground border-b-2 w-full h-1/12">
         <h2 className="m-5 p-2 font-bold text-2xl">Your Classrooms</h2>
         <StandardButton
