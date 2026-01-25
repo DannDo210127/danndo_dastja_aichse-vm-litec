@@ -1,6 +1,7 @@
 import { RequestHandler } from "express";
 import DatabaseClient from "../db/client";
 import { errorMessage } from "../util/Error";
+import { successMessage } from "../util/Success";
 
 const prisma = DatabaseClient.getInstance().prisma;
 
@@ -22,7 +23,7 @@ export const createClassroom: RequestHandler = async (req, res) => {
         }
     })
 
-    res.status(200).json({ message: "Classroom created successfully" });
+    res.status(200).json(successMessage(53, 'Classroom created successfully'));
 }
 
 export const getAllClassrooms: RequestHandler = async (req, res) => {
@@ -52,7 +53,7 @@ export const addStudentToClassroom: RequestHandler = async (req, res) => {
         
     }
 
-    res.send("User " + userId + " added to classroom " + classroomId);
+    res.status(200).send(successMessage(54, 'User added to classroom successfully'));
 }
 
 /**
@@ -79,7 +80,7 @@ export const removeStudentFromClassroom: RequestHandler = async (req, res) => {
         
     }
 
-    res.send("User " + userId + " removed from classroom " + classroomId);
+    res.status(200).send(successMessage(56, 'Removed Student: ' + userId + ' from classroom'));
 }
 
 /**
@@ -125,5 +126,5 @@ export const deleteClassroom: RequestHandler = async (req, res) => {
         }
     });
 
-    res.status(200).json({ message: "Classroom deleted successfully" });
+    res.status(200).json(successMessage(55, 'Classroom deleted successfully'));
 }   
