@@ -9,7 +9,7 @@ const prisma = DatabaseClient.getInstance().prisma;
 declare global {
   namespace Express {
     interface Request {
-      user?: User;
+      user?: User & { role: { id: number; name: string } };
     }
   }
 }
