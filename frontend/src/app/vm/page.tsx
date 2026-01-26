@@ -12,20 +12,12 @@ import { useRouter } from "next/navigation";
 import { useAuth } from "@/hooks/useAuth";
 import { LoginModal } from "@/components/LoginModal";
 
-interface VmComponent{
-        id: number;
-        name: string;
-        image?: string;
-        state: 'running' | 'stopped';
-        ipPath?: string;
-    
-}
 
-const assignedVms: VmComponent[] = [
-    { id: 1, name: "Debian 13",image:"debian13.netinst", state: "running", ipPath: "127.0.0.1:9090" },
-    { id: 2, name: "Ubuntu 22.04",image:"ubuntu2204.netinst", state: "stopped", ipPath: "127.0.0.1:9091" },
-    { id: 3, name: "CentOS 8", image:"centos8.netinst", state: "running", ipPath: "127.0.0.1:9092" },
-    { id: 4, name: "Fedora 36", image:"fedora36.netinst", state: "stopped", ipPath: "127.0.0.1:9093" },
+const assignedVms: VM[] = [
+    { id: 1, name: "Debian 13",image:"debian13.netinst", state: "Running", ipAddress: "127.0.0.1:9090", userId: 1 },
+    { id: 2, name: "Ubuntu 22.04",image:"ubuntu2204.netinst", state: "NotRunning", ipAddress: "127.0.0.1:9091", userId: 1 },
+    { id: 3, name: "CentOS 8", image:"centos8.netinst", state: "Running", ipAddress: "127.0.0.1:9092", userId: 1 },
+    { id: 4, name: "Fedora 36", image:"fedora36.netinst", state: "NotRunning", ipAddress: "127.0.0.1:9093", userId: 1 },
 ]
 
 
@@ -77,10 +69,11 @@ export default function VMPage(){
                         setVmErrorMessage("");
                     }
                     assignedVms.push({
-                        id: assignedVms.length===0 ? 1:(assignedVms[assignedVms.length - 1].id + 1),
+                        id: assignedVms.length === 0 ? 1 : (assignedVms[assignedVms.length - 1].id + 1),
                         name: Vmname,
                         image: selectedImage,
-                        state: 'stopped',
+                        state: 'NotRunning',
+                        userId: 0
                     });
                     console.log("Creating VM:", assignedVms.length, Vmname, selectedImage);
                     setVmModalOpen(false);
@@ -186,7 +179,7 @@ export const CreateVmModal: FC<CreateVmModalProps> = ({ isOpen, onClose, onSubmi
 
 
 interface VmComponentProps{
-    assignedVms: VmComponent[];
+    assignedVms: VM[];
 }
 
 export function VmComponent(props: VmComponentProps){
@@ -194,13 +187,13 @@ export function VmComponent(props: VmComponentProps){
     const [isDeleteVmModalOpen, setDeleteVmModalOpen] = useState(false);
     const [vmModalId, setVmModalId] = useState<number | null>(null);
 
-    const [vmStates, setVmStates] = useState<Record<number, 'running' | 'stopped'>>(() =>
-        Object.fromEntries(props.assignedVms.map(v => [v.id, v.state])) as Record<number, 'running' | 'stopped'>
+    const [vmStates, setVmStates] = useState(() =>
+        Object.fromEntries(props.assignedVms.map(v => [v.id, v.state]))
     );
 
     useEffect(() => {
         setVmStates(prev => {
-            const next: Record<number, 'running' | 'stopped'> = { ...prev };
+            const next: typeof prev = { ...prev };
             for (const v of props.assignedVms) {
                 if (!(v.id in next)) next[v.id] = v.state;
             }
@@ -213,9 +206,9 @@ export function VmComponent(props: VmComponentProps){
         });
     }, [props.assignedVms]);
 
-    const getVmState = (id: number) => vmStates[id] ?? 'stopped';
+    const getVmState = (id: number) => vmStates[id] ?? 'NotRunning';
     const toggleVmState = (id: number) => {
-        setVmStates(prev => ({ ...prev, [id]: prev[id] === 'running' ? 'stopped' : 'running' }));
+        setVmStates(prev => ({ ...prev, [id]: prev[id] === 'Running' ? 'NotRunning' : 'Running' }));
     };
 
     const router = useRouter();
@@ -234,7 +227,7 @@ export function VmComponent(props: VmComponentProps){
                             <StandardButton label="connect" className="" onClick={() => { router.push(`/vnc`); }} >
                                 <ScreenShareIcon className="mr-1 size-5" />
                             </StandardButton>
-                            <StandardButton label={getVmState(vm.id) === 'running' ? 'Stop' : 'Start'} className="ml-1" onClick={() => { toggleVmState(vm.id); }} >
+                            <StandardButton label={getVmState(vm.id) === 'Running' ? 'Stop' : 'Start'} className="ml-1" onClick={() => { toggleVmState(vm.id); }} >
                                 <CirclePowerIcon className="mr-1 size-5" />
                             </StandardButton>
                             <StandardButton label="" className="ml-1" onClick={() => {setDeleteVmModalOpen(true); setVmModalId(vm.id);}} >
