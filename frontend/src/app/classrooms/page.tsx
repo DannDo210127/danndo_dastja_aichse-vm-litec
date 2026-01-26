@@ -154,10 +154,6 @@ function ClassroomComponent({deleteClassroomMutation, classrooms, setClassrooms 
   const [studentModalClassroomId, setStudentModalClassroomId] = useState<
     number | null
   >(null);
-  const [studentErrormessage, setStudentErrormessage] = useState<string>("");
-
-  const queryClient = useQueryClient();
-
 
   const handleDeleteClassroom = (index: number) => {
       deleteClassroomMutation.mutate(classrooms[index].id);
@@ -229,7 +225,6 @@ function ClassroomComponent({deleteClassroomMutation, classrooms, setClassrooms 
             )}
       
       <AddStudentModal 
-        errormessage={studentErrormessage}
         isOpen={isStudentModalOpen}
         classroomId={studentModalClassroomId !== null ? classrooms[studentModalClassroomId]?.id : undefined}
         onClose={() => {
