@@ -23,6 +23,16 @@ declare global{
     users: ClassroomUser[];
   }
   type Theme = 'light' | 'dark'
+
+  // Virtual Machine type, just an example, not the real database model
+  interface VM{
+    id:number;
+    name:string;
+    state: 'NotRunning' | 'Running' | 'Idle' | 'Starting' | 'Stopping';
+    image:string;
+    ipAddress?:string;
+    userId:number;
+  }
 }
 
 export{};
