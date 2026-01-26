@@ -11,7 +11,10 @@ const prisma = DatabaseClient.getInstance().prisma;
  * Route: POST /classroom/
  */
 export const createClassroom: RequestHandler = async (req, res) => {
-    // CHECK IF USER HAS PERMISSIONS TO CREATE CLASSROOM
+
+    if (!req.body.name || !req.body.description) {
+        return res.status(400).json(errorMessage(2, 'Name and description are required'));
+    }
 
     const name = req.body.name;
     const description = req.body.description
@@ -27,9 +30,25 @@ export const createClassroom: RequestHandler = async (req, res) => {
 }
 
 export const getAllClassrooms: RequestHandler = async (req, res) => {
-    const user = req.user;
+    const adminFlags = ['VIEW_ALL_CLASSROOMS'];
+    const userFlags = await prisma.flag.findMany({
+        where: {
+            roleId: req.user?.roleId,
+        }
+    })
+    
+    const userFlagValues = userFlags.map(flag => flag.value);
+    const hasPermission = adminFlags.every(flag => userFlagValues.includes(flag));
 
-    res.status(200).json(await prisma.classroom.findMany());
+    res.status(200).json(await prisma.classroom.findMany({
+        where: hasPermission ? {} : {
+            users: {
+                some: {
+                    userId: req.user?.id,
+                }
+            }
+        }
+    }));
 }
 
 /**
