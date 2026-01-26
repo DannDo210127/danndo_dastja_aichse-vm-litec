@@ -261,8 +261,6 @@ export function StudentList({ classroomId }: StudentListProps) {
   const [isDeleteStudentModalOpen, setDeleteStudentModalOpen] = useState(false);
   const [deleteStudentId, setDeleteStudentId] = useState<number | null>(null);
 
-  const { showError, showSuccess } = useSnackbarStore();
-
   const queryClient = useQueryClient();
 
   const students = useQuery({
@@ -281,9 +279,9 @@ export function StudentList({ classroomId }: StudentListProps) {
 
   return (
     <ul className="space-y-2">
-      {students.isLoading && <div>Loading...</div>}
-      {students.data?.length <= 0 ? (
-        <div>Nobody is here :(</div>
+      {students.isLoading ? <div>Loading...</div> :
+      students.data?.error ? (
+        <div>No user found</div>
       ) : (
         students.data?.map((student: any, index: number) => (
           <li
