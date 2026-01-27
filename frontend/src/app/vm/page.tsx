@@ -14,20 +14,12 @@ import { LoginModal } from "@/components/LoginModal";
 import { useQuery } from "@tanstack/react-query";
 import { getAllMachines } from "@/api/machines";
 
-interface VmComponent{
-        id: number;
-        name: string;
-        image?: string;
-        state: 'running' | 'stopped';
-        ipPath?: string;
-    
-}
 
-const assignedVms: VmComponent[] = [
-    { id: 1, name: "Debian 13",image:"debian13.netinst", state: "running", ipPath: "127.0.0.1:9090" },
-    { id: 2, name: "Ubuntu 22.04",image:"ubuntu2204.netinst", state: "stopped", ipPath: "127.0.0.1:9091" },
-    { id: 3, name: "CentOS 8", image:"centos8.netinst", state: "running", ipPath: "127.0.0.1:9092" },
-    { id: 4, name: "Fedora 36", image:"fedora36.netinst", state: "stopped", ipPath: "127.0.0.1:9093" },
+const assignedVms: VM[] = [
+    { id: 1, name: "Debian 13",image:"debian13.netinst", state: "Running", ipAddress: "127.0.0.1:9090", userId: 1 },
+    { id: 2, name: "Ubuntu 22.04",image:"ubuntu2204.netinst", state: "NotRunning", ipAddress: "127.0.0.1:9091", userId: 1 },
+    { id: 3, name: "CentOS 8", image:"centos8.netinst", state: "Running", ipAddress: "127.0.0.1:9092", userId: 1 },
+    { id: 4, name: "Fedora 36", image:"fedora36.netinst", state: "NotRunning", ipAddress: "127.0.0.1:9093", userId: 1 },
 ]
 
 
@@ -79,10 +71,11 @@ export default function VMPage(){
                         setVmErrorMessage("");
                     }
                     assignedVms.push({
-                        id: assignedVms.length===0 ? 1:(assignedVms[assignedVms.length - 1].id + 1),
+                        id: assignedVms.length === 0 ? 1 : (assignedVms[assignedVms.length - 1].id + 1),
                         name: Vmname,
                         image: selectedImage,
-                        state: 'stopped',
+                        state: 'NotRunning',
+                        userId: 0
                     });
                     console.log("Creating VM:", assignedVms.length, Vmname, selectedImage);
                     setVmModalOpen(false);
@@ -188,7 +181,7 @@ export const CreateVmModal: FC<CreateVmModalProps> = ({ isOpen, onClose, onSubmi
 
 
 interface VmComponentProps{
-    assignedVms: VmComponent[];
+    assignedVms: VM[];
 }
 
 export function VmComponent(props: VmComponentProps){

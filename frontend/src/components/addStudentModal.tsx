@@ -10,11 +10,10 @@ import { StandardButton } from "@/shared/StandardButton";
 interface StudentModalProps {
     isOpen: boolean;
     onClose: () => void;
-    errormessage: string;
     classroomId?: number;
 }
 
-export function AddStudentModal({isOpen, onClose, errormessage, classroomId}: StudentModalProps) {
+export function AddStudentModal({isOpen, onClose, classroomId}: StudentModalProps) {
 
     
 
@@ -156,7 +155,7 @@ export function AddStudentModal({isOpen, onClose, errormessage, classroomId}: St
                                 searchStudentsQuery.data.map((student: User) => (
                                     <button
                                         key={student.id}
-                                        onClick={() => handleDropdownSelect(student)}
+                                        onMouseDown={() => handleDropdownSelect(student)} //onMouseDown for chromium support
                                         className="flex flex-row hover:bg-foreground px-4 py-3 first:rounded-t-[8] last:rounded-b-[8] w-full overflow-visible text-font text-left transition-colors"
                                     > 
                                         <p className="flex-grow">{student.firstName} {student.lastName}</p><p className="mr-2 text-gray-500">{student.id}</p>
