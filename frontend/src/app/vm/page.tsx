@@ -11,6 +11,8 @@ import { ConfirmModal } from "@/shared/ConfirmModal";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/hooks/useAuth";
 import { LoginModal } from "@/components/LoginModal";
+import { useQuery } from "@tanstack/react-query";
+import { getAllMachines } from "@/api/machines";
 
 
 const assignedVms: VM[] = [
@@ -183,70 +185,24 @@ interface VmComponentProps{
 }
 
 export function VmComponent(props: VmComponentProps){
-
-    const [isDeleteVmModalOpen, setDeleteVmModalOpen] = useState(false);
-    const [vmModalId, setVmModalId] = useState<number | null>(null);
-
-    const [vmStates, setVmStates] = useState(() =>
-        Object.fromEntries(props.assignedVms.map(v => [v.id, v.state]))
-    );
-
-    useEffect(() => {
-        setVmStates(prev => {
-            const next: typeof prev = { ...prev };
-            for (const v of props.assignedVms) {
-                if (!(v.id in next)) next[v.id] = v.state;
-            }
-            for (const id of Object.keys(next)) {
-                if (!props.assignedVms.find(v => v.id === Number(id))) {
-                    delete next[Number(id)];
-                }
-            }
-            return next;
-        });
-    }, [props.assignedVms]);
-
-    const getVmState = (id: number) => vmStates[id] ?? 'NotRunning';
-    const toggleVmState = (id: number) => {
-        setVmStates(prev => ({ ...prev, [id]: prev[id] === 'Running' ? 'NotRunning' : 'Running' }));
-    };
-
-    const router = useRouter();
-
+    const machines = useQuery({
+        queryKey: ['machines'],
+        queryFn: () => getAllMachines() 
+    });
 
     return (
         <div className="flex flex-col space-y-4 bg-background m-5 rounded-[8] h-full">
             <ul>
-                {props.assignedVms.map((vm) => (
-                    <li key={vm.id} className="bg-lightforeground mb-4 p-2 border-2 border-lightforeground rounded-[8]">
-                        <div className="flex flex-row w-full h-full">
-                            <div className="flex flex-row flex-grow">
-                                <ComputerIcon className="self-center ml-1 w-6 h-6"/>
-                                <span className="self-center ml-4 w-5/10 h-fit text-lg">{vm.name}</span>
+                {machines.data && machines.data.length > 0 ? machines.data.map((vm: any, index: number) => (
+                    <li key={index} className="flex flex-row justify-between items-center border-lightforeground border-b-2 p-4">
+                        <div className="flex flex-row items-center">
+                            <ComputerIcon className="size-6 mr-4" />
+                            <div className="flex flex-col">
+                                <span className="font-bold text-lg">{vm}</span>
                             </div>
-                            <StandardButton label="connect" className="" onClick={() => { router.push(`/vnc`); }} >
-                                <ScreenShareIcon className="mr-1 size-5" />
-                            </StandardButton>
-                            <StandardButton label={getVmState(vm.id) === 'Running' ? 'Stop' : 'Start'} className="ml-1" onClick={() => { toggleVmState(vm.id); }} >
-                                <CirclePowerIcon className="mr-1 size-5" />
-                            </StandardButton>
-                            <StandardButton label="" className="ml-1" onClick={() => {setDeleteVmModalOpen(true); setVmModalId(vm.id);}} >
-                                <Trash2Icon className="self-center p-0.5 rounded-[8] cursor-pointer" />
-                            </StandardButton>
-                            <DeleteVmModal isOpen={isDeleteVmModalOpen} onClose={() => {
-                                setDeleteVmModalOpen(false);
-                            }} onSubmit={() => {
-                                if (vmModalId !== null) {
-                                    const index = assignedVms.findIndex((vm) => vm.id === vmModalId)
-                                    assignedVms.splice(index, 1);
-                            
-                                setVmModalId(null);
-                                }
-                                setDeleteVmModalOpen(false);
-                            }} />
                         </div>
                     </li>
-                ))}
+                )) : <li className="p-4 text-font">No Virtual Machines assigned.</li>}
             </ul>
         </div>
     )
