@@ -1,10 +1,8 @@
 import { Router } from 'express';
+import { isAuthenticated } from '../middleware/authentication';
+import { getAllVirtualMachines } from '../controller/IncusController';
 const router = Router();
 
-// router.get('/', getItems);
-// router.get('/:id', getItemById);
-// router.post('/', createItem);
-// router.put('/:id', updateItem);
-// router.delete('/:id', deleteItem);
+router.get('/machines', isAuthenticated, getAllVirtualMachines);
 
 export default router;

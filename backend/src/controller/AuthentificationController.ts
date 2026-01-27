@@ -1,6 +1,6 @@
 import { RequestHandler } from "express";
 import DatabaseClient from "../db/client";
-import { generateAccessToken, generateRefreshToken } from "../auth/token";
+import { generateAccessToken, generateRefreshToken } from "../util/token";
 import { User } from "@prisma/client";
 import bcrypt from "bcryptjs";
 import { errorMessage } from "../util/Error";
