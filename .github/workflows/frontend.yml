@@ -39,7 +39,7 @@ jobs:
         working-directory: ./frontend
       - name: Install dependencies
         run: |
-          npm install typescript
+          npm install typescript -g
           npm install --force      
         working-directory: ./frontend
       - name: Build project
