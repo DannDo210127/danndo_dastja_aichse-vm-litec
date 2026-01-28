@@ -295,5 +295,3 @@ Die Anwendung wurde mit modernen Development Best Practices entwickelt:
 - Component-basierte Architektur
 - Standardisierte Error/Success Responses
 
-
-Test Live
