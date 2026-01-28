@@ -4,9 +4,9 @@ import fs from "fs";
 import config from "../config/config";
 
 const agent = new https.Agent({
-  cert: fs.readFileSync(`../../../../cert/client.crt`),
+  cert: fs.readFileSync(process.env.INCUS_CLIENT_CERT_PATH!),
 
-  key: fs.readFileSync(`../../../../cert/client.key`),
+  key: fs.readFileSync(process.env.INCUS_CLIENT_KEY_PATH!),
   rejectUnauthorized: false 
 });
 
