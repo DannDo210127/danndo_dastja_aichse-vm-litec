@@ -37,7 +37,8 @@ jobs:
           npm cache clean --force
           rm -rf node_modules      
       - name: Install dependencies
-        run: npm install --force      
+        run: npm install --force   
+        working-directory: ./frontend
       - name: Build project
         run: CI=false npm run build      
       - name: Set up SSH key
