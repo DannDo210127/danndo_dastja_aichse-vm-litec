@@ -12,6 +12,8 @@ jobs:
       REACT_APP_LOGO_PATH: ${{ secrets.REACT_APP_LOGO_PATH }}
       # Add other environment variables as needed    
     steps:
+      - name: Show files
+        run: ls -R
       - name: Tailscale
         uses: tailscale/github-action@v4
         with:
