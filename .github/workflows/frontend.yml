@@ -31,7 +31,7 @@ jobs:
           tags: tag:ci 
       - name: Checkout code
         uses: actions/checkout@v3      
-          tags: tag:ci
+        tags: tag:ci
 
       # Setup Node
       - name: Set up Node.js
