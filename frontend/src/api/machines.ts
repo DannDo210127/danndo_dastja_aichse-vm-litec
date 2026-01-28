@@ -5,7 +5,7 @@ export const getMachine = async (name: string) => {
     return response.data;
 }
 
-export const getAllMachines = async () => {
-    const response = await api.get(`/incus/machines`, { withCredentials: true });
+export const getAssignedMachines = async () => {
+    const response = await api.get(`/incus/machines/`, { withCredentials: true });
     return response.data;
 }
