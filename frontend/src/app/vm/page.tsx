@@ -2,7 +2,7 @@
 
 import { StandardButton } from "@/shared/StandardButton";
 import { CirclePowerIcon, ComputerIcon, PlusIcon,  ScreenShareIcon, Trash2Icon } from "lucide-react";
-import { FC, useEffect, useReducer, useState } from "react";
+import { FC, use, useEffect, useReducer, useState } from "react";
 import StandardModal  from "@/shared/StandardModal";
 import { StandardInput } from "@/shared/StandardInput";
 import {Menu, MenuButton, MenuItem, MenuItems } from "@headlessui/react";
@@ -61,7 +61,7 @@ export default function VMPage(){
                     </StandardButton>
                 </div>
                
-                <VmComponent assignedVms={assignedVms}></VmComponent>
+                <VmComponentList assignedVms={assignedVms}></VmComponentList>
                 <CreateVmModal errormessage={vmErrorMessage} images={images} isOpen={isVmModalOpen} onClose={() => setVmModalOpen(false)} onSubmit={(Vmname, selectedImage) => {
                     if(assignedVms.find(vm => vm.name.toLowerCase() === Vmname.toLowerCase())){
                         setVmErrorMessage("A VM with this name already exists.");
@@ -180,33 +180,53 @@ export const CreateVmModal: FC<CreateVmModalProps> = ({ isOpen, onClose, onSubmi
 
 
 
-interface VmComponentProps{
+interface VmComponentListProps{
     assignedVms: VM[];
 }
 
-export function VmComponent(props: VmComponentProps){
+export function VmComponentList(props: VmComponentListProps){
+
+    const [isOpen, setIsOpen] = useState<boolean[]>([false,...Array(props.assignedVms.length).fill(false)]);
+
     const machines = useQuery({
         queryKey: ['machines'],
         queryFn: () => getAllMachines() 
     });
 
-    const machine = useQuery({
-        queryKey: ['machine'],
-        queryFn: ({ queryKey }) => getMachine(queryKey[1] as string) 
-    });
+
 
     return (
         <div className="flex flex-col space-y-4 bg-background m-5 rounded-[8] h-full">
-            <ul>
+            <ul className="flex flex-col gap-4 h-full overflow-y-auto">
                 {machines.data && machines.data.length > 0 ? machines.data.map((vm: any, index: number) => (
-                    <li key={index} className="flex flex-row justify-between items-center p-4 border-lightforeground border-b-2">
+                    <div key={index}>
+                    <button  className={`flex flex-row justify-between items-center bg-lightforeground drop-shadow-sm p-4 border-lightforeground border-b-2 rounded-[8] w-full`}
+                        onClick={() => {
+                            console.log("Toggling VM at index:", index, "from", isOpen[index], "to", !isOpen[index]);
+                            setIsOpen(prevState => {
+                                const newState = [...prevState];
+                                newState[index] = !newState[index];
+                                return newState;
+                            });
+                        } }
+
+                    >
                         <div className="flex flex-row items-center">
                             <ComputerIcon className="mr-4 size-6" />
                             <div className="flex flex-col">
-                                <span className="font-bold text-lg">{vm}</span>
+                                <div className="font-bold text-lg">{vm}</div>
                             </div>
                         </div>
-                    </li>
+                    </button>
+
+                        { isOpen[index] && 
+                            <div className="bg-lightforeground w-full h-full">
+                                <div>ss
+                                </div>
+                            </div>
+                        }
+                    </div>
+                    
                 )) : <li className="p-4 text-font">No Virtual Machines assigned.</li>}
             </ul>
         </div>
