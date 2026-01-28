@@ -24,7 +24,6 @@ import {
 import { LoadingScreen } from "@/shared/LoadingScreen";
 import { useAuth } from "@/hooks/useAuth";
 import { LoginModal } from "@/components/LoginModal";
-import { useSnackbarStore } from '@/store/snackbar-store';
 import { DeleteStudentModal } from "@/components/deleteStudentModal";
 import { ClassroomModal } from "@/components/createClassroomModal";
 import { DeleteClassroomModal } from "@/components/deleteClassroomModal";
@@ -108,15 +107,16 @@ export default function ClassroomPage(){
     <div className="flex flex-col bg-background mx-10 xl:mx-20 my-20 rounded-[8] w-9/10 h-8/10">
       <div className="flex flex-row justify-between items-center bg-background border-lightforeground border-b-2 w-full h-1/12">
         <h2 className="m-5 p-2 font-bold text-2xl">Your Classrooms</h2>
-        <StandardButton
-          label="Create Classroom"
-          onClick={() => {
-            setClassroomModalOpen(true);
-          }}
-          className="bg-lightforeground hover:bg-contrast! drop-shadow-sm ml-8 p-2.5! px-4 hover:text-background hover:scale-105 transition-all"
-        >
-          <PlusIcon className="mr-1 size-6" />
-        </StandardButton>
+          
+          {(user.data?.role.name === "TEACHER" || user.data?.role.name === "ADMIN") && <StandardButton
+            label="Create Classroom"
+            onClick={() => {
+              setClassroomModalOpen(true);
+            }}
+            className="bg-lightforeground hover:bg-contrast! drop-shadow-sm ml-8 p-2.5! px-4 hover:text-background hover:scale-105 transition-all"
+          >
+            <PlusIcon className="mr-1 size-6" />
+          </StandardButton>}
       </div>
       <ClassroomComponent
         classrooms={classrooms.data || []}
@@ -160,6 +160,8 @@ function ClassroomComponent({deleteClassroomMutation, classrooms, setClassrooms 
       
   };
 
+  const user = useAuth();
+
   return (
     <div className="flex-1 space-y-4 bg-background p-8 max-h-[calc(100vh-10rem)] overflow-y-auto">
       {classrooms.map((classroom: Classroom, index: number) => {
@@ -194,6 +196,7 @@ function ClassroomComponent({deleteClassroomMutation, classrooms, setClassrooms 
               </div>
 
               <div className="flex flex-row space-x-2">
+                {(user.data?.role.name === "TEACHER" || user.data?.role.name === "ADMIN") && <>
                 <StandardButton
                   className="bg-transparent! px-2 py-1"
                   label="Add student"
@@ -204,16 +207,17 @@ function ClassroomComponent({deleteClassroomMutation, classrooms, setClassrooms 
                 >
                   <PlusIcon className="mr-1 size-6" />
                 </StandardButton>
-                <StandardButton
-                  className="bg-transparent! px-2 py-1"
-                  label=""
-                  onClick={() => {
-                    setDeleteClassroomId(index);
-                    setDeleteClassroomModalOpen(true);
-                  }}
-                >
-                  <Trash2Icon className="size-6" />
-                </StandardButton>
+                 
+                  <StandardButton
+                    className="bg-transparent! px-2 py-1"
+                    label=""
+                    onClick={() => {
+                      setDeleteClassroomId(index);
+                      setDeleteClassroomModalOpen(true);
+                    }}
+                  >
+                    <Trash2Icon className="size-6" />
+                  </StandardButton> </>} 
               </div>
             </div>
 
@@ -272,6 +276,8 @@ export function StudentList({ classroomId }: StudentListProps) {
     },
   });
 
+  const user = useAuth();
+
   return (
     <ul className="space-y-2">
       {students.isLoading ? <div>Loading...</div> :
@@ -293,6 +299,7 @@ export function StudentList({ classroomId }: StudentListProps) {
                 </span>
               </div>
               <div className="flex flex-row justify-end items-center grow">
+                {(user.data?.role.name === "TEACHER" || user.data?.role.name === "ADMIN") &&
                 <button
                   className="bg-background hover:bg-secondary ml-4 rounded-[8] w-fit size-8"
                   onClick={() => {
@@ -301,7 +308,7 @@ export function StudentList({ classroomId }: StudentListProps) {
                   }}
                 >
                   <Trash2 className="size-6" />
-                </button>
+                </button>}
               </div>
             </div>
           </li>
