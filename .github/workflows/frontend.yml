@@ -1,77 +1,103 @@
 on:
   push:
     branches:
-      - live # Trigger this workflow when code is pushed to the 'live' branch
+      - live
+
 jobs:
   deploy:
-    runs-on: debian-latest    
+    runs-on: ubuntu-latest
+
     env:
       NODE_ENV: production
       REACT_APP_API_URL: ${{ secrets.REACT_APP_API_URL }}
       REACT_APP_SITE_NAME: ${{ secrets.REACT_APP_SITE_NAME }}
       REACT_APP_LOGO_PATH: ${{ secrets.REACT_APP_LOGO_PATH }}
-      # Add other environment variables as needed    
+
     steps:
+      # Checkout first
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      # Debug: show structure
+      - name: Show files
+        run: ls -R
+
+      # Tailscale
       - name: Tailscale
         uses: tailscale/github-action@v4
         with:
           oauth-client-id: ${{ secrets.TS_OAUTH_CLIENT_ID }}
           oauth-secret: ${{ secrets.TS_OAUTH_SECRET }}
           tags: tag:ci
-      - name: Checkout code
-        uses: actions/checkout@v3      
+
+      # Setup Node
       - name: Set up Node.js
-        uses: actions/setup-node@v2
+        uses: actions/setup-node@v3
         with:
-          node-version: '18.x' # Or your preferred Node.js version      
-      - name: Cache Node modules
-        uses: actions/cache@v3
-        with:
-          path: ~/.npm
-          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
-          restore-keys: |
-            ${{ runner.os }}-node-      
-      - name: Clean dependencies
+          node-version: 18
+          cache: 'npm'
+          cache-dependency-path: frontend/package-lock.json
+
+      # Clean frontend deps
+      - name: Clean frontend dependencies
         run: |
-          cd ./frontend
-          rm -f package-lock.json
+          rm -rf node_modules package-lock.json
           npm cache clean --force
-          rm -rf node_modules      
-      - name: Install dependencies
-        run: |
-          cd ./frontend
-          npm install --force   
-      - name: Build project
-        run: |
-          cd ./frontend
-          CI=false npm run build   
+        working-directory: ./frontend
+
+      # Install frontend deps
+      - name: Install frontend dependencies
+        run: npm install
+        working-directory: ./frontend
+
+      # Build frontend
+      - name: Build frontend
+        run: CI=false npm run build
+        working-directory: ./frontend
+
+      # Setup SSH
       - name: Set up SSH key
         env:
           SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
         run: |
           mkdir -p ~/.ssh
           echo "$SSH_PRIVATE_KEY" > ~/.ssh/id_rsa
-          chmod 600 ~/.ssh/id_rsa      
+          chmod 600 ~/.ssh/id_rsa
+
+      # Upload build
       - name: Transfer build to server
         run: |
-          scp -r -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa build user@${{ secrets.SERVER_IP }}:/var/www/html/
-          # If you are using static export, replace 'build' with 'out'      
+          scp -r \
+            -o StrictHostKeyChecking=no \
+            -i ~/.ssh/id_rsa \
+            frontend/build \
+            user@${{ secrets.SERVER_IP }}:/var/www/html/
+
+      # Deploy on server
       - name: Deploy on server
         run: |
           ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa user@${{ secrets.SERVER_IP }} << 'EOF'
             set -e
+
             echo "Connected to server"
-            sudo rm -rf /var/www/html/my-app-backup # Optional: Backup previous deployment
-            sudo cp -r /var/www/html/my-app /var/www/html/my-app-backup # Optional: Backup current deployment
+
+            sudo rm -rf /var/www/html/my-app-backup
+            sudo cp -r /var/www/html/my-app /var/www/html/my-app-backup || true
+
             sudo rm -rf /var/www/html/my-app/*
             sudo cp -r /var/www/html/build/. /var/www/html/my-app/
-            sudo rm -rf /var/www/html/build # Clean up build directory on the server            
+
+            sudo rm -rf /var/www/html/build
+
             echo "Deployment complete"
           EOF
-          # If you are using static export, replace the 'cp' commands with:
-          # sudo cp -r /var/www/html/out/. /var/www/html/my-app/      
+
+      # Health check
       - name: Health Check
         run: |
-          curl -f https://${{ secrets.HEALTH_CHECK_URL }} || (echo "Health check failed!" && exit 1)      
+          curl -f https://${{ secrets.HEALTH_CHECK_URL }} \
+          || (echo "Health check failed!" && exit 1)
+
+      # Success
       - name: Notify Success
         run: echo "✅ Deployment successful!"
