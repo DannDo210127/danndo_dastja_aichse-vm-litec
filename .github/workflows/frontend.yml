@@ -4,7 +4,7 @@ on:
       - live # Trigger this workflow when code is pushed to the 'live' branch
 jobs:
   deploy:
-    runs-on: debian-latest    
+    runs-on: ubuntu-latest    
     env:
       NODE_ENV: production
       REACT_APP_API_URL: ${{ secrets.REACT_APP_API_URL }}
@@ -17,7 +17,7 @@ jobs:
         with:
           oauth-client-id: ${{ secrets.TS_OAUTH_CLIENT_ID }}
           oauth-secret: ${{ secrets.TS_OAUTH_SECRET }}
-          tags: tag:ci
+          tags: tag:ci 
       - name: Checkout code
         uses: actions/checkout@v3      
       - name: Set up Node.js
