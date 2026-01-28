@@ -49,7 +49,9 @@ jobs:
           rm -rf node_modules      
         working-directory: ./frontend
       - name: Install dependencies
-        run: npm install --force      
+        run: |
+          npm install typescript -g
+          npm install --force      
         working-directory: ./frontend
       - name: Build project
         run: CI=false npm run build 
