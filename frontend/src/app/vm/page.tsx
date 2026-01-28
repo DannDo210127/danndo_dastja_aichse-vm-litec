@@ -203,7 +203,7 @@ export function VmComponent(props: VmComponentProps){
                         <div className="flex flex-row items-center">
                             <ComputerIcon className="mr-4 size-6" />
                             <div className="flex flex-col">
-                                <span className="font-bold text-lg">{machine.data?.name}</span>
+                                <span className="font-bold text-lg">{vm}</span>
                             </div>
                         </div>
                     </li>
