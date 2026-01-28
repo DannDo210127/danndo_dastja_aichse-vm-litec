@@ -294,4 +294,3 @@ Die Anwendung wurde mit modernen Development Best Practices entwickelt:
 - React Query für Server State
 - Component-basierte Architektur
 - Standardisierte Error/Success Responses
-a
