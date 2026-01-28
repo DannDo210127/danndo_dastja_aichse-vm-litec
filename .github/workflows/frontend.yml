@@ -33,6 +33,7 @@ jobs:
             ${{ runner.os }}-node-      
       - name: Clean dependencies
         run: |
+          cd ./frontend
           rm -f package-lock.json
           npm cache clean --force
           rm -rf node_modules      
@@ -40,7 +41,8 @@ jobs:
         run: npm install --force   
         working-directory: ./frontend
       - name: Build project
-        run: CI=false npm run build      
+        run: CI=false npm run build   
+        working-directory: ./frontend
       - name: Set up SSH key
         env:
           SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
