@@ -12,7 +12,7 @@ import { useRouter } from "next/navigation";
 import { useAuth } from "@/hooks/useAuth";
 import { LoginModal } from "@/components/LoginModal";
 import { useQuery } from "@tanstack/react-query";
-import { getAllMachines } from "@/api/machines";
+import { getAllMachines, getMachine } from "@/api/machines";
 
 
 const assignedVms: VM[] = [
@@ -190,13 +190,18 @@ export function VmComponent(props: VmComponentProps){
         queryFn: () => getAllMachines() 
     });
 
+    const machine = useQuery({
+        queryKey: ['machine'],
+        queryFn: ({ queryKey }) => getMachine(queryKey[1] as string) 
+    });
+
     return (
         <div className="flex flex-col space-y-4 bg-background m-5 rounded-[8] h-full">
             <ul>
                 {machines.data && machines.data.length > 0 ? machines.data.map((vm: any, index: number) => (
-                    <li key={index} className="flex flex-row justify-between items-center border-lightforeground border-b-2 p-4">
+                    <li key={index} className="flex flex-row justify-between items-center p-4 border-lightforeground border-b-2">
                         <div className="flex flex-row items-center">
-                            <ComputerIcon className="size-6 mr-4" />
+                            <ComputerIcon className="mr-4 size-6" />
                             <div className="flex flex-col">
                                 <span className="font-bold text-lg">{vm}</span>
                             </div>
