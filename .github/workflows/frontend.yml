@@ -63,6 +63,12 @@ jobs:
             dist \
             user@${{ secrets.SERVER_IP }}:/var/www/html/
 
+      - name: Debug
+        run: |
+          ls -al
+          find frontend -maxdepth 2
+
+
       # Deploy on server
       - name: Deploy on server
         run: |
