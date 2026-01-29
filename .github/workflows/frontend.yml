@@ -70,7 +70,7 @@ jobs:
           scp -r \
             -o StrictHostKeyChecking=no \
             -i ~/.ssh/id_rsa \
-            frontend/build \
+            ./frontend/frontend/build \
             user@${{ secrets.SERVER_IP }}:/var/www/html/
 
       # Deploy on server
