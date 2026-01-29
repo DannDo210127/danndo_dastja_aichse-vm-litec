@@ -53,6 +53,10 @@ jobs:
           mkdir -p ~/.ssh
           echo "$SSH_PRIVATE_KEY" > ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa
+      - name: Debug
+        run: |
+          ls -al
+          find frontend -maxdepth 2
 
       # Upload build
       - name: Transfer build to server
@@ -62,11 +66,6 @@ jobs:
             -i ~/.ssh/id_rsa \
             dist \
             user@${{ secrets.SERVER_IP }}:/var/www/html/
-
-      - name: Debug
-        run: |
-          ls -al
-          find frontend -maxdepth 2
 
 
       # Deploy on server
