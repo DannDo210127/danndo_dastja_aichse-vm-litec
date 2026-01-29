@@ -90,6 +90,7 @@ jobs:
             set -e
 
             echo "Connected to server"
+            cd danndo_dastja_aichse-vm-litec
 
             sudo rm -rf /var/www/html/my-app-backup
             sudo cp -r /var/www/html/my-app /var/www/html/my-app-backup || true
