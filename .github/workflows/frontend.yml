@@ -38,31 +38,11 @@ jobs:
           node-version: 18
           cache: 'npm'
           cache-dependency-path: frontend/package-lock.json
-
-      # Clean frontend deps
-      - name: Clean frontend dependencies
-        run: |
-          rm -rf node_modules package-lock.json
-          npm cache clean --force
-          rm -rf node_modules      
-        working-directory: ./frontend
       - name: Install dependencies
-        run: |
-          npm install typescript -g
-          npm install --force      
+        run: npm install --force      
         working-directory: ./frontend
       - name: Build project
         run: CI=false npm run build 
-        working-directory: ./frontend
-
-      # Install frontend deps
-      - name: Install frontend dependencies
-        run: npm install
-        working-directory: ./frontend
-
-      # Build frontend
-      - name: Build frontend
-        run: CI=false npm run build
         working-directory: ./frontend
 
       # Setup SSH
