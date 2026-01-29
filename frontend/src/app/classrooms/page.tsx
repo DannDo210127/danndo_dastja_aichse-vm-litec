@@ -283,7 +283,8 @@ export function StudentList({ classroomId }: StudentListProps) {
       {students.isLoading ? <div>Loading...</div> :
       students.data?.error ? (
         <div>No user found</div>
-      ) : (
+      ) : 
+      students.data?.length > 0 ? (
         students.data?.map((student: any, index: number) => (
           <li
             key={student.id}
@@ -313,6 +314,8 @@ export function StudentList({ classroomId }: StudentListProps) {
             </div>
           </li>
         ))
+      ) : (
+        <div>No students here</div>
       )}
       <DeleteStudentModal
         isOpen={isDeleteStudentModalOpen}

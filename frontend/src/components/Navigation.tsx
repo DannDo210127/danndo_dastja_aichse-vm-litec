@@ -1,6 +1,6 @@
 'use client'
 import React, { Fragment, useState } from "react";
-import { Codesandbox, LogIn, LogOut, Monitor, School, UserCog } from "lucide-react";
+import { Codesandbox, Layers, LogIn, LogOut, School, UserCog } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { ConfirmModal } from "@/shared/ConfirmModal";
 import { LoginModal } from "./LoginModal";
@@ -26,7 +26,7 @@ export function Navigation(){
                         <NavigationButton className="!bg-background hover:!bg-background my-5 border-b-2 border-b-foreground !rounded-none" label="Virtual Classroom" icon={<Codesandbox />} href="/" />
 
                         <NavigationButton label="Classrooms" icon={<School />} href="/classrooms"/>
-                        <NavigationButton label="VM" icon={<Monitor />} href="/vm" />
+                        <NavigationButton label="VM" icon={<Layers />} href="/vm" />
                     </div>
                     
                     {user.isAuthenticated ? (

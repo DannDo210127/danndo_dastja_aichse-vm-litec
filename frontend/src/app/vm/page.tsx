@@ -1,26 +1,18 @@
 'use client'
 
 import { StandardButton } from "@/shared/StandardButton";
-import { CirclePowerIcon, ComputerIcon, PlusIcon,  ScreenShareIcon, Trash2Icon } from "lucide-react";
-import { FC, useEffect, useReducer, useState } from "react";
+import { CirclePower, ComputerIcon, LaptopMinimal, PlusIcon,  Power,  ScreenShareIcon, Trash2Icon } from "lucide-react";
+import { FC, use, useEffect, useReducer, useState } from "react";
 import StandardModal  from "@/shared/StandardModal";
 import { StandardInput } from "@/shared/StandardInput";
 import {Menu, MenuButton, MenuItem, MenuItems } from "@headlessui/react";
-import { ImageResponse } from "next/server";
 import { ConfirmModal } from "@/shared/ConfirmModal";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/hooks/useAuth";
 import { LoginModal } from "@/components/LoginModal";
 import { useQuery } from "@tanstack/react-query";
-import { getAllMachines, getMachine } from "@/api/machines";
-
-
-const assignedVms: VM[] = [
-    { id: 1, name: "Debian 13",image:"debian13.netinst", state: "Running", ipAddress: "127.0.0.1:9090", userId: 1 },
-    { id: 2, name: "Ubuntu 22.04",image:"ubuntu2204.netinst", state: "NotRunning", ipAddress: "127.0.0.1:9091", userId: 1 },
-    { id: 3, name: "CentOS 8", image:"centos8.netinst", state: "Running", ipAddress: "127.0.0.1:9092", userId: 1 },
-    { id: 4, name: "Fedora 36", image:"fedora36.netinst", state: "NotRunning", ipAddress: "127.0.0.1:9093", userId: 1 },
-]
+import { getAssignedMachines } from "@/api/machines";
+import { LoadingScreen } from "@/shared/LoadingScreen";
 
 
  interface image{
@@ -61,24 +53,9 @@ export default function VMPage(){
                     </StandardButton>
                 </div>
                
-                <VmComponent assignedVms={assignedVms}></VmComponent>
+                <VmComponentList></VmComponentList>
                 <CreateVmModal errormessage={vmErrorMessage} images={images} isOpen={isVmModalOpen} onClose={() => setVmModalOpen(false)} onSubmit={(Vmname, selectedImage) => {
-                    if(assignedVms.find(vm => vm.name.toLowerCase() === Vmname.toLowerCase())){
-                        setVmErrorMessage("A VM with this name already exists.");
-                        setVmModalOpen(true);
-                        return;
-                    }else{
-                        setVmErrorMessage("");
-                    }
-                    assignedVms.push({
-                        id: assignedVms.length === 0 ? 1 : (assignedVms[assignedVms.length - 1].id + 1),
-                        name: Vmname,
-                        image: selectedImage,
-                        state: 'NotRunning',
-                        userId: 0
-                    });
-                    console.log("Creating VM:", assignedVms.length, Vmname, selectedImage);
-                    setVmModalOpen(false);
+                    //TODO createVM submit to database
                 }} />
             </div>
         )
@@ -178,38 +155,95 @@ export const CreateVmModal: FC<CreateVmModalProps> = ({ isOpen, onClose, onSubmi
 
 
 
+export function VmComponentList(){
 
+    const [isOpen, setIsOpen] = useState<Record<number, boolean>>({});
 
-interface VmComponentProps{
-    assignedVms: VM[];
-}
-
-export function VmComponent(props: VmComponentProps){
     const machines = useQuery({
         queryKey: ['machines'],
-        queryFn: () => getAllMachines() 
+        queryFn: () => getAssignedMachines() 
     });
 
-    const machine = useQuery({
-        queryKey: ['machine'],
-        queryFn: ({ queryKey }) => getMachine(queryKey[1] as string) 
-    });
+    const toggleOpen = (index: number) => {
+        setIsOpen(prev => ({
+            ...prev,
+            [index]: !prev[index]
+        }));
+    };
+
+    const router = useRouter();
 
     return (
+        
+        machines.isLoading ? <LoadingScreen /> :
         <div className="flex flex-col space-y-4 bg-background m-5 rounded-[8] h-full">
-            <ul>
+            <ul className="flex flex-col gap-4 h-full overflow-y-auto">
                 {machines.data && machines.data.length > 0 ? machines.data.map((vm: any, index: number) => (
-                    <li key={index} className="flex flex-row justify-between items-center p-4 border-lightforeground border-b-2">
-                        <div className="flex flex-row items-center">
-                            <ComputerIcon className="mr-4 size-6" />
-                            <div className="flex flex-col">
-                                <span className="font-bold text-lg">{vm}</span>
-                            </div>
+                    <div key={index} className="flex flex-col border-2 border-lightforeground rounded-[8]">
+                        <div className={`flex flex-row justify-between items-center bg-lightforeground drop-shadow-sm  border-lightforeground border-b-2 rounded-[5] w-full ${!isOpen[index]? '' : 'rounded-b-none'}`}>
+                            <button  className='flex flex-row p-3 h-full grow'
+                                onClick={() => {toggleOpen(index); console.log(vm.status)}}
+                            >
+                                <div className="flex flex-row items-center ml-1 grow">
+                                    <LaptopMinimal className="mr-3 size-6" />
+                                    <div className="flex flex-col">
+                                        <div className="font-bold text-lg">{vm.name || vm.id || 'VM'}</div>
+                                    </div>
+                                    <div className={`${vm.status == 'Running' ? 'bg-green-500' : 'bg-red-400'} w-3 h-3 rounded-full ml-3 `} ></div>
+                                </div>
+                            </button>
+                            {vm.status === 'Running' ? 
+                                <StandardButton
+                                    className="bg-lightforeground mr-4"
+                                    label="connect"
+                                    disabled={vm.status !== 'Running'}
+                                    onClick={() => { router.push(`/vnc`); }}
+                                >
+                                    {<ScreenShareIcon className="mr-2 size-6" />} 
+                                </StandardButton>
+                             : 
+                                <StandardButton className="bg-lightforeground mr-4" label="boot vm" >                   
+                                    {<CirclePower className="mr-2 size-6 thick" />} 
+                                    
+                                </StandardButton>
+                            }
+
+
+                            
+
                         </div>
-                    </li>
+
+
+                        { isOpen[index] && 
+                            <div className={`flex flex-row relative bg-background p-4 rounded-b-[8] w-full h-full`}>
+                                <div className="bg-background pr-10 border-lightforeground border-r-2 w-1/2 h-3/10">
+                                    <div className="flex flex-row">
+                                        <h6 className="grow">Image </h6>
+                                        <p className="mr-10 text-font">{vm.architecture}</p> 
+                                        
+                                    </div>
+                                    <div className="flex flex-row">
+                                        <h6 className="grow">Status </h6>
+                                        <p className="mr-10 text-font">{vm.status}</p>
+                                    </div>
+                                    
+                                    <div className="flex flex-row">
+                                        <h6 className="grow">Location (for dev) </h6>
+                                        <p className="mr-10 text-font">{vm.location}</p>
+                                    </div>
+                                </div>
+                                 <div className="bg-background w-1/2 h-3/10">
+                                    
+                                </div>
+                                
+                            </div>
+                        }
+                    </div>
+                    
                 )) : <li className="p-4 text-font">No Virtual Machines assigned.</li>}
             </ul>
         </div>
+            
     )
 }
 
