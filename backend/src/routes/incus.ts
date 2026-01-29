@@ -1,9 +1,9 @@
 import { Router } from 'express';
 import { isAuthenticated } from '../middleware/authentication';
-import { getAllVirtualMachines, getVirtualMachine } from '../controller/incusController';
+import { getAssignedVirtualMachines } from '../controller/incusController';
 const router = Router();
 
-router.get('/machine/:name', isAuthenticated, getVirtualMachine);
-router.get('/machines', isAuthenticated, getAllVirtualMachines);
+// Get all assigned virtual machines for the authenticated user
+router.get('/machines', isAuthenticated, getAssignedVirtualMachines);
 
 export default router;

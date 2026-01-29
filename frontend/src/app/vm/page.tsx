@@ -1,7 +1,7 @@
 'use client'
 
 import { StandardButton } from "@/shared/StandardButton";
-import { CirclePowerIcon, ComputerIcon, PlusIcon,  ScreenShareIcon, Trash2Icon } from "lucide-react";
+import { CirclePower, ComputerIcon, LaptopMinimal, PlusIcon,  Power,  ScreenShareIcon, Trash2Icon } from "lucide-react";
 import { FC, use, useEffect, useReducer, useState } from "react";
 import StandardModal  from "@/shared/StandardModal";
 import { StandardInput } from "@/shared/StandardInput";
@@ -12,6 +12,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { LoginModal } from "@/components/LoginModal";
 import { useQuery } from "@tanstack/react-query";
 import { getAssignedMachines } from "@/api/machines";
+import { LoadingScreen } from "@/shared/LoadingScreen";
 
 
  interface image{
@@ -170,7 +171,11 @@ export function VmComponentList(){
         }));
     };
 
+    const router = useRouter();
+
     return (
+        
+        machines.isLoading ? <LoadingScreen /> :
         <div className="flex flex-col space-y-4 bg-background m-5 rounded-[8] h-full">
             <ul className="flex flex-col gap-4 h-full overflow-y-auto">
                 {machines.data && machines.data.length > 0 ? machines.data.map((vm: any, index: number) => (
@@ -180,44 +185,57 @@ export function VmComponentList(){
                                 onClick={() => {toggleOpen(index); console.log(vm.status)}}
                             >
                                 <div className="flex flex-row items-center ml-1 grow">
-                                    <ComputerIcon className="mr-3 size-6" />
+                                    <LaptopMinimal className="mr-3 size-6" />
                                     <div className="flex flex-col">
                                         <div className="font-bold text-lg">{vm.name || vm.id || 'VM'}</div>
                                     </div>
                                     <div className={`${vm.status == 'Running' ? 'bg-green-500' : 'bg-red-400'} w-3 h-3 rounded-full ml-3 `} ></div>
                                 </div>
                             </button>
-                        
-                            <StandardButton className="bg-lightforeground mr-4" label="connect" disabled={vm.status != 'Running'} >                   
-                                {<ScreenShareIcon className="mr-2 size-6" />} 
-                                
-                            </StandardButton>
+                            {vm.status === 'Running' ? 
+                                <StandardButton
+                                    className="bg-lightforeground mr-4"
+                                    label="connect"
+                                    disabled={vm.status !== 'Running'}
+                                    onClick={() => { router.push(`/vnc`); }}
+                                >
+                                    {<ScreenShareIcon className="mr-2 size-6" />} 
+                                </StandardButton>
+                             : 
+                                <StandardButton className="bg-lightforeground mr-4" label="boot vm" >                   
+                                    {<CirclePower className="mr-2 size-6 thick" />} 
+                                    
+                                </StandardButton>
+                            }
+
+
+                            
 
                         </div>
 
 
                         { isOpen[index] && 
-                            <div className={`flex flex-col relative bg-background p-4 rounded-b-[8] w-full h-full`}>
-                                <div className="bg-background w-full h-2/10">
+                            <div className={`flex flex-row relative bg-background p-4 rounded-b-[8] w-full h-full`}>
+                                <div className="bg-background pr-10 border-lightforeground border-r-2 w-1/2 h-3/10">
                                     <div className="flex flex-row">
                                         <h6 className="grow">Image </h6>
-                                        <p className="mr-10 text-font">{vm.architecture}</p>
+                                        <p className="mr-10 text-font">{vm.architecture}</p> 
+                                        
                                     </div>
                                     <div className="flex flex-row">
                                         <h6 className="grow">Status </h6>
                                         <p className="mr-10 text-font">{vm.status}</p>
                                     </div>
-                                </div>
-                                <div className="bg-background w-full h-2/10">
-                                    <div className="flex flex-row">
-                                        <h6 className="grow">CPU Cores </h6>
-                                        <p className="mr-10 text-font">{vm.expanded_config.limits.cpu}</p>
-                                    </div>
+                                    
                                     <div className="flex flex-row">
                                         <h6 className="grow">Location (for dev) </h6>
                                         <p className="mr-10 text-font">{vm.location}</p>
                                     </div>
                                 </div>
+                                 <div className="bg-background w-1/2 h-3/10">
+                                    
+                                </div>
+                                
                             </div>
                         }
                     </div>
@@ -225,6 +243,7 @@ export function VmComponentList(){
                 )) : <li className="p-4 text-font">No Virtual Machines assigned.</li>}
             </ul>
         </div>
+            
     )
 }
 
