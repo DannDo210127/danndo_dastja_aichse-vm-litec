@@ -60,7 +60,7 @@ jobs:
           scp -r \
             -o StrictHostKeyChecking=no \
             -i ~/.ssh/id_rsa \
-            frontend/build \
+            frontend/frontend/build \
             user@${{ secrets.SERVER_IP }}:/var/www/html/
 
       # Deploy on server
@@ -70,7 +70,6 @@ jobs:
             set -e
 
             echo "Connected to server"
-            cd danndo_dastja_aichse-vm-litec
 
             sudo rm -rf /var/www/html/my-app-backup
             sudo cp -r /var/www/html/my-app /var/www/html/my-app-backup || true
