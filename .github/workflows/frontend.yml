@@ -40,10 +40,10 @@ jobs:
           cache-dependency-path: frontend/package-lock.json
       - name: Install dependencies
         run: npm install --force      
-        working-directory: ./frontend
+       # working-directory: ./frontend
       - name: Build project
         run: CI=false npm run build 
-        working-directory: ./frontend
+        #working-directory: ./frontend
 
       # Setup SSH
       - name: Set up SSH key
@@ -60,7 +60,7 @@ jobs:
           scp -r \
             -o StrictHostKeyChecking=no \
             -i ~/.ssh/id_rsa \
-            frontend/frontend/build \
+            frontend/build \
             user@${{ secrets.SERVER_IP }}:/var/www/html/
 
       # Deploy on server
