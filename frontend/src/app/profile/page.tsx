@@ -2,13 +2,25 @@
 import { useAuth } from "@/hooks/useAuth";
 import { useThemeStore } from "@/store/theme-store";
 import { DarkModeSwitch } from "react-toggle-dark-mode";
-import * as React from "react";
+import { StandardButton } from "@/shared/StandardButton";
+import { useEffect, useState } from "react";
+import { DeveloperModal } from "@/components/DeveloperModal";
 
 export default function ProfilePage(){
-    const user = useAuth();
 
     return (
          <div className="flex flex-col bg-background m-20 mx-25 rounded-[8] h-8/10 grow">
+            <UserSettingsPage/>
+            <SettingsPage/>
+        </div>
+    )
+}
+
+function UserSettingsPage() {
+    const user = useAuth();
+
+    return (
+        <div>
             <div className="flex flex-row justify-between items-center border-lightforeground border-b-2">
                 <h2 className="m-5 p-2 font-bold text-3xl">{user.data?.firstName + " " + user.data?.lastName}</h2>  
                 <span className="font-bold text-gray-500"> {user.data?.role.name}</span>              
@@ -19,21 +31,21 @@ export default function ProfilePage(){
                     </span> {user.data?.email}
                 </div>
             </div>
-            <SettingsPage/>
         </div>
     )
 }
 
 function SettingsPage() {
     const themeStore = useThemeStore();
-    const [mounted, setMounted] = React.useState(false);
+    const [isDeveloperModalOpen, setDeveloperModalOpen] = useState(false);
+    const [mounted, setMounted] = useState(false);
 
-    React.useEffect(() => {
+    useEffect(() => {
         setMounted(true);
     }, []);
 
     return (
-            <div className="">
+            <div>
                <div className="flex flex-row justify-between items-center bg-background border-lightforeground border-b-2 w-full h-1/12">
                     <h4 className="m-5 p-2 font-bold text-2xl">Your Settings</h4>
                 </div>
@@ -50,7 +62,14 @@ function SettingsPage() {
                         />
                         )}
                     </div>
+                    <div className="w-56">
+
+                        <StandardButton label="Developer Modal" onClick={() => setDeveloperModalOpen(true)} className="bg-lightforeground m-4 px-6 py-3" />
+                    </div>
                 </div>
+
+
+                <DeveloperModal isOpen={isDeveloperModalOpen} onClose={() => setDeveloperModalOpen(false)} />
             </div>
     );
 }

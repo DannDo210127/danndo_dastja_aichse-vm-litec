@@ -24,10 +24,10 @@ import {
 import { LoadingScreen } from "@/shared/LoadingScreen";
 import { useAuth } from "@/hooks/useAuth";
 import { LoginModal } from "@/components/LoginModal";
-import { DeleteStudentModal } from "@/components/deleteStudentModal";
-import { ClassroomModal } from "@/components/createClassroomModal";
-import { DeleteClassroomModal } from "@/components/deleteClassroomModal";
-import { AddStudentModal } from "@/components/addStudentModal";
+import { DeleteStudentModal } from "@/components/DeleteStudentModal";
+import { CreateClassroomModal } from "@/components/CreateClassroomModal";
+import { DeleteClassroomModal } from "@/components/DeleteClassroomModal";
+import { AddStudentModal } from "@/components/AddStudentModal";
 
 
 interface ClassroomProps {
@@ -123,7 +123,7 @@ export default function ClassroomPage(){
         setClassrooms={() => {}}
         deleteClassroomMutation={deleteClassroomMutation}
       />
-      <ClassroomModal
+      <CreateClassroomModal
         errormessage={classroomErrormessage}
         isOpen={isClassroomModalOpen}
         onClose={() => {

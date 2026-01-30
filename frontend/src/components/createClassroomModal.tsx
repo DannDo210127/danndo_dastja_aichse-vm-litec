@@ -3,7 +3,7 @@ import { StandardInput } from "@/shared/StandardInput";
 import StandardModal from "@/shared/StandardModal";
 import { useEffect, useState } from "react";
 
-interface ClassroomModalProps {
+interface CreateClassroomModalProps {
     isOpen: boolean;
     onClose: () => void;
     onSubmit: (name: string, description: string) => void;
@@ -11,7 +11,7 @@ interface ClassroomModalProps {
 }
 
 
-export function ClassroomModal({isOpen, onClose, onSubmit, errormessage}: ClassroomModalProps) {
+export function CreateClassroomModal({isOpen, onClose, onSubmit, errormessage}: CreateClassroomModalProps) {
 
     const [classroomName, setClassroomName] = useState<string>("");
     const [classroomDescription, setClassroomDescription] = useState<string>("");
