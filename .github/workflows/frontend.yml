@@ -61,7 +61,7 @@ jobs:
             -o StrictHostKeyChecking=no \
             -i ~/.ssh/id_ed25519 \
             frontend/.next \
-            user@${{ secrets.SERVER_IP }}:/var/www/html/
+            user@${{ secrets.SERVER_IP }}:/home/user
 
 
       # Deploy on server
