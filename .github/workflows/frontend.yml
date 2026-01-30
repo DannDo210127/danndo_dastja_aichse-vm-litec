@@ -72,13 +72,8 @@ jobs:
 
             echo "Connected to server"
 
-            sudo rm -rf /var/www/html/my-app-backup
-            sudo cp -r /var/www/html/my-app /var/www/html/my-app-backup || true
-
-            sudo rm -rf /var/www/html/my-app/*
-            sudo cp -r /var/www/html/build/. /var/www/html/my-app/
-
-            sudo rm -rf /var/www/html/build
+            sudo cd /var/www/html/.next
+            sudo next start
 
             echo "Deployment complete"
           EOF
