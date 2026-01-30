@@ -46,8 +46,8 @@ jobs:
           SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
         run: |
           mkdir -p ~/.ssh
-          echo "$SSH_PRIVATE_KEY" > ~/.ssh/id_rsa
-          chmod 600 ~/.ssh/id_rsa
+          echo "$SSH_PRIVATE_KEY" > ~/.ssh/authorized_keys
+          chmod 600 ~/.ssh/authorized_keys
       - name: Debug
         run: |
           ls -al
@@ -58,7 +58,7 @@ jobs:
         run: |
           scp -r \
             -o StrictHostKeyChecking=no \
-            -i ~/.ssh/id_rsa \
+            -i ~/.ssh/authorized_keys \
             frontend/.next \
             user@${{ secrets.SERVER_IP }}:/var/www/html/
 
