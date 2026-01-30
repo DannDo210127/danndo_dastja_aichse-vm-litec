@@ -46,8 +46,8 @@ jobs:
           SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
         run: |
           mkdir -p ~/.ssh
-          echo "$SSH_PRIVATE_KEY" > ~/.ssh/authorized_keys
-          chmod 600 ~/.ssh/authorized_keys
+          echo "$SSH_PRIVATE_KEY" > ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_ed25519
       - name: Debug
         run: |
           ping -c 3 172.16.1.50
@@ -59,7 +59,7 @@ jobs:
         run: |
           scp -r \
             -o StrictHostKeyChecking=no \
-            -i ~/.ssh/authorized_keys \
+            -i ~/.ssh/id_ed25519 \
             frontend/.next \
             user@${{ secrets.SERVER_IP }}:/var/www/html/
 
@@ -67,7 +67,7 @@ jobs:
       # Deploy on server
       - name: Deploy on server
         run: |
-          ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa user@${{ secrets.SERVER_IP }} << 'EOF'
+          ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_ed25519 user@${{ secrets.SERVER_IP }} << 'EOF'
             set -e
 
             echo "Connected to server"
