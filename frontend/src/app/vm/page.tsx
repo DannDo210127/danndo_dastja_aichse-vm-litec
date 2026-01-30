@@ -1,7 +1,7 @@
 'use client'
 
 import { StandardButton } from "@/shared/StandardButton";
-import { CirclePower, ComputerIcon, LaptopMinimal, PlusIcon,  Power,  ScreenShareIcon, Trash2Icon } from "lucide-react";
+import { CirclePower, ComputerIcon, LaptopMinimal, Play, PlusIcon,  Power,  ScreenShareIcon, Square, Trash2Icon } from "lucide-react";
 import { FC, use, useEffect, useReducer, useState } from "react";
 import StandardModal  from "@/shared/StandardModal";
 import { StandardInput } from "@/shared/StandardInput";
@@ -186,24 +186,40 @@ export function VmComponentList(){
                             >
                                 <div className="flex flex-row items-center ml-1 grow">
                                     <LaptopMinimal className="mr-3 size-6" />
-                                    <div className="flex flex-col">
-                                        <div className="font-bold text-lg">{vm.name || vm.id || 'VM'}</div>
+                                    <div className="flex flex-col border-foreground border-r-2 w-30 text-left">
+                                        <div className="font-bold text-lg truncate">{vm.name}</div>
                                     </div>
-                                    <div className={`${vm.status == 'Running' ? 'bg-green-500' : 'bg-red-400'} w-3 h-3 rounded-full ml-3 `} ></div>
+                                    <div className={` ml-4 ${vm.status == 'Running' ? 'bg-gradient-to-tr from-green-400 to-green-600' : 'bg-gradient-to-bl from-red-300 to-red-600'} animate-spin w-3 h-3 rounded-full `} ></div>
+                                    <p className="ml-2 text-md">{vm.status}</p>
+
                                 </div>
                             </button>
                             {vm.status === 'Running' ? 
-                                <StandardButton
-                                    className="bg-lightforeground mr-4"
-                                    label="connect"
-                                    disabled={vm.status !== 'Running'}
-                                    onClick={() => { router.push(`/vnc`); }}
-                                >
-                                    {<ScreenShareIcon className="mr-2 size-6" />} 
-                                </StandardButton>
+                                <>
+                                    <div className="border-foreground border-r-2">
+                                    <StandardButton
+                                        className="bg-lightforeground"
+                                        label=""
+                                        onClick={() => { router.push(`/vnc`); }}
+                                    >
+                                        {<Square className="size-6" />} 
+                                    </StandardButton>
+                                    </div>
+                                    
+                                    <StandardButton
+                                        className="bg-lightforeground"
+                                        label=""
+
+                                        onClick={() => { router.push(`/vnc`); }}
+                                    >
+                                        {<ScreenShareIcon className="size-6" />} 
+                                    </StandardButton>
+                                    
+                                  
+                                </>
                              : 
-                                <StandardButton className="bg-lightforeground mr-4" label="boot vm" >                   
-                                    {<CirclePower className="mr-2 size-6 thick" />} 
+                                <StandardButton className="bg-lightforeground mr-2" label="" >                   
+                                    {<Power className="size-6 scale-105"/>} 
                                     
                                 </StandardButton>
                             }
@@ -222,11 +238,6 @@ export function VmComponentList(){
                                         <p className="mr-10 text-font">{vm.architecture}</p> 
                                         
                                     </div>
-                                    <div className="flex flex-row">
-                                        <h6 className="grow">Status </h6>
-                                        <p className="mr-10 text-font">{vm.status}</p>
-                                    </div>
-                                    
                                     <div className="flex flex-row">
                                         <h6 className="grow">Location (for dev) </h6>
                                         <p className="mr-10 text-font">{vm.location}</p>

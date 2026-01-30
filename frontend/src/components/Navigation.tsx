@@ -8,6 +8,7 @@ import { NavigationButton } from "./NavigationButton";
 import { RegisterModal } from "./RegisterModal";
 import { LoadingScreen } from "@/shared/LoadingScreen";
 import { useThemeStore } from "@/store/theme-store";
+import { useRouter, usePathname } from "next/navigation";
 
 export function Navigation(){
     const user = useAuth();
@@ -16,11 +17,18 @@ export function Navigation(){
     const [isLoginModalOpen, setLoginModalOpen] = useState(false);
     const [isRegisterModalOpen, setRegisterModalOpen] = useState(false);
 
+    const pathname = usePathname();
+    const theme = useThemeStore.getState().theme;
+
+    console.log("pathname:", pathname);
+        console.log("pathname:", pathname.includes("/vnc"));
+
+
     return(
         user.isLoading ? <LoadingScreen /> :
         <Fragment>
         
-                <div className={`w-25.5 hover:lg:w-1/5 hover:md:w-1/4 hover:w-1/3 ${useThemeStore.getState().theme == 'light' ? "border-r-4 border-lightforeground" : ""} drop-shadow-lg ease-in-out transition-[width] duration-350 flex flex-col justify-between bg-background  h-full`}>
+                <div className={`${pathname.includes("/vnc") ? "w-26.5" : " w-26.5 hover:lg:w-1/5 hover:md:w-1/4 hover:w-1/3 "} ${theme == 'light' ? "border-r-4 border-lightforeground" : ""} drop-shadow-lg ease-in-out transition-[width] duration-350 flex flex-col justify-between bg-background  h-full`}>
                     <div className={`flex flex-col gap-4 mx-5`}>  
                     
                         <NavigationButton className="!bg-background hover:!bg-background my-5 border-b-2 border-b-foreground !rounded-none" label="Virtual Classroom" icon={<Codesandbox />} href="/" />
