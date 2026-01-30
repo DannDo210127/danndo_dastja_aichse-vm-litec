@@ -60,7 +60,7 @@ jobs:
           scp -r \
             -o StrictHostKeyChecking=no \
             -i ~/.ssh/id_ed25519 \
-            frontend/.next \
+            frontend/ \
             user@${{ secrets.SERVER_IP }}:/var/www/html
 
 
@@ -72,8 +72,7 @@ jobs:
 
             echo "Connected to server"
 
-            sudo cd /var/www/html/.next
-            sudo npm run start
+            sudo npm --prefix /var/www/html/frontend run start
 
             echo "Deployment complete"
           EOF
