@@ -73,7 +73,7 @@ jobs:
             echo "Connected to server"
 
             sudo cd /var/www/html/.next
-            sudo next start
+            sudo npm run start
 
             echo "Deployment complete"
           EOF
