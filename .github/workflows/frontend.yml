@@ -16,11 +16,6 @@ jobs:
       # Checkout first
       - name: Checkout code
         uses: actions/checkout@v3
-
-      # Debug: show structure
-      - name: Show files
-        run: ls -R
-
       # Tailscale
       - name: Tailscale
         uses: tailscale/github-action@v4
@@ -64,7 +59,7 @@ jobs:
           scp -r \
             -o StrictHostKeyChecking=no \
             -i ~/.ssh/id_rsa \
-            dist \
+            frontend/.next \
             user@${{ secrets.SERVER_IP }}:/var/www/html/
 
 
