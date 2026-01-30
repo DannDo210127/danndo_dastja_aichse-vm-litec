@@ -283,11 +283,12 @@ export function StudentList({ classroomId }: StudentListProps) {
       {students.isLoading ? <div>Loading...</div> :
       students.data?.error ? (
         <div>No user found</div>
-      ) : (
+      ) : 
+      students.data?.length > 0 ? (
         students.data?.map((student: any, index: number) => (
           <li
             key={student.id}
-            className="flex justify-between items-center bg-background px-3 py-2 rounded-[8]"
+            className="flex justify-between items-center bg-background mx-2 px-3 py-2 border-lightforeground border-b-1 last:border-b-0"
           >
             <div className="flex flex-row w-full">
               <div className="flex flex-row items-center w-fit">
@@ -313,6 +314,8 @@ export function StudentList({ classroomId }: StudentListProps) {
             </div>
           </li>
         ))
+      ) : (
+        <div>No students here</div>
       )}
       <DeleteStudentModal
         isOpen={isDeleteStudentModalOpen}
