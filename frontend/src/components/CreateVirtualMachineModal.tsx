@@ -1,5 +1,4 @@
 import { createMachine, getAllImages } from "@/api/machines";
-import { getOperations } from "@/api/operations";
 import { StandardButton } from "@/shared/StandardButton";
 import { StandardInput } from "@/shared/StandardInput";
 import StandardModal from "@/shared/StandardModal";

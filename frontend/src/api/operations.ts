@@ -1,6 +1,6 @@
 import api from "./client"
 
-export const getOperations = async () => {
+export const getCurrentOperations = async () => {
     return await api.get(`/incus/operations/`, { withCredentials: true });
 }
 
