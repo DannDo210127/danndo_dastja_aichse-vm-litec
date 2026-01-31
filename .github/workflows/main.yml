@@ -38,7 +38,6 @@ jobs:
           
           cp ./frontend/package.json $DESTINATION/
           cp ./frontend/package-lock.json $DESTINATION/
-          cp ./frontend/next.config.js $DESTINATION/
           
       - name: Build backend application
         working-directory: ./frontend
