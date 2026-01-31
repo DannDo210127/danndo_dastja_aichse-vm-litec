@@ -43,20 +43,12 @@ jobs:
       - name: Install production dependencies and restart app
         run: |
           echo "Installing production dependencies and restarting server..."
-<<<<<<< HEAD
-          # Wechseln Sie in das Zielverzeichnis
-=======
->>>>>>> origin
+
           cd /var/www/virtual_classrooms
           
           npm install --production
           
-<<<<<<< HEAD
-          # Starten Sie die App mit PM2 oder laden Sie sie neu
-          # 'pm2 reload' sorgt für ein Zero-Downtime-Deployment
-          # 'ecosystem.config.js' ist der beste Weg, um PM2-Apps zu verwalten
           pm2 reload virtual_classrooms || pm2 start npm --name "virtual_classrooms" -- start
-=======
           APP_NAME="virtual_classrooms"
 
           echo "Checking status of PM2 process: $APP_NAME"
@@ -68,7 +60,5 @@ jobs:
             echo "Process not found. Starting new process..."
             pm2 start npm --name $APP_NAME -- start
           fi
-          
->>>>>>> origin
           
           echo "Deployment complete!"
