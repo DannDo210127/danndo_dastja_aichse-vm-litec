@@ -76,6 +76,8 @@ jobs:
             echo "Process not found. Starting new process..."
             pm2 start npm --name $APP_NAME -- start
           fi
+
+          pm2 save
           
           
           echo "Frontend deployment complete!"
@@ -99,6 +101,7 @@ jobs:
             pm2 start dist/server.js --name $APP_NAME
           fi
 
+          pm2 save
           
           
           echo "Deployment complete!"
