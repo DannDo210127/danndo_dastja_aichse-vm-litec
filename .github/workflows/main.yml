@@ -40,7 +40,7 @@ jobs:
           cp ./frontend/package-lock.json $DESTINATION/
           
       - name: Build backend application
-       working-directory: ./backend
+        working-directory: ./backend
         run: |
           echo "Installing dependencies and building..."
           npm install
