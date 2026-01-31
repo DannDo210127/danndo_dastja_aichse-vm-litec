@@ -25,11 +25,11 @@ jobs:
           npm install
           npm run build
 
-      - name: Deploy to production directory
+      - name: Deploy frontend to production directory
         run: |
           echo "Deploying application files..."
 
-          DESTINATION="/var/www/virtual_classrooms"
+          DESTINATION="/var/www/virtual_classrooms/frontend"
           
           mkdir -p $DESTINATION
           
@@ -40,24 +40,33 @@ jobs:
           cp ./frontend/package-lock.json $DESTINATION/
           cp ./frontend/next.config.js $DESTINATION/
           
-      - name: Install production dependencies and restart app
+      - name: Build backend application
+        working-directory: ./frontend
+        run: |
+          echo "Installing dependencies and building..."
+          npm install
+          npm run build
+
+      - name: Deploy backend to production directory
+        run: |
+          echo "Deploying application files..."
+
+          DESTINATION="/var/www/virtual_classrooms/backend"
+          
+          mkdir -p $DESTINATION
+          
+          rsync -av --delete ./backend/dist $DESTINATION/
+          cp ./backend/package.json $DESTINATION/
+          cp ./backend/package-lock.json $DESTINATION/
+          
+      - name: Install frontend production dependencies and restart app
         run: |
           echo "Installing production dependencies and restarting server..."
-<<<<<<< HEAD
-          # Wechseln Sie in das Zielverzeichnis
-=======
->>>>>>> origin
-          cd /var/www/virtual_classrooms
+          cd /var/www/virtual_classrooms/frontend
           
           npm install --production
           
-<<<<<<< HEAD
-          # Starten Sie die App mit PM2 oder laden Sie sie neu
-          # 'pm2 reload' sorgt für ein Zero-Downtime-Deployment
-          # 'ecosystem.config.js' ist der beste Weg, um PM2-Apps zu verwalten
-          pm2 reload virtual_classrooms || pm2 start npm --name "virtual_classrooms" -- start
-=======
-          APP_NAME="virtual_classrooms"
+          APP_NAME="virtual_classrooms_frontend"
 
           echo "Checking status of PM2 process: $APP_NAME"
           
@@ -69,6 +78,28 @@ jobs:
             pm2 start npm --name $APP_NAME -- start
           fi
           
->>>>>>> origin
+          
+          echo "Frontend deployment complete!"
+
+      - name: Install backend production dependencies and restart app
+        run: |
+          echo "Installing production dependencies and restarting server..."
+          cd /var/www/virtual_classrooms/backend
+          
+          npm install --production
+          
+          APP_NAME="virtual_classrooms_backend"
+
+          echo "Checking status of PM2 process: $APP_NAME"
+          
+          if pm2 describe $APP_NAME >/dev/null 2>&1; then
+            echo "Process found. Reloading..."
+            pm2 reload $APP_NAME
+          else
+            echo "Process not found. Starting new process..."
+            pm2 start dist/server.js --name $APP_NAME
+          fi
+
+          
           
           echo "Deployment complete!"
