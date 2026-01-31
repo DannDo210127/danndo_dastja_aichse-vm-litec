@@ -7,7 +7,6 @@ on:
 
 jobs:
   deploy:
-    # Hier sagen Sie GitHub, dass der Job auf einem Ihrer eigenen Runner laufen soll
     runs-on: self-hosted 
 
     steps:
@@ -29,35 +28,47 @@ jobs:
       - name: Deploy to production directory
         run: |
           echo "Deploying application files..."
-          # Der Zielordner auf Ihrem Server
+
           DESTINATION="/var/www/virtual_classrooms"
           
-          # Erstellen Sie den Ordner, falls er nicht existiert
           mkdir -p $DESTINATION
           
-          # Verwenden Sie rsync für effizientes Kopieren der Build-Artefakte
-          # --delete sorgt dafür, dass alte Dateien im Ziel gelöscht werden
           rsync -av --delete ./frontend/.next $DESTINATION/
           rsync -av --delete ./frontend/public $DESTINATION/
           
-          # Kopieren Sie die notwendigen Dateien, um Produktions-Abhängigkeiten zu installieren
           cp ./frontend/package.json $DESTINATION/
           cp ./frontend/package-lock.json $DESTINATION/
-          # Optional, aber empfohlen, falls vorhanden
-          # cp ./frontend/next.config.js $DESTINATION/
+          cp ./frontend/next.config.js $DESTINATION/
           
       - name: Install production dependencies and restart app
         run: |
           echo "Installing production dependencies and restarting server..."
+<<<<<<< HEAD
           # Wechseln Sie in das Zielverzeichnis
+=======
+>>>>>>> origin
           cd /var/www/virtual_classrooms
           
-          # Installieren Sie nur die für die Produktion notwendigen Pakete
           npm install --production
           
+<<<<<<< HEAD
           # Starten Sie die App mit PM2 oder laden Sie sie neu
           # 'pm2 reload' sorgt für ein Zero-Downtime-Deployment
           # 'ecosystem.config.js' ist der beste Weg, um PM2-Apps zu verwalten
           pm2 reload virtual_classrooms || pm2 start npm --name "virtual_classrooms" -- start
+=======
+          APP_NAME="virtual_classrooms"
+
+          echo "Checking status of PM2 process: $APP_NAME"
+          
+          if pm2 describe $APP_NAME >/dev/null 2>&1; then
+            echo "Process found. Reloading..."
+            pm2 reload $APP_NAME
+          else
+            echo "Process not found. Starting new process..."
+            pm2 start npm --name $APP_NAME -- start
+          fi
+          
+>>>>>>> origin
           
           echo "Deployment complete!"
