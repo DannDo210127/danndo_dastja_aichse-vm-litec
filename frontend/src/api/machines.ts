@@ -27,3 +27,38 @@ export const createMachine = async (payload: CreateMachinePayload) => {
         withCredentials: true,
     });
 };
+
+export const startMachine = async (
+    hostname: String,
+    force: boolean = false,
+) => {
+    return await api.put(
+        `/incus/machines/${hostname}/start`,
+        {
+            force,
+        },
+        {
+            withCredentials: true,
+        },
+    );
+};
+
+export const stopMachine = async (hostname: String, force: boolean = false) => {
+    return await api.put(
+        `/incus/machines/${hostname}/stop`,
+        {
+            force,
+        },
+        {
+            withCredentials: true,
+        },
+    );
+};
+
+export const getMachineState = async (hostname: String) => {
+    return (
+        await api.get(`/incus/machines/${hostname}/state`, {
+            withCredentials: true,
+        })
+    ).data;
+};

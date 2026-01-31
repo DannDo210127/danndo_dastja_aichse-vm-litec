@@ -6,7 +6,7 @@ export const Machines = {
 	},
 
 	getAllImages: async () => {
-		return (await Incus.get(`/images`)).data.metadata;
+		return (await Incus.get(`/images?recursion=1`)).data.metadata;
 	},
 
 	getImage: async (fingerprint: string) => {
@@ -15,5 +15,25 @@ export const Machines = {
 
 	createMachine: async (config: any) => {
 		return (await Incus.post(`/instances`, config)).data;
-	}
+	},
+
+    startMachine: async(hostname: String, force: boolean = false) => {
+       return (await Incus.put(`/instances/${hostname}/state`, {
+            action: "start",
+            timeout: -1,
+            force: force,
+       })) 
+    },
+
+    stopMachine: async(hostname: String, force: boolean = false) => {
+       return (await Incus.put(`/instances/${hostname}/state`, {
+            action: "stop",
+            timeout: 5,
+            force: force,
+       })) 
+    },
+
+    getMachineState: async (hostname: String) => {
+		return (await Incus.get(`/instances/${hostname}/state`)).data;
+    }
 };
