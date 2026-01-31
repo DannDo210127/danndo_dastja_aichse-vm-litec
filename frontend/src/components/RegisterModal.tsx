@@ -14,7 +14,12 @@ interface RegisterModalProps {
     onSubmit: () => void;
 }
 // TODO: Implement better error handling
-const checkCredentials = (email: string, firstName: string, lastName: string, password: string) => {
+const checkCredentials = (
+    email: string,
+    firstName: string,
+    lastName: string,
+    password: string,
+) => {
     if (!email && !password) return false;
 
     return true;
@@ -27,7 +32,7 @@ const handleSubmit = (
     lastName: string,
     password: string,
     register: () => void,
-    onSubmitCb: () => void
+    onSubmitCb: () => void,
 ) => {
     e?.preventDefault();
 
@@ -36,32 +41,35 @@ const handleSubmit = (
     register();
     onSubmitCb();
 };
-export const RegisterModal: FC<RegisterModalProps> = ({ isOpen, onClose, onSubmit }) => {
-   const [firstName, setFirstName] = useState<string>("");
-   const [lastName, setLastName] = useState<string>("");
-   const [email, setEmail] = useState<string>("");
-   const [password, setPassword] = useState<string>("");
+export const RegisterModal: FC<RegisterModalProps> = ({
+    isOpen,
+    onClose,
+    onSubmit,
+}) => {
+    const [firstName, setFirstName] = useState<string>("");
+    const [lastName, setLastName] = useState<string>("");
+    const [email, setEmail] = useState<string>("");
+    const [password, setPassword] = useState<string>("");
 
-   const router = useRouter();
-   const authStore = useAuthStore((state) => state);
+    const router = useRouter();
+    const authStore = useAuthStore((state) => state);
 
     const registerUser = useMutation({
-    mutationFn: async () => {
-      const { data } = await api.post("/auth/register", {
-        firstName,
-        lastName,
-        email,
-        password
-      });
+        mutationFn: async () => {
+            const { data } = await api.post("/auth/register", {
+                firstName,
+                lastName,
+                email,
+                password,
+            });
 
-      authStore.setTokens(data.accessToken)
-    },
+            authStore.setTokens(data.accessToken);
+        },
 
-    onSuccess: (data) => {
-      router.push("/");
-    }
-  });
-
+        onSuccess: (data) => {
+            router.push("/");
+        },
+    });
 
     // Handler for Escape key to close the modal
     useEffect(() => {
@@ -72,7 +80,6 @@ export const RegisterModal: FC<RegisterModalProps> = ({ isOpen, onClose, onSubmi
         if (isOpen) document.addEventListener("keydown", handleKeyDown);
         return () => document.removeEventListener("keydown", handleKeyDown);
     }, [isOpen, onClose]);
-    
 
     return (
         <StandardModal
@@ -81,7 +88,6 @@ export const RegisterModal: FC<RegisterModalProps> = ({ isOpen, onClose, onSubmi
             isOpen={isOpen}
             className="w-1/4"
         >
-
             {registerUser.isPending ? <LoadingScreen /> : null}
 
             <div className="flex flex-col space-y-4 mt-4">
@@ -94,30 +100,47 @@ export const RegisterModal: FC<RegisterModalProps> = ({ isOpen, onClose, onSubmi
                             lastName,
                             password,
                             () => registerUser.mutate(),
-                            onSubmit
+                            onSubmit,
                         )
                     }
                     className="flex flex-col space-y-4"
                 >
-                    <StandardInput placeholder="First Name" onValueChange={(value: string) => setFirstName(value)} />
-                    <StandardInput placeholder="Last Name" onValueChange={(value: string) => setLastName(value)} />
-                    <StandardInput placeholder="Email" onValueChange={(value: string) => setEmail(value)} />
-                    <StandardInput type="password" placeholder="Password" onValueChange={(value: string) => setPassword(value)} />
+                    <StandardInput
+                        placeholder="First Name"
+                        onValueChange={(value: string) => setFirstName(value)}
+                    />
+                    <StandardInput
+                        placeholder="Last Name"
+                        onValueChange={(value: string) => setLastName(value)}
+                    />
+                    <StandardInput
+                        placeholder="Email"
+                        onValueChange={(value: string) => setEmail(value)}
+                    />
+                    <StandardInput
+                        type="password"
+                        placeholder="Password"
+                        onValueChange={(value: string) => setPassword(value)}
+                    />
 
                     <div className="flex justify-between mt-2 w-full">
-
                         {/* PLACEHOLDER FOR OAUTH BUTTONS. PLACE OAUTH BUTTONS HERE */}
 
                         <div className="flex gap-4">
-                            <StandardButton label="Cancel" onClick={onClose} className="px-6 py-3" />
-                            <StandardButton label="Login" type="submit" className="px-6 py-3" />
+                            <StandardButton
+                                label="Cancel"
+                                onClick={onClose}
+                                className="px-6 py-3"
+                            />
+                            <StandardButton
+                                label="Login"
+                                type="submit"
+                                className="px-6 py-3"
+                            />
                         </div>
-
                     </div>
                 </form>
             </div>
         </StandardModal>
     );
 };
-
-

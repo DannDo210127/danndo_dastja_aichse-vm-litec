@@ -15,7 +15,7 @@ export const Machines = {
     },
 
     createMachine: async (config: any) => {
-        return (await Incus.post(`/instances`, config)).data.metadata;
+        return (await Incus.post(`/instances`, config)).data;
     },
 }
 

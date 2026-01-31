@@ -1,8 +1,9 @@
 import { createMachine, getAllImages } from "@/api/machines";
+import { getOperations } from "@/api/operations";
 import { StandardButton } from "@/shared/StandardButton";
 import { StandardInput } from "@/shared/StandardInput";
 import StandardModal from "@/shared/StandardModal";
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 
 interface CreateVirtualMachineModalProps {
@@ -12,9 +13,10 @@ interface CreateVirtualMachineModalProps {
 
 
 export function CreateVirtualMachineModal({isOpen, onClose }: CreateVirtualMachineModalProps) {
+    const queryClient = useQueryClient();
+
     const [hostname, setHostname] = useState<string>("");
     const [image, setImage] = useState<string>("");
-    const [autostart, setAutostart] = useState<string>("");
 
     const images = useQuery({
         queryKey: ['images'],
@@ -23,6 +25,7 @@ export function CreateVirtualMachineModal({isOpen, onClose }: CreateVirtualMachi
 
     const createVmMutation = useMutation({
         mutationFn: () => createMachine({
+            type: "virtual-machine",
             hostname: hostname,
             source: {
                 type: "image",
@@ -31,6 +34,7 @@ export function CreateVirtualMachineModal({isOpen, onClose }: CreateVirtualMachi
         }),
         onSuccess: () => {
             onClose();
+            queryClient.invalidateQueries({ queryKey: ['machines'] });
         },
     });
 

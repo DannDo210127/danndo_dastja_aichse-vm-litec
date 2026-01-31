@@ -3,6 +3,7 @@ import DatabaseClient from "../db/client";
 import { errorMessage } from "../util/Error";
 import { Machines } from "../incus/machines";
 import { successMessage } from "../util/Success";
+import { Operations } from "../incus/operations";
 
 const prisma = DatabaseClient.getInstance().prisma;
 
@@ -41,7 +42,7 @@ export const getImages: RequestHandler = async (req, res) => {
     }
 }
 
-export const createVirtualMachine: RequestHandler = async (req, res) => {
+const createVirtualMachine: RequestHandler = async (req, res) => {
     const user = req.user
 
     const hostname = req.body.hostname;
@@ -50,12 +51,16 @@ export const createVirtualMachine: RequestHandler = async (req, res) => {
     // @TODO Validate config
 
     const payload: any = {
+        type: "virtual-machine",
         name: hostname,
         source,
     };
-
     try {
-        await Machines.createMachine(payload);
+        const response = await Machines.createMachine(payload);
+
+        if(response.status == "Failure") {
+            return res.status(500).json(errorMessage(500, 'Incus returned an error while creating the virtual machine: ' + response.error_code + ' - ' + response.error_message));
+        }
 
         await prisma.virtualMachine.create({
             data: {
@@ -64,12 +69,32 @@ export const createVirtualMachine: RequestHandler = async (req, res) => {
                 classroomId: 1,
             }
         });
+
+        res.status(200).json(response);
     } catch (error) {
-        return res.status(500).json(errorMessage(500, 'Failed to create virtual machine: ' + (error as Error).message));
+        return res.status(500).json(errorMessage(500, 'Failed to create virtual machine: ' + error));
     }
 
-
-    res.status(200).json(successMessage(101, 'Virtual machine created successfully'));
 }   
 
-export { getAssignedVirtualMachines};
+const getCurrentOperations: RequestHandler = async (req, res) => {
+    try {
+        const operations = await Operations.getOperations();
+        res.status(200).json(operations);
+    } catch (error) {
+        return res.status(500).json(errorMessage(500, 'Failed to retrieve operations: ' + (error as Error).message));
+    }
+}
+
+const getOperationStatus: RequestHandler = async (req, res) => {
+    const operationId = req.params.id;
+
+    try {
+        const operation = await Operations.getOperation(operationId);
+        res.status(200).json(operation);
+    } catch (error) {
+        return res.status(500).json(errorMessage(500, 'Failed to retrieve operation: ' + (error as Error).message));
+    }
+}
+
+export { getAssignedVirtualMachines, getCurrentOperations, getOperationStatus, createVirtualMachine };

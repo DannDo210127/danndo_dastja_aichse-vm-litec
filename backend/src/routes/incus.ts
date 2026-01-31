@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import { isAuthenticated } from '../middleware/authentication';
-import { createVirtualMachine, getAssignedVirtualMachines, getImages } from '../controller/incusController';
+import { createVirtualMachine, getAssignedVirtualMachines, getCurrentOperations, getImages, getOperationStatus } from '../controller/incusController';
 
 const router = Router();
 
@@ -8,5 +8,7 @@ const router = Router();
 router.get('/machines', isAuthenticated, getAssignedVirtualMachines);
 router.get('/images', isAuthenticated, getImages);
 router.post('/machines/new', isAuthenticated, createVirtualMachine);
+router.get('/operations', getCurrentOperations);
+router.get('/operations/:id', getOperationStatus);
 
 export default router;
