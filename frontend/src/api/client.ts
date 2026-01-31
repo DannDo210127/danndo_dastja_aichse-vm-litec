@@ -1,6 +1,7 @@
 // lib/apiClient.ts
 import { useAuthStore } from "@/store/token-store";
 import { useSnackbarStore } from "@/store/snackbar-store";
+import { useOperationModalStore } from "@/store/operation-modal-store";
 import axios from "axios";
 
 const api = axios.create({
@@ -9,15 +10,16 @@ const api = axios.create({
 });
 
 
+// Auth token interceptor
 api.interceptors.request.use((config) => {
   const token = useAuthStore.getState().accessToken;
-  console.log("Using access token:", token);
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
   }
   return config;
 });
 
+// Token refresh interceptor
 api.interceptors.response.use(
   (res) => res,
   async (error) => {
@@ -37,9 +39,7 @@ api.interceptors.response.use(
   },
 );
 
-// Additional interceptor: separate and independent from the above.
-// It also inspects successful responses for an `error` field and shows
-// the snackbar via `useErrorStore`. Kept separate per request.
+// Error interceptor: checks for error item in response data
 api.interceptors.response.use(
   (res) => res,
   async (error) => {
@@ -47,35 +47,54 @@ api.interceptors.response.use(
 
       const err = error?.response?.data?.error;
       if (err && !err.silent) {
-        // showError acts as the snackbar trigger
         useSnackbarStore.getState().showError(
           err.message
         );
       }
     } catch (e) {
-      // ignore
+      alert("Fatal error while processing error snackbar");
     }
 
     return Promise.reject(error);
   },
 );
 
-// Success interceptor: checks for 200 status and success item in response data
+// Success interceptor: success item in response data
 api.interceptors.response.use(
   (res) => {
     try {
-      if (res.status === 200 && res.data?.success && !res.data.success.silent) {
+      if (res.data?.success && !res.data.success.silent) {
         useSnackbarStore.getState().showSuccess(
           res.data.success.message
         );
       }
     } catch (e) {
-      alert("FATAL ERROR WHILE PROCESSING SNACKBAR");
+      alert("Fatal error while processing success snackbar");
     }
     return res;
   },
 );
 
+// Interceptor to detect Incus ASYNC Operations
+api.interceptors.response.use(
+  (res) => {
+    const operationModal = useOperationModalStore.getState();
+
+    try {
+      if (res.data?.type === "async" && res.data?.operation) {
+
+        // Get Operation ID from URL
+        const operationId = res.data.operation.split('/').pop();
+        if (operationId) {
+          operationModal.open(operationId);
+        }
+      }
+    } catch (e) {
+      console.warn("Error processing async operation:", e);
+    }
+    return res;
+  },
+);
 
 
 export default api;
