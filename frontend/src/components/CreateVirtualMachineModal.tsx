@@ -50,8 +50,8 @@ export function CreateVirtualMachineModal({isOpen, onClose }: CreateVirtualMachi
                         className="w-full p-2 border border-gray-300 rounded bg-white" 
                     >
                         <option value="">None</option>
-                        {images.data?.map((img: string) => (
-                            <option key={img} value={img}>{img}</option>
+                        {images.data?.map((img: any, index: number) => (
+                            <option key={index} value={img?.fingerprint}>{img?.aliases[0] ? img?.aliases[0].name : img.properties.description}</option>
                         ))}
                     </select>
                 </div>
