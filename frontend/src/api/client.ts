@@ -5,7 +5,7 @@ import { useOperationModalStore } from "@/store/operation-modal-store";
 import axios from "axios";
 
 const api = axios.create({
-  baseURL: "http://localhost:4000", // backend
+  baseURL: "http://192.168.61.129:4000", // backend
   withCredentials: true,
 });
 
@@ -26,7 +26,7 @@ api.interceptors.response.use(
 
     if (error.response?.status === 401) {
         try {
-          const { data } = await axios.post("http://localhost:4000/auth/token", { }, { withCredentials: true });
+          const { data } = await axios.post("http://192.168.61.129:4000/auth/token", { }, { withCredentials: true });
           useAuthStore.getState().setTokens(data.accessToken);
           error.config.headers.Authorization = `Bearer ${data.accessToken}`;
           return api.request(error.config);
