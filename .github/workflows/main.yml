@@ -50,7 +50,7 @@ jobs:
         run: |
           echo "Installing production dependencies and restarting server..."
           # Wechseln Sie in das Zielverzeichnis
-          cd /var/www/meine-next-app
+          cd /var/www/virtual_classrooms
           
           # Installieren Sie nur die für die Produktion notwendigen Pakete
           npm install --production
@@ -58,6 +58,6 @@ jobs:
           # Starten Sie die App mit PM2 oder laden Sie sie neu
           # 'pm2 reload' sorgt für ein Zero-Downtime-Deployment
           # 'ecosystem.config.js' ist der beste Weg, um PM2-Apps zu verwalten
-          pm2 reload meine-app-name || pm2 start npm --name "meine-app-name" -- start
+          pm2 reload virtual_classrooms || pm2 start npm --name "virtual_classrooms" -- start
           
           echo "Deployment complete!"
