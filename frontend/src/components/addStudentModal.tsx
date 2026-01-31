@@ -13,31 +13,43 @@ interface StudentModalProps {
     classroomId?: number;
 }
 
-export function AddStudentModal({isOpen, onClose, classroomId}: StudentModalProps) {
-
-    
-
-    const [studentInput, setStudentInput] = useState<[string,number]>(["", 0]);
-    const [selectedStudent, setSelectedStudent] = useState<[string,number]>(["", 0]);
+export function AddStudentModal({
+    isOpen,
+    onClose,
+    classroomId,
+}: StudentModalProps) {
+    const [studentInput, setStudentInput] = useState<[string, number]>(["", 0]);
+    const [selectedStudent, setSelectedStudent] = useState<[string, number]>([
+        "",
+        0,
+    ]);
 
     const [showDropdown, setShowDropdown] = useState<boolean>(false);
 
-    const [isCreateDisabled, setIsCreateDisabled] = useState<boolean>(studentInput[0].trim() === selectedStudent[0].trim());
+    const [isCreateDisabled, setIsCreateDisabled] = useState<boolean>(
+        studentInput[0].trim() === selectedStudent[0].trim(),
+    );
 
     const { showError, showSuccess } = useSnackbarStore();
 
     const queryClient = useQueryClient();
     const searchStudentsQuery = useQuery({
-        queryKey: ['students'],
+        queryKey: ["students"],
         queryFn: () => UserApi.findUserByName(studentInput[0]),
         enabled: false,
     });
     const addStudentToClassroomMutation = useMutation({
-        mutationFn: ({ classroomId, userId }: { classroomId: number; userId: number }) => {
+        mutationFn: ({
+            classroomId,
+            userId,
+        }: {
+            classroomId: number;
+            userId: number;
+        }) => {
             return addStudentToClassroom(classroomId, userId);
         },
         onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: ['classrooms'] });
+            queryClient.invalidateQueries({ queryKey: ["classrooms"] });
             handleModalClose();
         },
     });
@@ -61,25 +73,34 @@ export function AddStudentModal({isOpen, onClose, classroomId}: StudentModalProp
             showError("Student name cannot be empty");
             return;
         }
-        
+
         // Check if input matches selected student
         if (studentInput[0].trim() !== selectedStudent[0].trim()) {
             showError("Please select a student from the dropdown list");
             return;
         }
-        
+
         // Check if a student was actually selected (has valid ID)
         if (selectedStudent[1] === 0) {
             showError("Please select a valid student from the dropdown list");
             return;
         }
-        
-        addStudentToClassroomMutation.mutate({ classroomId: classroomId!, userId: selectedStudent[1] });
+
+        addStudentToClassroomMutation.mutate({
+            classroomId: classroomId!,
+            userId: selectedStudent[1],
+        });
     };
 
     const handleDropdownSelect = (student: User) => {
-        setSelectedStudent([`${student.firstName} ${student.lastName}`, student.id]);
-        setStudentInput([`${student.firstName} ${student.lastName}`, student.id]);
+        setSelectedStudent([
+            `${student.firstName} ${student.lastName}`,
+            student.id,
+        ]);
+        setStudentInput([
+            `${student.firstName} ${student.lastName}`,
+            student.id,
+        ]);
         setIsCreateDisabled(false);
         setShowDropdown(false);
     };
@@ -89,7 +110,7 @@ export function AddStudentModal({isOpen, onClose, classroomId}: StudentModalProp
         const handleKeyDown = (e: KeyboardEvent) => {
             if (e.key === "Enter") {
                 handleSubmit();
-            } else if(e.key === "Escape"){
+            } else if (e.key === "Escape") {
                 handleModalClose();
             }
         };
@@ -101,16 +122,16 @@ export function AddStudentModal({isOpen, onClose, classroomId}: StudentModalProp
         return () => {
             document.removeEventListener("keydown", handleKeyDown);
         };
-    }, [isOpen, studentInput[0], onClose]); 
-
+    }, [isOpen, studentInput[0], onClose]);
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const value = e.target.value;
         setStudentInput([value, 0]);
-        
-        const isDisabled = value.trim() === "" || value.trim() !== selectedStudent[0].trim();
+
+        const isDisabled =
+            value.trim() === "" || value.trim() !== selectedStudent[0].trim();
         setIsCreateDisabled(isDisabled);
-        
+
         if (value.trim().length > 0) {
             setShowDropdown(true);
             searchStudentsQuery.refetch();
@@ -131,53 +152,74 @@ export function AddStudentModal({isOpen, onClose, classroomId}: StudentModalProp
         }
     }, [searchStudentsQuery.data]);
 
-
-
     return (
-        <StandardModal className="w-96" title={"Add Student"} description={"Search for students:"} isOpen={isOpen}>
+        <StandardModal
+            className="w-96"
+            title={"Add Student"}
+            description={"Search for students:"}
+            isOpen={isOpen}
+        >
             <div className="flex flex-col space-y-4 mt-4">
                 <div className="relative">
-                    <StandardInput 
-                        placeholder="Search Student Name" 
+                    <StandardInput
+                        placeholder="Search Student Name"
                         onChange={(e) => handleChange(e)}
                         onBlur={handleBlur}
                         value={studentInput[0]}
                     />
 
-                    
                     {/* Dropdown for search results */}
                     {showDropdown && (
                         <div className="top-full right-0 left-0 z-50 absolute bg-lightforeground shadow-lg drop-shadow-xl mt-1 border-foreground rounded-[8] w-full max-w-full max-h-64">
                             {searchStudentsQuery.isFetching ? (
-                                <div className="p-3 text-font text-sm text-center">Loading...</div>
-                            ) : (searchStudentsQuery.data.length > 0 ? 
-                               (
-                                searchStudentsQuery.data.map((student: User) => (
-                                    <button
-                                        key={student.id}
-                                        onMouseDown={() => handleDropdownSelect(student)} //onMouseDown for chromium support
-                                        className="flex flex-row hover:bg-foreground px-4 py-3 first:rounded-t-[8] last:rounded-b-[8] w-full overflow-visible text-font text-left transition-colors"
-                                    > 
-                                        <p className="flex-grow">{student.firstName} {student.lastName}</p><p className="mr-2 text-gray-500">{student.id}</p>
-                                    </button>
-                                ))
+                                <div className="p-3 text-font text-sm text-center">
+                                    Loading...
+                                </div>
+                            ) : searchStudentsQuery.data.length > 0 ? (
+                                searchStudentsQuery.data.map(
+                                    (student: User) => (
+                                        <button
+                                            key={student.id}
+                                            onMouseDown={() =>
+                                                handleDropdownSelect(student)
+                                            } //onMouseDown for chromium support
+                                            className="flex flex-row hover:bg-foreground px-4 py-3 first:rounded-t-[8] last:rounded-b-[8] w-full overflow-visible text-font text-left transition-colors"
+                                        >
+                                            <p className="flex-grow">
+                                                {student.firstName}{" "}
+                                                {student.lastName}
+                                            </p>
+                                            <p className="mr-2 text-gray-500">
+                                                {student.id}
+                                            </p>
+                                        </button>
+                                    ),
+                                )
                             ) : (
-                                <div className="p-3 text-gray-400 text-sm text-center">No students found</div>
-                            ))}
-                            
-                          
+                                <div className="p-3 text-gray-400 text-sm text-center">
+                                    No students found
+                                </div>
+                            )}
                         </div>
                     )}
                 </div>
                 <div className="flex justify-between mt-2 w-full">
                     <div className="flex gap-4">
-                        <StandardButton label="Cancel" onClick={handleModalClose} className="bg-lightforeground px-6 py-3" />
-                        <StandardButton label="Add" onClick={handleSubmit} className="bg-lightforeground hover:bg-contrast px-6 py-3 hover:text-background" disabled={isCreateDisabled} isLoading={addStudentToClassroomMutation.isPending} />
+                        <StandardButton
+                            label="Cancel"
+                            onClick={handleModalClose}
+                            className="bg-lightforeground px-6 py-3"
+                        />
+                        <StandardButton
+                            label="Add"
+                            onClick={handleSubmit}
+                            className="bg-lightforeground hover:bg-contrast px-6 py-3 hover:text-background"
+                            disabled={isCreateDisabled}
+                            isLoading={addStudentToClassroomMutation.isPending}
+                        />
                     </div>
                 </div>
             </div>
         </StandardModal>
-    )
+    );
 }
-
-

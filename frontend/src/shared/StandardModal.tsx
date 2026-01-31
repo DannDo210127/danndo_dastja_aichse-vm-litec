@@ -10,15 +10,20 @@ interface StandardModalProps {
     className?: string;
 }
 
-const StandardModal: FC<StandardModalProps> = ({ title, description, isOpen, children, className }) => {
+const StandardModal: FC<StandardModalProps> = ({
+    title,
+    description,
+    isOpen,
+    children,
+    className,
+}) => {
     if (typeof window === "undefined") {
         return null;
     }
 
     return createPortal(
         <Fragment>
-            {isOpen ?
-            (
+            {isOpen ? (
                 <div
                     className={`z-50 fixed inset-0 flex justify-center items-center bg-black/20`}
                 >
@@ -28,14 +33,16 @@ const StandardModal: FC<StandardModalProps> = ({ title, description, isOpen, chi
                     >
                         <div className="flex flex-col gap-0 pb-3 border-b-1 border-b-lightforeground">
                             <h2 className="font-semibold text-xl">{title}</h2>
-                            <p className="font-light text-font text-sm">{description}</p>
+                            <p className="font-light text-font text-sm">
+                                {description}
+                            </p>
                         </div>
                         {children}
                     </div>
                 </div>
             ) : null}
         </Fragment>,
-        document.getElementById("modal-root") as HTMLElement
+        document.getElementById("modal-root") as HTMLElement,
     );
 };
 

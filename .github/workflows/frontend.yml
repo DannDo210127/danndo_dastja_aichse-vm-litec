@@ -59,10 +59,16 @@ jobs:
         run: |
           scp -r \
             -o StrictHostKeyChecking=no \
+<<<<<<< HEAD
             -i ~/.ssh/id_ed25519 \
             frontend/ \
             user@${{ secrets.SERVER_IP }}:/var/www/html
 
+=======
+            -i ~/.ssh/id_rsa \
+            ./frontend/frontend/build \
+            user@${{ secrets.SERVER_IP }}:/var/www/html/
+>>>>>>> origin
 
       # Deploy on server
       - name: Deploy on server

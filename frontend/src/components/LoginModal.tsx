@@ -25,32 +25,33 @@ const handleSubmit = (
     login();
 };
 
-export const LoginModal: FC<LoginModalProps> = ({ isOpen, onClose, onSubmit }) => {
-   const [email, setEmail] = useState<string>("");
-   const [password, setPassword] = useState<string>("");
+export const LoginModal: FC<LoginModalProps> = ({
+    isOpen,
+    onClose,
+    onSubmit,
+}) => {
+    const [email, setEmail] = useState<string>("");
+    const [password, setPassword] = useState<string>("");
 
-   const router = useRouter();
-   const authStore = useAuthStore((state) => state);
+    const router = useRouter();
+    const authStore = useAuthStore((state) => state);
 
-   const loginUser = useMutation({
-    mutationFn: async () => {
-      const { data } = await api.post("/auth/login", {
-        email,
-        password
-      });
+    const loginUser = useMutation({
+        mutationFn: async () => {
+            const { data } = await api.post("/auth/login", {
+                email,
+                password,
+            });
 
-      authStore.setTokens(data.accessToken)
-    },
+            authStore.setTokens(data.accessToken);
+        },
 
-    onSuccess: (data) => {
-        onSubmit();
-        router.refresh();
-    }
+        onSuccess: (data) => {
+            onSubmit();
+            router.refresh();
+        },
+    });
 
-  
-
-  });
-    
     // Handler for Escape key to close the modal
     useEffect(() => {
         const handleKeyDown = (e: KeyboardEvent) => {
@@ -68,28 +69,42 @@ export const LoginModal: FC<LoginModalProps> = ({ isOpen, onClose, onSubmit }) =
             isOpen={isOpen}
             className="w-1/4"
         >
-
             {loginUser.isPending ? <LoadingScreen /> : null}
 
             <div className="flex flex-col space-y-4 mt-4">
                 <form
                     onSubmit={(e) =>
-                        handleSubmit(e, email, password, () => loginUser.mutate())
+                        handleSubmit(e, email, password, () =>
+                            loginUser.mutate(),
+                        )
                     }
                     className="flex flex-col space-y-4"
                 >
-                    <StandardInput placeholder="Email" onValueChange={(value: string) => setEmail(value)} />
-                    <StandardInput type="password" placeholder="Password" onValueChange={(value: string) => setPassword(value)} />
+                    <StandardInput
+                        placeholder="Email"
+                        onValueChange={(value: string) => setEmail(value)}
+                    />
+                    <StandardInput
+                        type="password"
+                        placeholder="Password"
+                        onValueChange={(value: string) => setPassword(value)}
+                    />
 
                     <div className="flex justify-between mt-2 w-full">
-
                         {/* PLACEHOLDER FOR OAUTH BUTTONS. PLACE OAUTH BUTTONS HERE */}
 
                         <div className="flex gap-4">
-                            <StandardButton label="Cancel" onClick={onClose} className="px-6 py-3" />
-                            <StandardButton label="Login" type="submit" className="px-6 py-3" />
+                            <StandardButton
+                                label="Cancel"
+                                onClick={onClose}
+                                className="px-6 py-3"
+                            />
+                            <StandardButton
+                                label="Login"
+                                type="submit"
+                                className="px-6 py-3"
+                            />
                         </div>
-
                     </div>
                 </form>
             </div>
