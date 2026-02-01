@@ -1,6 +1,6 @@
 //global types for the app for consistency
 
-declare global{
+declare global {
   interface User {
     id: number;
     email: string;
@@ -22,18 +22,17 @@ declare global{
     description?: string;
     users: ClassroomUser[];
   }
-  type Theme = 'light' | 'dark'
+  type Theme = 'light' | 'dark';
 
   // Virtual Machine type, just an example, not the real database model
-  interface VM{
-    id:number;
-    name:string;
+  interface VM {
+    id: number;
+    name: string;
     state: 'NotRunning' | 'Running' | 'Idle' | 'Starting' | 'Stopping';
-    image:string;
-    ipAddress?:string;
-    userId:number;
+    image: string;
+    ipAddress?: string;
+    userId: number;
   }
 }
 
-export{};
-
+export {};

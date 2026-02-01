@@ -2,7 +2,7 @@ import { FC } from "react";
 
 
 
-export const SmallLoading: FC = () => {
+export const LoadingBounce: FC = () => {
     return (
         <div className="flex items-center space-x-1 ml-3">
                     <div
@@ -21,4 +21,4 @@ export const SmallLoading: FC = () => {
     );
 };
 
-export default SmallLoading;
+export default LoadingBounce;

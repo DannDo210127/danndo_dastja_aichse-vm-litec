@@ -17,23 +17,23 @@ export const Machines = {
 		return (await Incus.post(`/instances`, config)).data;
 	},
 
-    startMachine: async(hostname: String, force: boolean = false) => {
-       return (await Incus.put(`/instances/${hostname}/state`, {
-            action: "start",
-            timeout: -1,
-            force: force,
-       })) 
-    },
+	startMachine: async (hostname: String, force: boolean = false) => {
+		return await Incus.put(`/instances/${hostname}/state`, {
+			action: "start",
+			timeout: -1,
+			force: force
+		});
+	},
 
-    stopMachine: async(hostname: String, force: boolean = false) => {
-       return (await Incus.put(`/instances/${hostname}/state`, {
-            action: "stop",
-            timeout: 5,
-            force: force,
-       })) 
-    },
+	stopMachine: async (hostname: String, force: boolean = false) => {
+		return await Incus.put(`/instances/${hostname}/state`, {
+			action: "stop",
+			timeout: 5,
+			force: force
+		});
+	},
 
-    getMachineState: async (hostname: String) => {
+	getMachineState: async (hostname: String) => {
 		return (await Incus.get(`/instances/${hostname}/state`)).data;
-    }
+	}
 };

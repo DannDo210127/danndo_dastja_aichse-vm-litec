@@ -1,4 +1,4 @@
-import SmallLoading from "@/shared/SmallLoading";
+import LoadingBounce from "@/shared/LoadingBounce";
 
 interface StandardButtonProps {
     label: string;
@@ -34,7 +34,7 @@ export function StandardButton({
             aria-busy={isLoading}
         >
             {isLoading ? (
-                <SmallLoading />
+                <LoadingBounce />
             ) : (
                 <>
                     {children}
