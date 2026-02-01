@@ -1,4 +1,4 @@
-# Diploma Arbeit - Classroom & VM Management System
+# Diplomarbeit - Classroom & VM Management System
 
 ## 📋 Projektbeschreibung
 
