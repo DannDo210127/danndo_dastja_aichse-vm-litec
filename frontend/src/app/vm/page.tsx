@@ -50,11 +50,11 @@ export default function VirtualMachinePage() {
     ) : (
         <div className="flex flex-col bg-background m-20 mx-25 rounded-[8] h-8/10 grow">
             <div className="flex flex-row justify-between items-center border-lightforeground border-b-2">
-                <div className="m-5 p-2 ">
+                <div className="m-5 p-2">
                     <h2 className="font-bold text-2xl">
                         Your Virtual Machines
                     </h2>
-                    <p className={`ml-2 text-gray-400 cursor-pointer ${activeOperations > 0 ? "text-yellow-400 animate-pulse" : ""}`} onClick={() => operationModal.open(ops.data?.data.metadata.running[0].id)}>{activeOperations} active operations</p>
+                    <p className={`ml-2 text-gray-400 cursor-pointer ${activeOperations > 0 ? "text-yellow-400 animate-pulse" : ""}`} onClick={() => {activeOperations > 0 ?  operationModal.open(ops.data?.data.metadata.running[0].id) : null}}>{activeOperations} active operations</p>
                 </div>
                 <StandardButton
                     className="bg-lightforeground hover:bg-contrast! drop-shadow-sm p-2.5! hover:text-background hover:scale-105 transition-all"

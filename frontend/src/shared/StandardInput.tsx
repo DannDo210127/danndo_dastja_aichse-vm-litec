@@ -5,13 +5,15 @@ interface StandardInputProps {
     placeholder?: string;
     onValueChange?: (value: string) => void;
     className?: string;
+    maxLength? :number | 100;
 }
 
 export const StandardInput: FC<
     StandardInputProps & React.InputHTMLAttributes<HTMLInputElement>
-> = ({ placeholder, onValueChange, type, className = "", ...props }) => {
+> = ({ placeholder, onValueChange, type, maxLength, className = "", ...props }) => {
     return (
         <input
+            maxLength={maxLength}
             type={type ? type : "text"}
             placeholder={placeholder}
             onChange={(e) => onValueChange?.(e.target.value)}

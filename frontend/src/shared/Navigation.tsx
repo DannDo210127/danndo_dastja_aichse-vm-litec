@@ -27,9 +27,6 @@ export function Navigation() {
     const pathname = usePathname();
     const theme = useThemeStore.getState().theme;
 
-    console.log("pathname:", pathname);
-    console.log("pathname:", pathname.includes("/vnc"));
-
     return user.isLoading ? (
         <LoadingScreen />
     ) : (

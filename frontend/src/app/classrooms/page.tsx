@@ -24,10 +24,11 @@ import {
 import { LoadingScreen } from "@/shared/LoadingScreen";
 import { useAuth } from "@/hooks/useAuth";
 import { LoginModal } from "@/components/LoginModal";
-import { DeleteStudentModal } from "@/components/DeleteStudentModal";
-import { CreateClassroomModal } from "@/components/CreateClassroomModal";
-import { DeleteClassroomModal } from "@/components/DeleteClassroomModal";
-import { AddStudentModal } from "@/components/AddStudentModal";
+import { DeleteStudentModal } from "@/components/deleteStudentModal";
+import { CreateClassroomModal } from "@/components/createClassroomModal";
+import { DeleteClassroomModal } from "@/components/deleteClassroomModal";
+import { AddStudentModal } from "@/components/addStudentModal";
+import SmallLoading from "@/shared/SmallLoading";
 
 interface Classroom {
     id: number;
@@ -71,22 +72,17 @@ export default function ClassroomPage() {
     const [isLoginModalOpen, setLoginModalOpen] = useState(false);
 
     const handleClassroomSubmit = (name: string, description: string) => {
-        setClassroomErrormessage("");
-
         const exists = classrooms.data?.some(
             (classroom: { name: string }) =>
                 classroom.name.toLowerCase() === name.toLowerCase(),
         );
         if (exists) {
-            setClassroomErrormessage(
-                "Classroom with this name already exists!",
-            );
+            
             setClassroomModalOpen(true);
         } else {
             name = name.trim().toUpperCase();
             description = description.trim();
             createClassroomMutation.mutate({ name, description });
-            setClassroomErrormessage("");
         }
     };
 
@@ -103,7 +99,7 @@ export default function ClassroomPage() {
             onClose={() => setLoginModalOpen(false)}
             onSubmit={() => setLoginModalOpen(false)}
         />
-    ) : classrooms.isFetching ? (
+    ) : classrooms.isFetching ? ( 
         <LoadingScreen />
     ) : (
         <div className="flex flex-col bg-background mx-10 xl:mx-20 my-20 rounded-[8] w-9/10 h-8/10">
@@ -154,7 +150,6 @@ interface ClassroomProps {
 function ClassroomComponent({
     deleteClassroomMutation,
     classrooms,
-    setClassrooms,
 }: ClassroomProps) {
     const user = useAuth();
 
@@ -308,8 +303,8 @@ export function StudentList({ classroomId }: StudentListProps) {
 
     return (
         <ul className="space-y-2">
-            {students.isLoading ? (
-                <div>Loading...</div>
+            {students.isLoading ? ( 
+               <SmallLoading></SmallLoading>
             ) : students.data?.error ? (
                 <div>No user found</div>
             ) : students.data?.length > 0 ? (

@@ -1,4 +1,4 @@
-import Spinner from "@/shared/Spinner";
+import SmallLoading from "@/shared/SmallLoading";
 
 interface StandardButtonProps {
     label: string;
@@ -34,10 +34,7 @@ export function StandardButton({
             aria-busy={isLoading}
         >
             {isLoading ? (
-                <Spinner
-                    outerClass="p-0.5 rounded-full"
-                    innerClass="w-5 h-5 border-t-2"
-                />
+                <SmallLoading />
             ) : (
                 <>
                     {children}

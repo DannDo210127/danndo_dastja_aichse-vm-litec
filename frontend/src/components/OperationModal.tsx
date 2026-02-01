@@ -4,7 +4,7 @@ import { useQuery } from "@tanstack/react-query";
 import { StandardButton } from "@/shared/StandardButton";
 import { getCurrentOperations, getOperationStatus } from "@/api/operations";
 import { Divide } from "lucide-react";
-import Spinner from "@/shared/Spinner";
+import Spinner from "@/shared/SmallLoading";
 
 export function OperationModal() {
     const {
@@ -47,13 +47,13 @@ export function OperationModal() {
         >
             <div className="flex flex-col space-y-4 mt-4">
                 {isLoading ? (
-                    <div className="text-center py-4">
+                    <div className="py-4 text-center">
                         <p className="text-gray-600 dark:text-gray-400">
                             Loading operation status...
                         </p>
                     </div>
                 ) : error ? (
-                    <div className="text-center py-4">
+                    <div className="py-4 text-center">
                         <p className="text-red-500">Error loading operation</p>
                     </div>
                 ) : operation ? (
@@ -75,7 +75,7 @@ export function OperationModal() {
                             })
                         )}
                         {operation.err && (
-                            <div className="text-sm text-red-600 bg-red-50 dark:bg-red-950 p-2 rounded">
+                            <div className="bg-red-50 dark:bg-red-950 p-2 rounded text-red-600 text-sm">
                                 <p className="font-semibold">Error:</p>
                                 <p>{operation.err}</p>
                             </div>

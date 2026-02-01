@@ -40,18 +40,18 @@ export function CreateVirtualMachineModal({isOpen, onClose }: CreateVirtualMachi
     return (
         <StandardModal className="w-96" title={"Create Virtual Machine"} description={"Here you can create your own dream machine"} isOpen={isOpen}>
             <div className="flex flex-col space-y-4 mt-4">
-                <StandardInput  placeholder="Hostname" onValueChange={(value: string) => setHostname(value)} />
+                <StandardInput maxLength={10}  placeholder="Hostname"  onValueChange={(value: string) => setHostname(value)} />
                 
                 <div>
-                    <label className="block mb-2 text-sm font-medium">Select Image:</label>
+                    <label className="block mb-2 font-medium text-sm">Select Image:</label>
                     <select 
                         value={image} 
                         onChange={(e) => setImage(e.target.value)}
-                        className="w-full p-2 border border-gray-300 rounded bg-white" 
+                        className="bg-background p-2 border border-lightforeground rounded w-full" 
                     >
                         <option value="">None</option>
                         {images.data?.map((img: string) => (
-                            <option key={img} value={img}>{img}</option>
+                            <option className="bg-background" key={img} value={img}>{img}</option>
                         ))}
                     </select>
                 </div>
