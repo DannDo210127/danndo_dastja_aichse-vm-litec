@@ -55,7 +55,7 @@ const createVirtualMachine: RequestHandler = async (req, res) => {
 	const payload: any = {
 		type: "virtual-machine",
 		name: hostname,
-        start: true,
+		start: true,
 		source
 	};
 	try {
@@ -93,28 +93,28 @@ const createVirtualMachine: RequestHandler = async (req, res) => {
 	}
 };
 
-export const startVirtualMachine: RequestHandler = async(req, res) => {
-    const hostname = req.params.hostname;
-    const force = req.body.force;
+export const startVirtualMachine: RequestHandler = async (req, res) => {
+	const hostname = req.params.hostname;
+	const force = req.body.force;
 
-    const response = await Machines.startMachine(hostname, force)
-    return res.status(200).json(response.data)
-}
+	const response = await Machines.startMachine(hostname, force);
+	return res.status(200).json(response.data);
+};
 
-export const stopVirtualMachine: RequestHandler = async(req, res) => {
-    const hostname = req.params.hostname;
-    const force = req.body.force;
+export const stopVirtualMachine: RequestHandler = async (req, res) => {
+	const hostname = req.params.hostname;
+	const force = req.body.force;
 
-    const response = await Machines.stopMachine(hostname, force)
-    return res.status(200).json(response.data)
-}
+	const response = await Machines.stopMachine(hostname, force);
+	return res.status(200).json(response.data);
+};
 
-export const getVirtualMachineState: RequestHandler = async (req, res) =>{
-    const hostname = req.params.hostname;
+export const getVirtualMachineState: RequestHandler = async (req, res) => {
+	const hostname = req.params.hostname;
 
-    const response = await Machines.getMachineState(hostname);
-    return res.status(200).json(response)
-}
+	const response = await Machines.getMachineState(hostname);
+	return res.status(200).json(response);
+};
 
 /**
  * IMAGE routes implementation

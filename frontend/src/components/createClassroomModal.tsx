@@ -40,7 +40,6 @@ export function CreateClassroomModal({
 
     const handleSubmit = () => {
         if (isCreateDisabled) return;
-        setShowError(true);
         onSubmit(classroomName, classroomDescription);
     };
 
@@ -105,6 +104,7 @@ export function CreateClassroomModal({
                             className="bg-lightforeground px-6 py-3"
                         />
                         <StandardButton
+                            
                             label="Create"
                             onClick={handleSubmit}
                             className={

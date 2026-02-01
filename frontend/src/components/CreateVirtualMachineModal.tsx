@@ -40,14 +40,14 @@ export function CreateVirtualMachineModal({isOpen, onClose }: CreateVirtualMachi
     return (
         <StandardModal className="w-96" title={"Create Virtual Machine"} description={"Here you can create your own dream machine"} isOpen={isOpen}>
             <div className="flex flex-col space-y-4 mt-4">
-                <StandardInput  placeholder="Hostname" onValueChange={(value: string) => setHostname(value)} />
+                <StandardInput maxLength={10}  placeholder="Hostname"  onValueChange={(value: string) => setHostname(value)} />
                 
                 <div>
-                    <label className="block mb-2 text-sm font-medium">Select Image:</label>
+                    <label className="block mb-2 font-medium text-sm">Select Image:</label>
                     <select 
                         value={image} 
                         onChange={(e) => setImage(e.target.value)}
-                        className="w-full p-2 border border-gray-300 rounded bg-white" 
+                        className="bg-background p-2 border border-lightforeground rounded w-full" 
                     >
                         <option value="">None</option>
                         {images.data?.map((img: any, index: number) => (
@@ -59,7 +59,7 @@ export function CreateVirtualMachineModal({isOpen, onClose }: CreateVirtualMachi
                 <div className="flex justify-between mt-2 w-full">
                     <div className="flex gap-4 w-full">
                         <StandardButton label="Cancel" onClick={onClose} className="bg-lightforeground px-6 py-3" />
-                        <StandardButton label="Create" onClick={() => createVmMutation.mutate()} className={"ml-1 h-full px-10 py-3 bg-lightforeground "} />
+                        <StandardButton label="Create" onClick={() => createVmMutation.mutate()} className= {"ml-1 h-full px-10 py-3 bg-lightforeground "} />
                     </div>
                 </div>
             </div>
