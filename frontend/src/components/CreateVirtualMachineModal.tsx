@@ -50,8 +50,8 @@ export function CreateVirtualMachineModal({isOpen, onClose }: CreateVirtualMachi
                         className="bg-background p-2 border border-lightforeground rounded w-full" 
                     >
                         <option value="">None</option>
-                        {images.data?.map((img: string) => (
-                            <option className="bg-background" key={img} value={img}>{img}</option>
+                        {images.data?.map((img: any, index: number) => (
+                            <option key={index} value={img?.fingerprint}>{img?.aliases[0] ? img?.aliases[0].name : img.properties.description}</option>
                         ))}
                     </select>
                 </div>
@@ -59,7 +59,7 @@ export function CreateVirtualMachineModal({isOpen, onClose }: CreateVirtualMachi
                 <div className="flex justify-between mt-2 w-full">
                     <div className="flex gap-4 w-full">
                         <StandardButton label="Cancel" onClick={onClose} className="bg-lightforeground px-6 py-3" />
-                        <StandardButton label="Create" onClick={() => createVmMutation.mutate()} className={"ml-1 h-full px-10 py-3 bg-lightforeground "} />
+                        <StandardButton label="Create" onClick={() => createVmMutation.mutate()} className= {"ml-1 h-full px-10 py-3 bg-lightforeground "} />
                     </div>
                 </div>
             </div>

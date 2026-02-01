@@ -23,15 +23,6 @@ export function OperationModal() {
         enabled: !!operationId && isOpen,
     });
 
-    const statusColor =
-        {
-            Running: "text-blue-500",
-            Success: "text-green-500",
-            Failure: "text-red-500",
-            Cancelled: "text-yellow-500",
-        }[operation?.status as string] || "text-gray-500";
-
-    
     const ops = useQuery({
         queryKey: ["operations"],
         queryFn: () => getCurrentOperations(),
@@ -58,15 +49,18 @@ export function OperationModal() {
                     </div>
                 ) : operation ? (
                     <div className="space-y-3">
-                        {ops.data?.data?.metadata?.running && (
+                        {ops.data?.data?.metadata?.running ? (
                             ops.data.data.metadata.running.map((task: any, index: number) =>{
                                 return (
                                     <div key={index}>
-                                        {task.metadata ? <div>{task.metadata.progress.stage}: <b>{task.metadata.progress.percent}%</b></div> : null}
+                                        <h1>{task.description}</h1>
+                                        <div >
+                                            {task.metadata ? <div>{task.metadata.progress.stage}: <b>{task.metadata.progress.percent}%</b></div> : null}
+                                        </div>
                                     </div>
                                 )
                             })
-                        )}
+                        ) : <div>No more operations ongoing</div>}
                         {ops.data?.data?.metadata?.failure && (
                             ops.data.data.metadata.failure.map((task: any) =>{
                                 return (

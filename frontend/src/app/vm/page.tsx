@@ -13,12 +13,13 @@ import { ConfirmModal } from "@/shared/ConfirmModal";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/hooks/useAuth";
 import { LoginModal } from "@/components/LoginModal";
-import { useQuery } from "@tanstack/react-query";
-import { getAssignedMachines } from "@/api/machines";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { getAssignedMachines, getMachineState, startMachine, stopMachine } from "@/api/machines";
 import { LoadingScreen } from "@/shared/LoadingScreen";
 import { CreateVirtualMachineModal } from "@/components/CreateVirtualMachineModal";
 import { getCurrentOperations } from "@/api/operations";
 import { useOperationModalStore } from "@/store/operation-modal-store";
+import { machine } from "os";
 
 /** Root Component */
 export default function VirtualMachinePage() {
@@ -119,6 +120,7 @@ const VirtualMachineListEntry: React.FC<VirtualMachineListEntryProps> = ({
     index,
 }) => {
     const router = useRouter();
+    const queryClient = useQueryClient()
     const [isVirtualMachineDetailsOpen, setVirtualMachineDetailsOpen] =
         useState<Record<number, boolean>>({});
 
@@ -129,8 +131,34 @@ const VirtualMachineListEntry: React.FC<VirtualMachineListEntryProps> = ({
         }));
     };
 
+    const stopMachineMutation = useMutation(
+        {
+            mutationFn: () => stopMachine(vm.name, true),
+            onSuccess: () => {
+                queryClient.invalidateQueries({ queryKey: ["machines"]});
+            }
+        }
+    )
+
+    const startMachineMutation = useMutation(
+        {
+            mutationFn: () => startMachine(vm.name, true),
+            onSuccess: () => {
+                queryClient.invalidateQueries({ queryKey: ["machines"]});
+            }
+        }
+    )
+
+    const machineState = useQuery({
+        queryFn: () => getMachineState(vm.name),
+        queryKey: ["machineState", vm.name]
+    })
+
+    const ipv4 = machineState.data?.metadata.network?.enp5s0?.addresses[0]?.address;
+
     return (
         <div className="flex flex-col border-2 border-lightforeground rounded-[8]">
+            {startMachineMutation.isPending || stopMachineMutation.isPending && <LoadingScreen />}
             <div
                 className={`flex flex-row justify-between items-center bg-lightforeground drop-shadow-sm  border-lightforeground border-b-2 rounded-[5] w-full ${!isVirtualMachineDetailsOpen[index] ? "" : "rounded-b-none"}`}
             >
@@ -148,7 +176,7 @@ const VirtualMachineListEntry: React.FC<VirtualMachineListEntryProps> = ({
                         <div
                             className={` ml-4 ${vm.status == "Running" ? "bg-gradient-to-tr from-green-400 to-green-600" : "bg-gradient-to-bl from-red-300 to-red-600"} animate-spin w-3 h-3 rounded-full `}
                         ></div>
-                        <p className="ml-2 text-md">{vm.status}</p>
+                        <p className="ml-2 text-md">{vm.status} {ipv4 || vm.status == "Running" && "on " + ipv4}</p>
                     </div>
                 </button>
                 {vm.status === "Running" ? (
@@ -158,7 +186,7 @@ const VirtualMachineListEntry: React.FC<VirtualMachineListEntryProps> = ({
                                 className="bg-lightforeground"
                                 label=""
                                 onClick={() => {
-                                    router.push(`/vnc`);
+                                    stopMachineMutation.mutate()
                                 }}
                             >
                                 {<Square className="size-6" />}
@@ -168,8 +196,9 @@ const VirtualMachineListEntry: React.FC<VirtualMachineListEntryProps> = ({
                         <StandardButton
                             className="bg-lightforeground"
                             label=""
+                            disabled={!ipv4}
                             onClick={() => {
-                                router.push(`/vnc`);
+                                router.push(`/vnc?ip=${ipv4}`);
                             }}
                         >
                             {<ScreenShareIcon className="size-6" />}
@@ -178,6 +207,7 @@ const VirtualMachineListEntry: React.FC<VirtualMachineListEntryProps> = ({
                 ) : (
                     <StandardButton
                         className="bg-lightforeground mr-2"
+                        onClick={() => startMachineMutation.mutate()}
                         label=""
                     >
                         {<Power className="size-6 scale-105" />}
