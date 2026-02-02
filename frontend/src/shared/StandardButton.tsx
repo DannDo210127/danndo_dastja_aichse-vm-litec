@@ -1,46 +1,47 @@
-import LoadingBounce from "@/shared/LoadingBounce";
+import LoadingBounce from '@/shared/LoadingBounce';
 
 interface StandardButtonProps {
-    label: string;
-    onClick?: () => void;
-    className?: string;
-    disabled?: boolean;
-    children?: React.ReactNode;
-    isLoading?: boolean;
-    type?: "button" | "submit" | "reset";
+  label?: string;
+  title?: string;
+  onClick?: () => void;
+  className?: string;
+  disabled?: boolean;
+  children?: React.ReactNode;
+  isLoading?: boolean;
+  type?: 'button' | 'submit' | 'reset';
 }
 
 export function StandardButton({
-    label,
-    onClick,
-    className = "",
-    disabled,
-    children,
-    isLoading = false,
-    type = "button",
+  label,
+  title,
+  onClick,
+  className = '',
+  disabled,
+  children,
+  isLoading = false,
+  type = 'button',
 }: StandardButtonProps) {
-    return (
-        <button
-            type={type}
-            onClick={onClick}
-            disabled={disabled || isLoading || false}
-            className={
-                "flex items-center rounded-[8] p-2 cursor-pointer hover:scale-110 transition-all duration-500 " +
-                className +
-                (disabled
-                    ? " opacity-50! cursor-not-allowed! hover:scale-100!"
-                    : "")
-            }
-            aria-busy={isLoading}
-        >
-            {isLoading ? (
-                <LoadingBounce />
-            ) : (
-                <>
-                    {children}
-                    <span className="">{label}</span>
-                </>
-            )}
-        </button>
-    );
+  return (
+    <button
+      type={type}
+      onClick={onClick}
+      disabled={disabled || isLoading || false}
+      className={
+        'flex items-center rounded-[8] p-2 cursor-pointer hover:scale-110 transition-all duration-500 ' +
+        className +
+        (disabled ? ' opacity-50! cursor-not-allowed! hover:scale-100!' : '')
+      }
+      aria-busy={isLoading}
+      title={title}
+    >
+      {isLoading ? (
+        <LoadingBounce />
+      ) : (
+        <>
+          {children}
+          <span className="">{label}</span>
+        </>
+      )}
+    </button>
+  );
 }

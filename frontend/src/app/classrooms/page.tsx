@@ -3,10 +3,8 @@ import { StandardButton } from '@/shared/StandardButton';
 import {
   ChevronDown,
   ChevronUp,
-  ComputerIcon,
   Icon,
-  Pause,
-  Play,
+  PackagePlus,
   PlusIcon,
   Trash2,
   Trash2Icon,
@@ -191,14 +189,14 @@ function ClassroomComponent({
                     className="bg-transparent!"
                     label={classroom.name}
                   >
-                    <ChevronUp size={18} />
+                    <ChevronUp size={18} className="mr-2" />
                   </StandardButton>
                 ) : (
                   <StandardButton
                     className="bg-transparent!"
                     label={classroom.name}
                   >
-                    <ChevronDown size={18} className="ml-0" />
+                    <ChevronDown size={18} className="mr-2" />
                   </StandardButton>
                 )}
               </div>
@@ -209,7 +207,7 @@ function ClassroomComponent({
                   <>
                     <StandardButton
                       className="bg-transparent! px-2 py-1"
-                      label="Add student"
+                      title="Add student"
                       onClick={() => {
                         setStudentModalClassroomId(index);
                         setStudentModalOpen(true);
@@ -219,7 +217,16 @@ function ClassroomComponent({
                     </StandardButton>
                     <StandardButton
                       className="bg-transparent! px-2 py-1"
-                      label=""
+                      title="Bulk Create VM"
+                      onClick={() => {
+                        //TODO : Bulk Create VM Functionality
+                      }}
+                    >
+                      <PackagePlus className="mr-1 size-6" />
+                    </StandardButton>
+                    <StandardButton
+                      className="bg-transparent! px-2 py-1"
+                      title="Delete Classroom"
                       onClick={() => {
                         setDeleteClassroomId(index);
                         setDeleteClassroomModalOpen(true);
