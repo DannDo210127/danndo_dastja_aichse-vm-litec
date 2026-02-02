@@ -7,6 +7,7 @@ import {
   Power,
   ScreenShareIcon,
   Square,
+  Trash2,
 } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { ConfirmModal } from '@/shared/ConfirmModal';
@@ -15,6 +16,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { LoginModal } from '@/components/LoginModal';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import {
+  getAllImages,
   getAssignedMachines,
   getMachineState,
   startMachine,
@@ -165,6 +167,19 @@ const VirtualMachineListEntry: React.FC<VirtualMachineListEntryProps> = ({
   const ipv4 =
     machineState.data?.metadata.network?.enp5s0?.addresses[0]?.address;
 
+  const images = useQuery({
+    queryKey: ['images'],
+    queryFn: () => getAllImages(),
+  });
+
+  const imageMap = new Map<string, string>();
+  images.data?.forEach((img: any) => {
+    imageMap.set(
+      img.fingerprint,
+      img.aliases[0] ? img.aliases[0].name : img.properties.description,
+    );
+  });
+
   return (
     <div className="flex flex-col border-2 border-lightforeground rounded-[8]">
       {startMachineMutation.isPending ||
@@ -192,58 +207,84 @@ const VirtualMachineListEntry: React.FC<VirtualMachineListEntryProps> = ({
             )}
           </div>
         </button>
-        {vm.status === 'Running' ? (
-          <>
-            <div className="border-foreground border-r-2">
+
+        <div className="flex flex-row">
+          {/* Virtual Machine Actions */}
+
+          {vm.status === 'Running' ? (
+            <>
+              <div className="border-foreground border-r-2">
+                <StandardButton
+                  className="bg-transparent!"
+                  title="Stop Machine"
+                  onClick={() => {
+                    stopMachineMutation.mutate();
+                  }}
+                >
+                  {<Square className="size-6" />}
+                </StandardButton>
+              </div>
+
               <StandardButton
                 className="bg-transparent!"
-                label=""
+                title="Connect via VNC"
+                disabled={!ipv4}
                 onClick={() => {
-                  stopMachineMutation.mutate();
+                  router.push(`/vnc?ip=${ipv4}`);
                 }}
               >
-                {<Square className="size-6" />}
+                {<ScreenShareIcon className="size-6" />}
               </StandardButton>
-            </div>
-
+            </>
+          ) : (
             <StandardButton
-              className="bg-transparent!"
-              label=""
-              disabled={!ipv4}
-              onClick={() => {
-                router.push(`/vnc?ip=${ipv4}`);
-              }}
+              className="bg-transparent! mr-2"
+              onClick={() => startMachineMutation.mutate()}
+              title="Start Machine"
             >
-              {<ScreenShareIcon className="size-6" />}
+              {<Power className="size-6 scale-105" />}
             </StandardButton>
-          </>
-        ) : (
-          <StandardButton
-            className="bg-transparent! mr-2"
-            onClick={() => startMachineMutation.mutate()}
-            label=""
-          >
-            {<Power className="size-6 scale-105" />}
-          </StandardButton>
-        )}
+          )}
+        </div>
       </div>
-
       {/** Virtual Machine Details */}
       {isVirtualMachineDetailsOpen[index] && (
-        <div
-          className={`flex flex-row relative bg-background p-4 rounded-b-[8] w-full h-full`}
-        >
-          <div className="bg-background pr-10 border-lightforeground border-r-2 w-1/2 h-3/10">
-            <div className="flex flex-row">
-              <h6 className="grow">Image </h6>
-              <p className="mr-10 text-font">{vm.architecture}</p>
+        <div className="flex flex-col">
+          <div
+            className={`flex flex-row relative bg-background p-4 pb-0! rounded-b-[8] w-full h-full`}
+          >
+            <div className="bg-background mx-4 border-lightforeground border-r-2 w-1/3 h-3/10">
+              <div className="flex flex-row">
+                <h6 className="grow">CPU </h6>
+                <p className="text-font">{}</p>
+              </div>
+              <div className="flex flex-row">
+                <h6 className="grow">SSD </h6>
+                <p className="text-font">{}</p>
+              </div>
             </div>
-            <div className="flex flex-row">
-              <h6 className="grow">Location (for dev) </h6>
-              <p className="mr-10 text-font">{vm.location}</p>
+            <div className="bg-background mx-4 w-2/3 h-3/10">
+              <div className="flex flex-row">
+                <h6 className="grow">Image </h6>
+                <p className="text-font">
+                  {imageMap.get(vm.config['volatile.base_image'])}
+                </p>
+              </div>
+              <div className="flex flex-row">
+                <h6 className="grow">Location (for dev) </h6>
+                <p className="text-font">{vm.location}</p>
+              </div>
             </div>
           </div>
-          <div className="bg-background w-1/2 h-3/10"></div>
+          <div className="flex justify-start w-full h-17">
+            <StandardButton
+              className="justify-center items-center bg-lightforeground hover:bg-lightforeground m-4 w-30"
+              label="Delete"
+              onClick={() => {}}
+            >
+              <Trash2 className="mr-2 size-5" />
+            </StandardButton>
+          </div>
         </div>
       )}
     </div>
