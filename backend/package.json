@@ -16,18 +16,22 @@
 	"dependencies": {
 		"@prisma/client": "^6.16.3",
 		"@types/express": "^5.0.3",
+		"axios": "^1.13.4",
 		"bcryptjs": "^3.0.2",
 		"cookie-parser": "^1.4.7",
 		"cors": "^2.8.5",
 		"dotenv": "^17.2.2",
 		"express": "^5.1.0",
 		"jsonwebtoken": "^9.0.2",
-		"prisma": "^6.16.3"
+		"prisma": "^6.16.3",
+		"typescript": "^5.9.3",
+		"ws": "^8.19.0"
 	},
 	"devDependencies": {
 		"@types/cookie-parser": "^1.4.9",
 		"@types/cors": "^2.8.19",
 		"@types/dotenv": "^6.1.1",
-		"@types/jsonwebtoken": "^9.0.10"
+		"@types/jsonwebtoken": "^9.0.10",
+		"@types/ws": "^8.18.1"
 	}
 }

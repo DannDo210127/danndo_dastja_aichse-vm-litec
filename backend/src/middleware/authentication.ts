@@ -1,42 +1,50 @@
-import jwt from 'jsonwebtoken';
-import { NextFunction, Request, Response } from 'express';
-import DatabaseClient from '../db/client';
-import { User } from '@prisma/client';
+import jwt from "jsonwebtoken";
+import { NextFunction, Request, Response } from "express";
+import DatabaseClient from "../db/client";
+import { User } from "@prisma/client";
 
 const prisma = DatabaseClient.getInstance().prisma;
 
 // Extend Express Request interface to include 'user'
 declare global {
-  namespace Express {
-    interface Request {
-      user?: User;
-    }
-  }
+	namespace Express {
+		interface Request {
+			user?: User & { role: { id: number; name: string } };
+		}
+	}
 }
 
-export const isAuthenticated = async (req: Request, res: Response, next: NextFunction) => {
-  const authHeader = req.headers['authorization'];
-  const token = authHeader?.split(' ')[1]; // Bearer TOKEN
-  
-  if (!token) return res.sendStatus(401); // Unauthorized
+export const isAuthenticated = async (
+	req: Request,
+	res: Response,
+	next: NextFunction
+) => {
+	const authHeader = req.headers["authorization"];
+	const token = authHeader?.split(" ")[1]; // Bearer TOKEN
 
-  jwt.verify(token, process.env.JWT_ACCESS_TOKEN_SECRET as string, async (err: any, userId: any) => {
+	if (!token) return res.sendStatus(401); // Unauthorized
 
-    // Access token has expired or is invalid
-    if (err) {
-      return res.sendStatus(403); // Forbidden
-    }
+	jwt.verify(
+		token,
+		process.env.JWT_ACCESS_TOKEN_SECRET as string,
+		async (err: any, userId: any) => {
+			// Access token has expired or is invalid
+			if (err) {
+				return res.sendStatus(403); // Forbidden
+			}
 
-    const user = await prisma.user.findUnique({
-      where: { id: userId.id }
-    });
+			const user = await prisma.user.findUnique({
+				where: { id: userId.id },
+				include: { role: true }
+			});
 
-    if (!user) {
-      return res.sendStatus(404).send('User not found');
-    }
+			if (!user) {
+				return res.sendStatus(404).send("User not found");
+			}
 
-    req.user = user;
+			req.user = user;
 
-    next();
-  });
+			next();
+		}
+	);
 };

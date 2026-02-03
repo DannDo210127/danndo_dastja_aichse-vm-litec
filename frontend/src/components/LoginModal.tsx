@@ -1,80 +1,106 @@
+// API and store imports
 import api from "@/api/client";
+import { useAuthStore } from "@/store/token-store";
+
+// Shared component imports
+import { LoadingScreen } from "@/shared/LoadingScreen";
 import { StandardButton } from "@/shared/StandardButton";
 import { StandardInput } from "@/shared/StandardInput";
 import StandardModal from "@/shared/StandardModal";
-import { useAuthStore } from "@/store/token-store";
-import { useMutation } from "@tanstack/react-query";
-import { useRouter } from "next/navigation";
-import { FC, useState } from "react";
 
+// React and routing imports
+import { useRouter } from "next/navigation";
+import { FC, FormEvent, useEffect, useState } from "react";
+import { useMutation } from "@tanstack/react-query";
+import { login } from "@/api/user";
+
+// TypeScript interface
 interface LoginModalProps {
     isOpen: boolean;
     onClose: () => void;
     onSubmit: () => void;
 }
 
-export const LoginModal: FC<LoginModalProps> = ({ isOpen, onClose, onSubmit }) => {
-   const [email, setEmail] = useState<string>("");
-   const [password, setPassword] = useState<string>("");
+export const LoginModal: FC<LoginModalProps> = ({
+    isOpen,
+    onClose,
+    onSubmit,
+}) => {
+    // Form state
+    const [email, setEmail] = useState<string>("");
+    const [password, setPassword] = useState<string>("");
 
-   const router = useRouter();
-   const authStore = useAuthStore((state) => state);
+    // Router and auth hooks
+    const router = useRouter();
+    const authStore = useAuthStore((state) => state);
 
-  const loginUser = useMutation({
-    mutationFn: async () => {
-      const { data } = await api.post("/auth/login", {
-        email,
-        password
-      });
+    // Login mutation
+    const loginUser = useMutation({
+        mutationFn: async () => {
+            const data = await login(email, password);
+            authStore.setTokens(data.accessToken);
+        },
+        onSuccess: () => {
+            onSubmit();
+            router.refresh();
+        },
+    });
 
-      authStore.setTokens(data.accessToken)
-    },
+    // Handle Escape key to close modal
+    useEffect(() => {
+        if (!isOpen) return;
 
-    onSuccess: (data) => {
-      console.log("Login successful", data);
-      router.push("/");
-    }
-  });
+        const handleKeyDown = (e: KeyboardEvent) => {
+            if (e.key === "Escape") onClose();
+        };
+
+        document.addEventListener("keydown", handleKeyDown);
+        return () => document.removeEventListener("keydown", handleKeyDown);
+    }, [isOpen, onClose]);
+
+    // Handle form submission
+    const handleSubmit = (e: FormEvent) => {
+        e.preventDefault();
+        loginUser.mutate();
+    };
 
     return (
         <StandardModal
             title="Login Required"
-            description="Please log in to access all feature of Virtual Classroom."
+            description="for full access of Virtual Classroom."
             isOpen={isOpen}
             className="w-1/4"
         >
-            <div className="flex flex-col space-y-4 mt-4">
+            {loginUser.isPending && <LoadingScreen />}
 
-                <StandardInput placeholder="Email" onValueChange={(value: string) => setEmail(value)} />
-                <StandardInput type="password" placeholder="Password" onValueChange={(value: string) => setPassword(value)} />
+            <form
+                onSubmit={handleSubmit}
+                className="flex flex-col space-y-4 mt-4"
+            >
+                {/* Email Input */}
+                <StandardInput placeholder="Email" onValueChange={setEmail} />
 
-                <div className="flex w-full justify-between mt-2">
+                {/* Password Input */}
+                <StandardInput
+                    type="password"
+                    placeholder="Password"
+                    onValueChange={setPassword}
+                />
 
-                    {/* PLACEHOLDER FOR OAUTH BUTTONS. PLACE OAUTH BUTTONS HERE */}
-
-                    <div className="flex gap-4">
-                        <StandardButton label="Cancel" onClick={onClose} className="px-6 py-3" />
-                        <StandardButton label="Login" onClick={() => {
-
-                            if (!checkCredentials(email, password))
-                                return false;
-
-                            loginUser.mutate();
-                            onSubmit();
-                        }} className="px-6 py-3" />
-                    </div> 
-
+                {/* Action Buttons */}
+                <div className="flex gap-4 mt-2">
+                    <StandardButton
+                        label="Cancel"
+                        onClick={onClose}
+                        className="px-6 py-3"
+                    />
+                    <StandardButton
+                        type="submit"
+                        label="Login"
+                        className="px-6 py-3"
+                    />
                 </div>
-           </div>
+            </form>
         </StandardModal>
     );
 };
-
-// TODO: Implement better error handling
-const checkCredentials = (email: string, password: string) => {
-    if(!email && !password)
-        return false;
-
-    return true;
-
-}   

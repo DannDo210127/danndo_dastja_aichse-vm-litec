@@ -4,19 +4,30 @@ datasource db {
 }
 
 generator client {
-  provider = "prisma-client-js"
-  previewFeatures = ["relationJoins"]
+  provider        = "prisma-client-js"
+  previewFeatures = ["relationJoins", "views"]
 }
 
 model User {
-  id        Int     @id @default(autoincrement())
-  email     String  @unique
-  firstName String
-  lastName  String
-  password  String
-  roleId    Int
-  role      Role    @relation(fields: [roleId], references: [id])
-  tokens    Token[]
+  id             Int              @id @default(autoincrement())
+  email          String           @unique
+  firstName      String
+  lastName       String
+  password       String
+  roleId         Int
+  role           Role             @relation(fields: [roleId], references: [id])
+  tokens         Token[]
+  classrooms     ClassroomUser[]  @relation("UserClassrooms")
+  VirtualMachine VirtualMachine[]
+}
+
+view UserSearchView {
+  id        Int    @map("id")
+  firstName String @map("firstName")
+  lastName  String @map("lastName")
+  fullName  String @map("fullname")
+
+  @@map("user_search_view")
 }
 
 model Role {
@@ -30,15 +41,41 @@ model Flag {
   id     Int    @id @default(autoincrement())
   value  String
   roleId Int
-  role   Role   @relation(fields: [roleId], references: [id], onDelete: Cascade)
+  role   Role   @relation(fields: [roleId], references: [id])
 }
 
 model Token {
-  id        Int    @id @default(autoincrement())
-  token     String @unique
+  id        Int      @id @default(autoincrement())
+  token     String   @unique
   userId    Int
-  user      User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   createdAt DateTime @default(now())
   expiresAt DateTime
 }
 
+model Classroom {
+  id             Int              @id @default(autoincrement())
+  name           String
+  description    String?
+  users          ClassroomUser[]
+  VirtualMachine VirtualMachine[]
+}
+
+model ClassroomUser {
+  id          Int       @id @default(autoincrement())
+  classroomId Int
+  classroom   Classroom @relation(fields: [classroomId], references: [id], onDelete: Cascade)
+  userId      Int
+  user        User      @relation("UserClassrooms", fields: [userId], references: [id])
+
+  @@unique([classroomId, userId])
+}
+
+model VirtualMachine {
+  id          Int       @id @default(autoincrement())
+  hostname    String    @unique
+  userId      Int
+  user        User      @relation(fields: [userId], references: [id])
+  classroomId Int
+  classroom   Classroom @relation(fields: [classroomId], references: [id], onDelete: Cascade)
+}
