@@ -33,6 +33,10 @@ export const Machines = {
 		});
 	},
 
+	deleteMachine: async (hostname: String) => {
+		return (await Incus.delete(`/instances/${hostname}`)).data;
+	},
+
 	getMachineState: async (hostname: String) => {
 		return (await Incus.get(`/instances/${hostname}/state`)).data;
 	}

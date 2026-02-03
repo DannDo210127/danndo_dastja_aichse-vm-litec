@@ -15,6 +15,7 @@ export const getAllImages = async () => {
 interface CreateMachinePayload {
   type: string;
   hostname: string;
+  target: String;
   source: {
     type: string;
     fingerprint?: string;
@@ -53,6 +54,12 @@ export const stopMachine = async (hostname: String, force: boolean = false) => {
       withCredentials: true,
     },
   );
+};
+
+export const deleteMachine = async (hostname: String) => {
+  return await api.delete(`/incus/machines/${hostname}`, {
+    withCredentials: true,
+  });
 };
 
 export const getMachineState = async (hostname: String) => {
