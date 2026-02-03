@@ -15,6 +15,7 @@ export const getAllImages = async () => {
 interface CreateMachinePayload {
   type: string;
   hostname: string;
+  target: String;
   source: {
     type: string;
     fingerprint?: string;

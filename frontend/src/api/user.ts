@@ -21,6 +21,26 @@ const findUserByName = async (searchQuery: string) => {
     return response.data;
 }
 
+export const login = async (email: string, password: string) => {
+    const response = await api.post("/auth/login", {
+        email,
+        password
+    }, { withCredentials: true });
+
+    return response.data;
+}
+
+export const register = async (firstName: string, lastName: string, email: string, password: string) => {
+    const response = await api.post("/auth/register", {
+        firstName,
+        lastName,
+        email,
+        password
+    }, { withCredentials: true });
+
+    return response.data;
+}
+
 const User = {
     getUser,
     getUserRole,

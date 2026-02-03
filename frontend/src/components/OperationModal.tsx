@@ -40,7 +40,7 @@ export function OperationModal() {
       description={`Operation ID: ${operationId}`}
       isOpen={isOpen}
     >
-      <div className="flex flex-col space-y-4 mt-4">
+      <div className="flex flex-col space-y-4 mt-4 rounded-[8] p-4 drop-shadow-sm">
         {isLoading ? (
           <div className="py-4 text-center">
             <p className="text-gray-600 dark:text-gray-400">
@@ -60,7 +60,7 @@ export function OperationModal() {
                 const percent = task.metadata?.progress?.percent || 0;
 
                 return (
-                  <div key={index} className="space-y-2">
+                  <div key={index} className="space-y-2 bg-lightforeground rounded-[8] drop-shadow-sm p-4">
                     <div className="flex justify-between items-start">
                       <div>
                         <h3 className="font-semibold text-base">{machineName}</h3>
@@ -74,7 +74,7 @@ export function OperationModal() {
                         )}
                       </div>
                       <div className="text-right">
-                        <p className="text-lg font-bold text-yellow-300">
+                        <p className="text-lg font-bold text-font">
                           {percent}%
                         </p>
                       </div>

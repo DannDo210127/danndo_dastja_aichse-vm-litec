@@ -1,225 +1,195 @@
 import { addStudentToClassroom } from "@/api/classroom";
-import { useSnackbarStore } from "@/store/snackbar-store";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { useEffect, useState } from "react";
 import UserApi from "@/api/user";
+import { useSnackbarStore } from "@/store/snackbar-store";
 import StandardModal from "@/shared/StandardModal";
 import { StandardInput } from "@/shared/StandardInput";
 import { StandardButton } from "@/shared/StandardButton";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useEffect, useState } from "react";
 
 interface StudentModalProps {
-    isOpen: boolean;
-    onClose: () => void;
-    classroomId?: number;
+  isOpen: boolean;
+  onClose: () => void;
+  classroomId?: number;
+}
+
+interface User {
+  id: number;
+  firstName: string;
+  lastName: string;
 }
 
 export function AddStudentModal({
-    isOpen,
-    onClose,
-    classroomId,
+  isOpen,
+  onClose,
+  classroomId,
 }: StudentModalProps) {
-    const [studentInput, setStudentInput] = useState<[string, number]>(["", 0]);
-    const [selectedStudent, setSelectedStudent] = useState<[string, number]>([
-        "",
-        0,
-    ]);
+  const [studentInput, setStudentInput] = useState<string>("");
+  const [selectedStudent, setSelectedStudent] = useState<User | null>(null);
+  const [showDropdown, setShowDropdown] = useState<boolean>(false);
 
-    const [showDropdown, setShowDropdown] = useState<boolean>(false);
+  const { showError, showSuccess } = useSnackbarStore();
+  const queryClient = useQueryClient();
 
-    const [isCreateDisabled, setIsCreateDisabled] = useState<boolean>(
-        studentInput[0].trim() === selectedStudent[0].trim(),
-    );
+  // Search students query
+  const { data: filteredUser, isLoading: isFilteredUserLoading, refetch: refetchFilteredStudents} = useQuery({
+    queryKey: ["students"],
+    queryFn: () => UserApi.findUserByName(studentInput),
+    enabled: false,
+  });
 
-    const { showError, showSuccess } = useSnackbarStore();
+  // Add student mutation
+  const addStudentToClassroomMutation = useMutation({
+    mutationFn: ({ classroomId, userId }: { classroomId: number; userId: number }) =>
+      addStudentToClassroom(classroomId, userId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["classrooms"] });
+      handleModalClose();
+      showSuccess("Student added successfully");
+    },
+  });
 
-    const queryClient = useQueryClient();
-    const searchStudentsQuery = useQuery({
-        queryKey: ["students"],
-        queryFn: () => UserApi.findUserByName(studentInput[0]),
-        enabled: false,
+  // Check if add button should be disabled
+  const isAddDisabled = !selectedStudent || studentInput.trim() !== `${selectedStudent.firstName} ${selectedStudent.lastName}`;
+
+  // Reset form when modal closes
+  useEffect(() => {
+    if (!isOpen) {
+      setStudentInput("");
+      setSelectedStudent(null);
+      setShowDropdown(false);
+    }
+  }, [isOpen]);
+
+  // Handle keyboard events
+  useEffect(() => {
+    if (!isOpen) return;
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Enter" && !isAddDisabled) {
+        handleAddStudent();
+      } else if (e.key === "Escape") {
+        handleModalClose();
+      }
+    };
+
+    document.addEventListener("keydown", handleKeyDown);
+    return () => document.removeEventListener("keydown", handleKeyDown);
+  }, [isOpen, isAddDisabled]);
+
+  // Handle search input change
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setStudentInput(value);
+
+    if (value.trim().length > 0) {
+      setShowDropdown(true);
+      refetchFilteredStudents();
+    } else {
+      setShowDropdown(false);
+    }
+  };
+
+  // Close dropdown on blur
+  const handleBlur = () => {
+    setTimeout(() => setShowDropdown(false), 100);
+  };
+
+  // Handle dropdown selection
+  const handleDropdownSelect = (student: User) => {
+    setSelectedStudent(student);
+    setStudentInput(`${student.firstName} ${student.lastName}`);
+    setShowDropdown(false);
+  };
+
+  // Close modal and reset form
+  const handleModalClose = () => {
+    setStudentInput("");
+    setSelectedStudent(null);
+    setShowDropdown(false);
+    onClose();
+  };
+
+  // Handle form submission
+  const handleAddStudent = () => {
+    if (!selectedStudent || studentInput.trim() === "") {
+      showError("Please select a valid student");
+      return;
+    }
+
+    if (studentInput !== `${selectedStudent.firstName} ${selectedStudent.lastName}`) {
+      showError("Please select a student from the dropdown list");
+      return;
+    }
+
+    addStudentToClassroomMutation.mutate({
+      classroomId: classroomId!,
+      userId: selectedStudent.id,
     });
-    const addStudentToClassroomMutation = useMutation({
-        mutationFn: ({
-            classroomId,
-            userId,
-        }: {
-            classroomId: number;
-            userId: number;
-        }) => {
-            return addStudentToClassroom(classroomId, userId);
-        },
-        onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: ["classrooms"] });
-            handleModalClose();
-        },
-    });
+  };
 
-    useEffect(() => {
-        if (!isOpen) {
-            setStudentInput(["", 0]);
-            setShowDropdown(false);
-        }
-    }, [isOpen]);
+  return (
+    <StandardModal
+      className="w-96"
+      title="Add Student"
+      description="Search for students:"
+      isOpen={isOpen}
+    >
+      <div className="flex flex-col space-y-4 mt-4">
+        {/* Student Search Input with Dropdown */}
+        <div className="relative">
+          <StandardInput
+            placeholder="Search Student Name"
+            onChange={handleChange}
+            onBlur={handleBlur}
+            value={studentInput}
+          />
 
-    const handleModalClose = () => {
-        setStudentInput(["", 0]);
-        setShowDropdown(false);
-        onClose();
-    };
-
-    const handleSubmit = () => {
-        // Check if input is empty
-        if (studentInput[0].trim() === "") {
-            showError("Student name cannot be empty");
-            return;
-        }
-
-        // Check if input matches selected student
-        if (studentInput[0].trim() !== selectedStudent[0].trim()) {
-            showError("Please select a student from the dropdown list");
-            return;
-        }
-
-        // Check if a student was actually selected (has valid ID)
-        if (selectedStudent[1] === 0) {
-            showError("Please select a valid student from the dropdown list");
-            return;
-        }
-
-        addStudentToClassroomMutation.mutate({
-            classroomId: classroomId!,
-            userId: selectedStudent[1],
-        });
-    };
-
-    const handleDropdownSelect = (student: User) => {
-        setSelectedStudent([
-            `${student.firstName} ${student.lastName}`,
-            student.id,
-        ]);
-        setStudentInput([
-            `${student.firstName} ${student.lastName}`,
-            student.id,
-        ]);
-        setIsCreateDisabled(false);
-        setShowDropdown(false);
-    };
-
-    // Handler for Enter key to submit the form
-    useEffect(() => {
-        const handleKeyDown = (e: KeyboardEvent) => {
-            if (e.key === "Enter") {
-                handleSubmit();
-            } else if (e.key === "Escape") {
-                handleModalClose();
-            }
-        };
-
-        if (isOpen) {
-            document.addEventListener("keydown", handleKeyDown);
-        }
-
-        return () => {
-            document.removeEventListener("keydown", handleKeyDown);
-        };
-    }, [isOpen, studentInput[0], onClose]);
-
-    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const value = e.target.value;
-        setStudentInput([value, 0]);
-
-        const isDisabled =
-            value.trim() === "" || value.trim() !== selectedStudent[0].trim();
-        setIsCreateDisabled(isDisabled);
-
-        if (value.trim().length > 0) {
-            setShowDropdown(true);
-            searchStudentsQuery.refetch();
-        } else {
-            setShowDropdown(false);
-        }
-    };
-
-    const handleBlur = () => {
-        setTimeout(() => {
-            setShowDropdown(false);
-        }, 100);
-    };
-
-    useEffect(() => {
-        if (searchStudentsQuery.data) {
-            searchStudentsQuery.refetch();
-        }
-    }, [searchStudentsQuery.data]);
-
-    return (
-        <StandardModal
-            className="w-96"
-            title={"Add Student"}
-            description={"Search for students:"}
-            isOpen={isOpen}
-        >
-            <div className="flex flex-col space-y-4 mt-4">
-                <div className="relative">
-                    <StandardInput
-                        placeholder="Search Student Name"
-                        onChange={(e) => handleChange(e)}
-                        onBlur={handleBlur}
-                        value={studentInput[0]}
-                    />
-
-                    {/* Dropdown for search results */}
-                    {showDropdown && (
-                        <div className="top-full right-0 left-0 z-50 absolute bg-lightforeground shadow-lg drop-shadow-xl mt-1 border-foreground rounded-[8] w-full max-w-full max-h-64">
-                            {searchStudentsQuery.isFetching ? (
-                                <div className="p-3 text-font text-sm text-center">
-                                    Loading...
-                                </div>
-                            ) : searchStudentsQuery.data.length > 0 ? (
-                                searchStudentsQuery.data.map(
-                                    (student: User) => (
-                                        <button
-                                            key={student.id}
-                                            onMouseDown={() =>
-                                                handleDropdownSelect(student)
-                                            } //onMouseDown for chromium support
-                                            className="flex flex-row hover:bg-foreground px-4 py-3 first:rounded-t-[8] last:rounded-b-[8] w-full overflow-visible text-font text-left transition-colors"
-                                        >
-                                            <p className="flex-grow">
-                                                {student.firstName}{" "}
-                                                {student.lastName}
-                                            </p>
-                                            <p className="mr-2 text-gray-500">
-                                                {student.id}
-                                            </p>
-                                        </button>
-                                    ),
-                                )
-                            ) : (
-                                <div className="p-3 text-gray-400 text-sm text-center">
-                                    No students found
-                                </div>
-                            )}
-                        </div>
-                    )}
+          {/* Search Results Dropdown */}
+          {showDropdown && (
+            <div className="absolute top-full left-0 right-0 z-50 mt-1 bg-lightforeground rounded-[8] shadow-lg drop-shadow-xl max-h-64 overflow-y-auto">
+              {isFilteredUserLoading ? (
+                <div className="p-3 text-center text-sm text-font">
+                  Loading...
                 </div>
-                <div className="flex justify-between mt-2 w-full">
-                    <div className="flex gap-4">
-                        <StandardButton
-                            label="Cancel"
-                            onClick={handleModalClose}
-                            className="bg-lightforeground px-6 py-3"
-                        />
-                        <StandardButton
-                            label="Add"
-                            onClick={handleSubmit}
-                            className="bg-lightforeground hover:bg-contrast px-6 py-3 hover:text-background"
-                            disabled={isCreateDisabled}
-                            isLoading={addStudentToClassroomMutation.isPending}
-                        />
-                    </div>
+              ) : filteredUser?.length > 0 ? (
+                filteredUser.map((user: User) => (
+                  <button
+                    key={user.id}
+                    onMouseDown={() => handleDropdownSelect(user)}
+                    className="flex w-full items-center px-4 py-3 text-left text-font transition-colors hover:bg-foreground first:rounded-t-[8] last:rounded-b-[8]"
+                  >
+                    <span className="flex-grow">
+                      {user.firstName} {user.lastName}
+                    </span>
+                    <span className="text-sm text-gray-500">{user.id}</span>
+                  </button>
+                ))
+              ) : (
+                <div className="p-3 text-center text-sm text-gray-400">
+                  No students found
                 </div>
+              )}
             </div>
-        </StandardModal>
-    );
+          )}
+        </div>
+
+        {/* Action Buttons */}
+        <div className="flex gap-4 mt-2">
+          <StandardButton
+            label="Cancel"
+            onClick={handleModalClose}
+            className="bg-lightforeground px-6 py-3"
+          />
+          <StandardButton
+            label="Add"
+            onClick={handleAddStudent}
+            disabled={isAddDisabled}
+            isLoading={addStudentToClassroomMutation.isPending}
+            className="bg-lightforeground hover:bg-contrast px-6 py-3 hover:text-background"
+          />
+        </div>
+      </div>
+    </StandardModal>
+  );
 }
