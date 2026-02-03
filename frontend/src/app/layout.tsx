@@ -21,7 +21,7 @@ function LayoutContent({ children }: { children: React.ReactNode }) {
     const user = useAuth();
 
     return (
-        <div className="flex flex-row w-screen h-screen">
+        <div className="flex flex-row w-screen h-screen transition-colors duration-900 ease-in-out">
             {/* Navigation Component*/}
             <Navigation />
 

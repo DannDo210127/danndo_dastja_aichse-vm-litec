@@ -43,7 +43,6 @@ prisma
 		console.error(
 			"\x1b[36m✗ \x1b[31mPrismaORM\x1b[36m: Failed to connect to database\x1b[0m"
 		);
-		console.error(error);
 	});
 
 // Test Incus connection

@@ -4,6 +4,7 @@ import { useSearchParams } from 'next/navigation';
 import { useRef } from 'react';
 
 export default function VncPage() {
+  
   const searchParams = useSearchParams();
   const iframeRef = useRef<HTMLIFrameElement>(null);
 

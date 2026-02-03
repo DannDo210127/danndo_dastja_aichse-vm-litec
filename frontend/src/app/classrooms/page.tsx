@@ -22,10 +22,10 @@ import {
 import { LoadingScreen } from '@/shared/LoadingScreen';
 import { useAuth } from '@/hooks/useAuth';
 import { LoginModal } from '@/components/LoginModal';
-import { DeleteStudentModal } from '@/components/deleteStudentModal';
-import { CreateClassroomModal } from '@/components/createClassroomModal';
-import { DeleteClassroomModal } from '@/components/deleteClassroomModal';
-import { AddStudentModal } from '@/components/addStudentModal';
+import { DeleteStudentModal } from '@/components/DeleteStudentModal';
+import { CreateClassroomModal } from '@/components/CreateClassroomModal';
+import { DeleteClassroomModal } from '@/components/DeleteClassroomModal';
+import { AddStudentModal } from '@/components/AddStudentModal';
 import LoadingBounce from '@/shared/LoadingBounce';
 import { CreateVirtualMachineModal } from '@/components/CreateVirtualMachineModal';
 

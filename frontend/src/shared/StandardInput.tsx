@@ -24,10 +24,7 @@ export const StandardInput: FC<
       type={type ? type : 'text'}
       placeholder={placeholder}
       onChange={(e) => onValueChange?.(e.target.value)}
-      className={`
-                "w-full border border-lightforeground rounded-lg p-2 " +
-                className
-            `}
+      className={`w-full border border-lightforeground rounded-lg p-2 ${className}`}
       {...props}
     />
   );
