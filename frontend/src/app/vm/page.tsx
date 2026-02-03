@@ -9,8 +9,10 @@ import {
     Square,
     SquareTerminal,
     Trash2,
+    MoreVertical,
+    Play,
 } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { ConfirmModal } from "@/shared/ConfirmModal";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/hooks/useAuth";
@@ -79,7 +81,7 @@ export default function VirtualMachinePage() {
                 </div>
                 <StandardButton
                     className="bg-lightforeground hover:bg-contrast! drop-shadow-sm p-2.5! hover:text-background hover:scale-105 transition-all"
-                    label="Create VM"
+                    label="Create Virtual Machine"
                     onClick={() => {
                         setVmModalOpen(true);
                     }}
@@ -98,6 +100,8 @@ export default function VirtualMachinePage() {
         </div>
     );
 }
+
+                    
 
 /** List of Virtual Machine Components */
 export function VirtualMachinesList() {
@@ -179,6 +183,12 @@ const VirtualMachineListEntry: React.FC<VirtualMachineListEntryProps> = ({
         },
     });
 
+    const [isMoreOpen, setMoreOpen] = useState(false);
+    const [isMoreVisible, setMoreVisible] = useState(false);
+    const [menuPos, setMenuPos] = useState<{ top: number; left: number } | null>(null);
+    const moreBtnRef = useRef<HTMLDivElement | null>(null);
+    const menuRef = useRef<HTMLDivElement | null>(null);
+
     const machineState = useQuery({
         queryFn: () => getMachineState(vm.name),
         queryKey: ["machineState", vm.name],
@@ -246,92 +256,110 @@ const VirtualMachineListEntry: React.FC<VirtualMachineListEntryProps> = ({
                     </div>
                 </button>
 
-                <div className="flex flex-row">
-                    {/* Virtual Machine Actions */}
-
+                <div className="relative flex flex-row items-center gap-2 mr-2">
                     {vm.status === "Running" ? (
                         <>
-                            <div className="border-foreground border-r-2">
-                                <StandardButton
-                                    disabled={!ipv4}
-                                    className="bg-transparent!"
-                                    title="Stop Machine"
-                                    onClick={() => {
-                                        stopMachineMutation.mutate();
-                                    }}
-                                >
-                                    {<Square className="size-6" />}
-                                </StandardButton>
-                            </div>
+                            <StandardButton
+                                className="bg-transparent! text-sm p-2"
+                                onClick={() => stopMachineMutation.mutate()}
+                                title="Stop Machine"
+                            >
+                                <Square className="size-5 text-black" strokeWidth={2.5} />
+                            </StandardButton>
 
                             <StandardButton
-                                className="bg-transparent!"
-                                title="Connect via VNC"
+                                className="bg-transparent! text-sm p-2"
                                 disabled={!ipv4}
                                 onClick={() => {
-                                    router.push(`/vnc?ip=${ipv4}`);
+                                    if (ipv4) router.push(`/vnc?ip=${ipv4}`);
                                 }}
+                                title="Connect via VNC"
                             >
-                                {<ScreenShareIcon className="size-6" />}
+                                <ScreenShareIcon className="size-5 text-black" strokeWidth={2.5} />
                             </StandardButton>
                         </>
                     ) : (
                         <StandardButton
-                            className="bg-transparent! mr-2"
+                            className="bg-transparent! text-sm p-2"
                             onClick={() => startMachineMutation.mutate()}
                             title="Start Machine"
                         >
-                            {<Power className="size-6 scale-105" />}
+                            <Play className="size-5 text-black" strokeWidth={2.5} />
                         </StandardButton>
                     )}
+
+                    <StandardButton
+                        className="bg-transparent! text-sm p-2"
+                        onClick={() => setDeleteModalOpen(true)}
+                        title="Delete VM"
+                    >
+                        <Trash2 className="size-5 text-black" strokeWidth={2.5} />
+                    </StandardButton>
                 </div>
             </div>
             {/** Virtual Machine Details */}
             {isVirtualMachineDetailsOpen[index] && (
                 <div className="flex flex-col">
-                    <div
-                        className={`flex flex-row relative bg-background p-4 pb-0! rounded-b-[8] w-full h-full`}
-                    >
-                        <div className="bg-background mx-4 border-lightforeground border-r-2 w-1/3 h-3/10">
-                            <div className="flex flex-row">
-                                <h6 className="grow">CPU </h6>
-                                <p className="text-font">{}</p>
+                    <div className="relative bg-background p-4 rounded-b-[8] w-full">
+                        <div className="grid grid-cols-2 gap-4">
+                            <div className="space-y-2">
+                                <div className="flex items-center justify-between py-2 border-b border-lightforeground">
+                                    <span className="text-sm text-gray-500">CPU</span>
+                                    <span className="font-medium">{vm.config?.['limits.cpu'] || vm.config?.['cpu'] || '—'}</span>
+                                </div>
+
+                                <div className="flex items-center justify-between py-2 border-b border-lightforeground">
+                                    <span className="text-sm text-gray-500">Memory</span>
+                                    <span className="font-medium">{vm.config?.['limits.memory'] || vm.config?.['memory'] || '—'}</span>
+                                </div>
+
+                                <div className="flex items-center justify-between py-2">
+                                    <span className="text-sm text-gray-500">Storage</span>
+                                    <span className="font-medium">{vm.config?.['root.size'] || vm.config?.['limits.disk'] || '—'}</span>
+                                </div>
                             </div>
-                            <div className="flex flex-row">
-                                <h6 className="grow">SSD </h6>
-                                <p className="text-font">{}</p>
+
+                            <div className="space-y-2">
+                                <div className="flex items-center justify-between py-2 border-b border-lightforeground">
+                                    <span className="text-sm text-gray-500">Image</span>
+                                    <span className="font-medium">{imageMap.get(vm.config?.['volatile.base_image']) || 'Unknown'}</span>
+                                </div>
+
+                                <div className="flex items-center justify-between py-2 border-b border-lightforeground">
+                                    <span className="text-sm text-gray-500">Location</span>
+                                    <span className="font-medium">{vm.location || '—'}</span>
+                                </div>
+
+                                <div className="flex items-center justify-between py-2">
+                                    <span className="text-sm text-gray-500">IP</span>
+                                    <span className="font-medium">{ipv4 || '—'}</span>
+                                </div>
                             </div>
                         </div>
-                        <div className="bg-background mx-4 w-2/3 h-3/10">
-                            <div className="flex flex-row">
-                                <h6 className="grow">Image </h6>
-                                <p className="text-font">
-                                    {imageMap.get(
-                                        vm.config["volatile.base_image"],
-                                    )}
-                                </p>
+
+                        {/* Bottom section with UUID and timestamps */}
+                        <div className="flex items-end justify-between pt-4 border-t border-lightforeground text-xs text-gray-500">
+                            <div className="flex items-end gap-2">
+                                <span>UUID:</span>
+                                <span className="font-medium text-foreground text-xs truncate max-w-xs">
+                                    {vm.config?.['volatile.cloud-init.instance-id'] || '—'}
+                                </span>
                             </div>
-                            <div className="flex flex-row">
-                                <h6 className="grow">Location (for dev) </h6>
-                                <p className="text-font">{vm.location}</p>
+                            <div className="flex items-end gap-6">
+                                <div className="flex items-end gap-2">
+                                    <span>Created:</span>
+                                    <span className="font-medium text-foreground">
+                                        {vm.created_at ? new Date(vm.created_at).toLocaleDateString() : '—'}
+                                    </span>
+                                </div>
+                                <div className="flex items-end gap-2">
+                                    <span>Last Used:</span>
+                                    <span className="font-medium text-foreground">
+                                        {vm.last_used_at ? new Date(vm.last_used_at).toLocaleDateString() : '—'}
+                                    </span>
+                                </div>
                             </div>
                         </div>
-                    </div>
-                    <div className="flex flex-row justify-start w-full h-17">
-                        <StandardButton
-                            className="justify-center items-center self-end bg-lightforeground hover:bg-lightforeground m-4 w-30"
-                            label="Delete"
-                            onClick={() => setDeleteModalOpen(true)}
-                        >
-                            <Trash2 className="mr-2 size-5" />
-                        </StandardButton>
-                        <StandardButton
-                            className="justify-center items-center self-end bg-lightforeground hover:bg-lightforeground m-4 mx-0 w-30"
-                            label="Terminal"
-                            onClick={() => {}}
-                        >
-                            <SquareTerminal className="mr-2 size-5" />
-                        </StandardButton>
                     </div>
                 </div>
             )}
