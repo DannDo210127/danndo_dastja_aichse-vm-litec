@@ -39,13 +39,13 @@ export const ConfirmModal: FC<ConfigModalProps> = ({
         <StandardModal title={title} description={description} isOpen={isOpen}>
             <div className="mt-3">
                 <button
-                    className="bg-lightforeground mr-4 px-4 py-2 rounded text-font hover:scale-105 transition-all cursor-pointer"
+                    className="bg-red-400/50 mr-4 px-4 py-2 rounded text-font hover:scale-105 transition-all cursor-pointer"
                     onClick={onClose}
                 >
                     Close
                 </button>
                 <button
-                    className="bg-lightforeground px-4 py-2 rounded text-font hover:scale-105 transition-all cursor-pointer"
+                    className="bg-green-400/50 px-4 py-2 rounded text-font hover:scale-105 transition-all cursor-pointer"
                     onClick={onConfirm}
                 >
                     Confirm

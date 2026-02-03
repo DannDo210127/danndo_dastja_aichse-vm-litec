@@ -23,7 +23,7 @@ import { LoadingScreen } from '@/shared/LoadingScreen';
 import { useAuth } from '@/hooks/useAuth';
 import { LoginModal } from '@/components/LoginModal';
 import { DeleteStudentModal } from '@/components/DeleteStudentModal';
-import { CreateClassroomModal } from '@/components/createClassroomModal';
+import { CreateClassroomModal } from '@/components/CreateClassroomModal';
 import { DeleteClassroomModal } from '@/components/DeleteClassroomModal';
 import { AddStudentModal } from '@/components/AddStudentModal';
 import LoadingBounce from '@/shared/LoadingBounce';

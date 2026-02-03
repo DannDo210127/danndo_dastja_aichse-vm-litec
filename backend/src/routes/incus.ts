@@ -2,6 +2,7 @@ import { Router } from "express";
 import { isAuthenticated } from "../middleware/authentication";
 import {
 	createVirtualMachine,
+	deleteVirtualMachine,
 	getAssignedVirtualMachines,
 	getCurrentOperations,
 	getImages,
@@ -23,12 +24,14 @@ router.get(
 
 router.get("/images", isAuthenticated, getImages);
 
-router.get("/operations", getCurrentOperations);
-router.get("/operations/:id", getOperationStatus);
+router.get("/operations", isAuthenticated, getCurrentOperations);
+router.get("/operations/:id", isAuthenticated, getOperationStatus);
 
 router.post("/machines/new", isAuthenticated, createVirtualMachine);
 
-router.put("/machines/:hostname/start", startVirtualMachine);
-router.put("/machines/:hostname/stop", stopVirtualMachine);
+router.put("/machines/:hostname/start", isAuthenticated, startVirtualMachine);
+router.put("/machines/:hostname/stop", isAuthenticated, stopVirtualMachine);
+
+router.delete("/machines/:hostname", isAuthenticated, deleteVirtualMachine);
 
 export default router;

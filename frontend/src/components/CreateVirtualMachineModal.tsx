@@ -20,6 +20,7 @@ export function CreateVirtualMachineModal({
 
   const [hostname, setHostname] = useState<string>('');
   const [image, setImage] = useState<string>('');
+  const [targetServer, setTargetServer] = useState<string>('');
 
   const images = useQuery({
     queryKey: ['images'],
@@ -73,6 +74,20 @@ export function CreateVirtualMachineModal({
                   : img.properties.description}
               </option>
             ))}
+          </select>
+        </div>
+
+        <div>
+          <label className="block mb-2 font-medium text-sm">
+            Target Server:
+          </label>
+          <select
+            value={targetServer}
+            onChange={(e) => setTargetServer(e.target.value)}
+            className="bg-background p-2 border border-lightforeground rounded w-full"
+          >
+            <option value="">Select a server</option>
+            <option value="server1">Primary Server</option>
           </select>
         </div>
 

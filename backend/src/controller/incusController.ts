@@ -56,23 +56,54 @@ const createVirtualMachine: RequestHandler = async (req, res) => {
 		type: "virtual-machine",
 		name: hostname,
 		start: true,
-		source
+		source,
+		config: {
+			"limits.cpu": "1",
+			"limits.memory": "2GiB",
+		}
 	};
+
 	try {
 		const response = await Machines.createMachine(payload);
 
-		if (response.status == "Failure") {
-			return res
-				.status(500)
-				.json(
-					errorMessage(
-						500,
-						"Incus returned an error while creating the virtual machine: " +
-							response.error_code +
-							" - " +
-							response.error_message
-					)
-				);
+
+		// If Incus returned an operation reference, poll it until finished
+		let operationId: string | null = null;
+		if (response && response.operation) {
+			if (typeof response.operation === "string") {
+				const parts = response.operation.split("/");
+				operationId = parts[parts.length - 1];
+			} else if (response.operation.id) {
+				operationId = response.operation.id;
+			}
+		}
+
+		if (operationId) {
+			const maxOpAttempts = 20;
+			let opFinished = false;
+			for (let i = 0; i < maxOpAttempts; i++) {
+				try {
+					const op = await Operations.getOperation(operationId);
+					const status = (op && (op.status || op.metadata?.status)) as string | undefined;
+					const err = op && (op.err || op.metadata?.err || op.metadata?.error_message);
+
+					if (status && status.toLowerCase() !== "running") {
+						// Operation finished; if it has an error, bail out
+						if (err) {
+							return res.status(500).json(errorMessage(500, "Incus operation failed: " + err));
+						}
+						opFinished = true;
+						break;
+					}
+				} catch (err) {
+					// ignore transient errors while polling
+				}
+				await new Promise((r) => setTimeout(r, 500));
+			}
+
+			if (!opFinished) {
+				return res.status(500).json(errorMessage(500, "Incus operation did not finish successfully"));
+			}
 		}
 
 		await prisma.virtualMachine.create({
@@ -108,6 +139,24 @@ export const stopVirtualMachine: RequestHandler = async (req, res) => {
 	const response = await Machines.stopMachine(hostname, force);
 	return res.status(200).json(response.data);
 };
+
+export const deleteVirtualMachine: RequestHandler = async (req, res) => {
+	const hostname = req.params.hostname;
+
+	try {
+		await Machines.deleteMachine(hostname);
+
+		await prisma.virtualMachine.delete({
+			where: {
+				hostname: hostname
+			}
+		});
+
+		return res.status(200).json(successMessage(200, "Virtual machine deleted successfully"));
+	} catch {
+		return res.status(500).json(errorMessage(500, "Failed to delete virtual machine"))
+	}
+}
 
 export const getVirtualMachineState: RequestHandler = async (req, res) => {
 	const hostname = req.params.hostname;

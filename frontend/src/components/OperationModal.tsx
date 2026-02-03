@@ -27,6 +27,12 @@ export function OperationModal() {
     refetchInterval: 500,
   });
 
+  const extractMachineNameFromDescription = (description: string) => {
+    // Try to extract machine name from description like "Create instance foo"
+    const match = description.match(/(?:Create instance|Starting instance|Stopping instance)\s+(\S+)/i);
+    return match ? match[1] : 'Machine';
+  };
+
   return (
     <StandardModal
       className="w-[600px]"
@@ -49,16 +55,37 @@ export function OperationModal() {
           <div className="space-y-3">
             {ops.data?.data?.metadata?.running ? (
               ops.data.data.metadata.running.map((task: any, index: number) => {
+                const machineName = extractMachineNameFromDescription(task.description);
+                const stage = task.metadata?.progress?.stage || 'Processing';
+                const percent = task.metadata?.progress?.percent || 0;
+
                 return (
-                  <div key={index}>
-                    <h1>{task.description}</h1>
-                    <div>
-                      {task.metadata ? (
-                        <div>
-                          {task.metadata.progress.stage}:{' '}
-                          <b>{task.metadata.progress.percent}%</b>
-                        </div>
-                      ) : null}
+                  <div key={index} className="space-y-2">
+                    <div className="flex justify-between items-start">
+                      <div>
+                        <h3 className="font-semibold text-base">{machineName}</h3>
+                        <p className="text-sm text-gray-600 dark:text-gray-400">
+                          {task.description}
+                        </p>
+                        {task.metadata?.progress?.stage && (
+                          <p className="text-xs text-gray-500 dark:text-gray-500 mt-1">
+                            Stage: <span className="font-medium">{stage}</span>
+                          </p>
+                        )}
+                      </div>
+                      <div className="text-right">
+                        <p className="text-lg font-bold text-yellow-300">
+                          {percent}%
+                        </p>
+                      </div>
+                    </div>
+                    
+                    {/* Progress Bar */}
+                    <div className="w-full bg-lightforeground rounded-full h-3 overflow-hidden">
+                      <div
+                        className="bg-yellow-300 h-full rounded-full transition-all duration-300"
+                        style={{ width: `${percent}%` }}
+                      />
                     </div>
                   </div>
                 );
@@ -67,8 +94,15 @@ export function OperationModal() {
               <div>No more operations ongoing</div>
             )}
             {ops.data?.data?.metadata?.failure &&
-              ops.data.data.metadata.failure.map((task: any) => {
-                return <div>{task.err}</div>;
+              ops.data.data.metadata.failure.map((task: any, index: number) => {
+                return (
+                  <div
+                    key={index}
+                    className="bg-red-50 dark:bg-red-950 p-3 rounded text-red-600 text-sm"
+                  >
+                    {task.err}
+                  </div>
+                );
               })}
             {operation.err && (
               <div className="bg-red-50 dark:bg-red-950 p-2 rounded text-red-600 text-sm">
