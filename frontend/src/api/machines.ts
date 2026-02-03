@@ -55,6 +55,12 @@ export const stopMachine = async (hostname: String, force: boolean = false) => {
   );
 };
 
+export const deleteMachine = async (hostname: String) => {
+  return await api.delete(`/incus/machines/${hostname}`, {
+    withCredentials: true,
+  });
+};
+
 export const getMachineState = async (hostname: String) => {
   return (
     await api.get(`/incus/machines/${hostname}/state`, {

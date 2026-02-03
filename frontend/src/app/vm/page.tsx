@@ -16,6 +16,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { LoginModal } from '@/components/LoginModal';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import {
+  deleteMachine,
   getAllImages,
   getAssignedMachines,
   getMachineState,
@@ -132,6 +133,7 @@ const VirtualMachineListEntry: React.FC<VirtualMachineListEntryProps> = ({
   const [isVirtualMachineDetailsOpen, setVirtualMachineDetailsOpen] = useState<
     Record<number, boolean>
   >({});
+  const [isDeleteModalOpen, setDeleteModalOpen] = useState(false);
 
   const toogleVirtualMachineDetailsOpen = (index: number) => {
     setVirtualMachineDetailsOpen((prev) => ({
@@ -151,6 +153,15 @@ const VirtualMachineListEntry: React.FC<VirtualMachineListEntryProps> = ({
 
   const startMachineMutation = useMutation({
     mutationFn: () => startMachine(vm.name, true),
+    onSuccess: () => {
+      setTimeout(() => {
+        queryClient.invalidateQueries({ queryKey: ['machines'] });
+      }, 1000);
+    },
+  });
+
+  const deleteMachineMutation = useMutation({
+    mutationFn: () => deleteMachine(vm.name),
     onSuccess: () => {
       setTimeout(() => {
         queryClient.invalidateQueries({ queryKey: ['machines'] });
@@ -280,13 +291,16 @@ const VirtualMachineListEntry: React.FC<VirtualMachineListEntryProps> = ({
             <StandardButton
               className="justify-center items-center bg-lightforeground hover:bg-lightforeground m-4 w-30"
               label="Delete"
-              onClick={() => {}}
+              onClick={() => setDeleteModalOpen(true)}
             >
               <Trash2 className="mr-2 size-5" />
             </StandardButton>
           </div>
         </div>
       )}
+
+
+      <DeleteVmModal isOpen={isDeleteModalOpen} onClose={() => setDeleteModalOpen(false)} onSubmit={() => deleteMachineMutation.mutate(vm.name)} />
     </div>
   );
 };
