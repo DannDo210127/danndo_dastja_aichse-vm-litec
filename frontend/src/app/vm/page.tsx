@@ -7,6 +7,7 @@ import {
   Power,
   ScreenShareIcon,
   Square,
+  SquareTerminal,
   Trash2,
 } from 'lucide-react';
 import { useEffect, useState } from 'react';
@@ -208,9 +209,23 @@ const VirtualMachineListEntry: React.FC<VirtualMachineListEntryProps> = ({
               <div className="font-bold text-lg truncate">{vm.name}</div>
             </div>
             <div
-              className={` ml-4 ${vm.status == 'Running' ? 'bg-gradient-to-tr from-green-400 to-green-600' : 'bg-gradient-to-bl from-red-300 to-red-600'} animate-spin w-3 h-3 rounded-full `}
+              className={` ml-4 ${
+                vm.status == 'Running'
+                  ? `${
+                      ipv4
+                        ? 'bg-gradient-to-tr from-green-400 to-green-600'
+                        : 'bg-gradient-to-tr from-yellow-400 to-yellow-600'
+                    }`
+                  : 'bg-gradient-to-bl from-red-300 to-red-600'
+              } animate-spin w-3 h-3 rounded-full `}
             ></div>
-            <p className="ml-2">{vm.status}</p>
+            <p className="ml-2">
+              {ipv4
+                ? vm.status
+                : vm.status == 'Stopped'
+                  ? vm.status
+                  : 'Starting'}
+            </p>
             {ipv4 && vm.status == 'Running' ? (
               <p className="flex ml-2 text-md">{'[' + ipv4 + ']'}</p>
             ) : (
@@ -226,6 +241,7 @@ const VirtualMachineListEntry: React.FC<VirtualMachineListEntryProps> = ({
             <>
               <div className="border-foreground border-r-2">
                 <StandardButton
+                  disabled={!ipv4}
                   className="bg-transparent!"
                   title="Stop Machine"
                   onClick={() => {
@@ -287,13 +303,20 @@ const VirtualMachineListEntry: React.FC<VirtualMachineListEntryProps> = ({
               </div>
             </div>
           </div>
-          <div className="flex justify-start w-full h-17">
+          <div className="flex flex-row justify-start w-full h-17">
             <StandardButton
-              className="justify-center items-center bg-lightforeground hover:bg-lightforeground m-4 w-30"
+              className="justify-center items-center self-end bg-lightforeground hover:bg-lightforeground m-4 w-30"
               label="Delete"
               onClick={() => setDeleteModalOpen(true)}
             >
               <Trash2 className="mr-2 size-5" />
+            </StandardButton>
+            <StandardButton
+              className="justify-center items-center self-end bg-lightforeground hover:bg-lightforeground m-4 mx-0 w-30"
+              label="Terminal"
+              onClick={() => {}}
+            >
+              <SquareTerminal className="mr-2 size-5" />
             </StandardButton>
           </div>
         </div>
