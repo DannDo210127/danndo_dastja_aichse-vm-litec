@@ -4,13 +4,14 @@ import {
 	createVirtualMachine,
 	deleteVirtualMachine,
 	getAssignedVirtualMachines,
+	getClusters,
 	getCurrentOperations,
 	getImages,
 	getOperationStatus,
 	getVirtualMachineState,
 	startVirtualMachine,
 	stopVirtualMachine
-} from "../controller/incusController";
+} from "../controller/IncusController";
 
 const router = Router();
 
@@ -26,6 +27,8 @@ router.get("/images", isAuthenticated, getImages);
 
 router.get("/operations", isAuthenticated, getCurrentOperations);
 router.get("/operations/:id", isAuthenticated, getOperationStatus);
+
+router.get("/clusters", isAuthenticated, getClusters);
 
 router.post("/machines/new", isAuthenticated, createVirtualMachine);
 
