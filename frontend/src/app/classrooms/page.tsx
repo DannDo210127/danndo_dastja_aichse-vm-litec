@@ -27,6 +27,7 @@ import { CreateClassroomModal } from '@/components/createClassroomModal';
 import { DeleteClassroomModal } from '@/components/deleteClassroomModal';
 import { AddStudentModal } from '@/components/addStudentModal';
 import LoadingBounce from '@/shared/LoadingBounce';
+import { CreateVirtualMachineModal } from '@/components/CreateVirtualMachineModal';
 
 interface Classroom {
   id: number;
@@ -161,6 +162,8 @@ function ClassroomComponent({
     number | null
   >(null);
 
+  const [isCreateVirtualMachineModalOpen, setVmModalOpen] = useState(false);
+
   const toggleClassroom = (id: number) => {
     setOpenClassroomIds((prev) =>
       prev.includes(id) ? prev.filter((i) => i !== id) : [...prev, id],
@@ -219,7 +222,7 @@ function ClassroomComponent({
                       className="bg-transparent! px-2 py-1"
                       title="Bulk Create VM"
                       onClick={() => {
-                        //TODO : Bulk Create VM Functionality
+                        setVmModalOpen(true);
                       }}
                     >
                       <PackagePlus className="mr-1 size-6" />
@@ -256,6 +259,12 @@ function ClassroomComponent({
                 setStudentModalOpen(false);
                 setStudentModalClassroomId(null);
               }}
+            />
+
+            <CreateVirtualMachineModal
+              desc="Create machines for your whole classroom"
+              isOpen={isCreateVirtualMachineModalOpen}
+              onClose={() => setVmModalOpen(false)}
             />
             <DeleteClassroomModal
               isOpen={isDeleteClassroomModalOpen}
