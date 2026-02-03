@@ -18,22 +18,61 @@ api.interceptors.request.use((config) => {
   return config;
 });
 
-// Token refresh interceptor
+// Token refresh interceptor with single-refresh queue to avoid race conditions
+let isRefreshing = false;
+let refreshSubscribers: Array<(token: string | null) => void> = [];
+
+const subscribeTokenRefresh = (cb: (token: string | null) => void) => {
+  refreshSubscribers.push(cb);
+};
+
+const onRefreshed = (token: string | null) => {
+  refreshSubscribers.forEach((cb) => cb(token));
+  refreshSubscribers = [];
+};
+
 api.interceptors.response.use(
   (res) => res,
   async (error) => {
-    if (error.response?.status === 401) {
+    const originalRequest = error.config;
+
+    if (error.response?.status === 401 && originalRequest && !originalRequest._retry) {
+      originalRequest._retry = true;
+
+      if (isRefreshing) {
+        return new Promise((resolve, reject) => {
+          subscribeTokenRefresh((token) => {
+            if (token) {
+              originalRequest.headers.Authorization = `Bearer ${token}`;
+              resolve(api.request(originalRequest));
+            } else {
+              reject(error);
+            }
+          });
+        });
+      }
+
+      isRefreshing = true;
+
       try {
         const { data } = await axios.post(
           'http://localhost:4000/auth/token',
           {},
           { withCredentials: true },
         );
+
         useAuthStore.getState().setTokens(data.accessToken);
-        error.config.headers.Authorization = `Bearer ${data.accessToken}`;
-        return api.request(error.config);
-      } catch {
+        onRefreshed(data.accessToken);
+        isRefreshing = false;
+
+        originalRequest.headers.Authorization = `Bearer ${data.accessToken}`;
+        return api.request(originalRequest);
+      } catch (refreshError) {
+        // Refresh failed: notify queued requests and clear tokens
+        isRefreshing = false;
+        onRefreshed(null);
         useAuthStore.getState().clearTokens();
+        return Promise.reject(refreshError || error);
       }
     }
 
