@@ -9,7 +9,6 @@ import cookieParser from "cookie-parser";
 import ClassroomRouter from "./routes/classroom";
 import { PrismaClient } from "@prisma/client";
 import { testIncusConnection } from "./incus/client";
-import { Operations } from "./incus/operations";
 
 const prisma = new PrismaClient();
 const app = express();
