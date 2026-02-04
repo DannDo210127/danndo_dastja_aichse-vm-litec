@@ -9,14 +9,12 @@ interface CreateClassroomModalProps {
   isOpen: boolean;
   onClose: () => void;
   onSubmit: (name: string, description: string) => void;
-  errormessage: string;
 }
 
 export function CreateClassroomModal({
   isOpen,
   onClose,
   onSubmit,
-  errormessage,
 }: CreateClassroomModalProps) {
   // Form state
   const [classroomName, setClassroomName] = useState<string>('');

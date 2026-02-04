@@ -259,7 +259,6 @@ function ClassroomComponent({
             />
 
             <CreateVirtualMachineModal
-              desc="Create machines for your whole classroom"
               isOpen={isCreateVirtualMachineModalOpen}
               onClose={() => setVmModalOpen(false)}
             />
