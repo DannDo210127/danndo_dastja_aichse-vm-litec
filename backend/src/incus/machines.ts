@@ -14,7 +14,7 @@ export const Machines = {
 	},
 
 	createMachine: async (config: any) => {
-		return (await Incus.post(`/instances`, config)).data;
+		return (await Incus.post(`/instances?target=${config.target}`, config)).data;
 	},
 
 	startMachine: async (hostname: String, force: boolean = false) => {

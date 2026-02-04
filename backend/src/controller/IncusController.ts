@@ -4,6 +4,7 @@ import { errorMessage } from "../util/Error";
 import { Machines } from "../incus/machines";
 import { successMessage } from "../util/Success";
 import { Operations } from "../incus/operations";
+import { Cluster } from "../incus/cluster";
 
 const prisma = DatabaseClient.getInstance().prisma;
 
@@ -49,13 +50,14 @@ const createVirtualMachine: RequestHandler = async (req, res) => {
 
 	const hostname = req.body.hostname;
 	const source = req.body.source;
+	const target = req.body.target
 
 	// @TODO Validate config
 
 	const payload: any = {
 		type: "virtual-machine",
 		name: hostname,
-		start: true,
+		target: target,
 		source,
 		config: {
 			"limits.cpu": "1",
@@ -153,8 +155,8 @@ export const deleteVirtualMachine: RequestHandler = async (req, res) => {
 		});
 
 		return res.status(200).json(successMessage(200, "Virtual machine deleted successfully"));
-	} catch {
-		return res.status(500).json(errorMessage(500, "Failed to delete virtual machine"))
+	} catch (error: any) {
+		return res.status(500).json(errorMessage(500, "Failed to delete virtual machine: Machine might be running"));
 	}
 }
 
@@ -222,6 +224,22 @@ const getOperationStatus: RequestHandler = async (req, res) => {
 			);
 	}
 };
+
+export const getClusters: RequestHandler = async (req, res) => {
+	try {
+		const clusters = await Cluster.getClusters();
+		return res.status(200).json(clusters);
+	} catch (error) {
+		return res
+			.status(500)
+			.json(
+				errorMessage(
+					500,
+					"Failed to retrieve clusters: " + (error as Error).message
+				)
+			);
+	}
+}
 
 export {
 	getAssignedVirtualMachines,

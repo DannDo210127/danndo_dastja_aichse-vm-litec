@@ -36,11 +36,11 @@ export function OperationModal() {
   return (
     <StandardModal
       className="w-[600px]"
-      title="Async Operation"
+      title="Hyphervisor Operations"
       description={`Operation ID: ${operationId}`}
       isOpen={isOpen}
     >
-      <div className="flex flex-col space-y-4 mt-4 rounded-[8] p-4 drop-shadow-sm">
+      <div className="flex flex-col space-y-4 mt-4 rounded-[8] p-4">
         {isLoading ? (
           <div className="py-4 text-center">
             <p className="text-gray-600 dark:text-gray-400">
@@ -60,7 +60,7 @@ export function OperationModal() {
                 const percent = task.metadata?.progress?.percent || 0;
 
                 return (
-                  <div key={index} className="space-y-2 bg-lightforeground rounded-[8] drop-shadow-sm p-4">
+                  <div key={index} className="space-y-2 bg-white drop-shadow-md rounded-[8] p-4">
                     <div className="flex justify-between items-start">
                       <div>
                         <h3 className="font-semibold text-base">{machineName}</h3>
@@ -113,7 +113,7 @@ export function OperationModal() {
           </div>
         ) : null}
 
-        <div className="flex justify-end pt-2">
+        <div className="flex justify-end border-t border-lightforeground pt-4 mt-4">
           <StandardButton
             label="Close"
             onClick={closeOperationModal}
