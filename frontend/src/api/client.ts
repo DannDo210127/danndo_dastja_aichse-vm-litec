@@ -5,7 +5,7 @@ import { useOperationModalStore } from '@/store/operation-modal-store';
 import axios from 'axios';
 
 const api = axios.create({
-  baseURL: 'http://localhost:4000', // backend
+  baseURL: 'http://192.168.61.129:4000', // backend
   withCredentials: true,
 });
 
