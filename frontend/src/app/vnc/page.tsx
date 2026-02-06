@@ -1,20 +1,21 @@
-"use client";
+'use client';
 
-export const dynamic = "force-dynamic";
+export const dynamic = 'force-dynamic';
 
-import { Suspense, useRef } from "react";
-import { useSearchParams } from "next/navigation";
+import { Suspense, useRef } from 'react';
+import { useSearchParams } from 'next/navigation';
+import { LoadingScreen } from '@/shared/LoadingScreen';
 
 function VncContent() {
-  const searchParams = useSearchParams();
   const iframeRef = useRef<HTMLIFrameElement>(null);
 
-  const ip = searchParams.get("ip");
-  const port = searchParams.get("port") ?? "6080";
+  const searchParams = useSearchParams();
+  const ip = searchParams.get('ip');
+  const port = searchParams.get('port') ?? '6080';
 
   if (!ip) {
     return (
-      <div className="flex items-center justify-center min-h-screen text-white">
+      <div className="flex justify-center items-center min-h-screen text-white">
         Missing IP parameter
       </div>
     );
@@ -36,13 +37,7 @@ function VncContent() {
 
 export default function Page() {
   return (
-    <Suspense
-      fallback={
-        <div className="flex items-center justify-center min-h-screen text-white">
-          Loading VNC…
-        </div>
-      }
-    >
+    <Suspense fallback={<LoadingScreen className="bg-black w-full h-dvh" />}>
       <VncContent />
     </Suspense>
   );
