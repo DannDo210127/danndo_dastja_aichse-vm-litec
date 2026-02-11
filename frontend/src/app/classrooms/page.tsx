@@ -66,8 +66,6 @@ export default function ClassroomPage() {
   });
 
   const user = useAuth();
-  const [classroomErrormessage, setClassroomErrormessage] =
-    useState<string>('');
   const [isLoginModalOpen, setLoginModalOpen] = useState(false);
 
   const handleClassroomSubmit = (name: string, description: string) => {
@@ -125,7 +123,6 @@ export default function ClassroomPage() {
 
       {/** Modals */}
       <CreateClassroomModal
-        errormessage={classroomErrormessage}
         isOpen={isClassroomModalOpen}
         onClose={() => {
           setClassroomModalOpen(false);

@@ -11,6 +11,11 @@ export function LoadingScreen(props: LoadingScreenProps) {
   return (
     <Fragment>
       <style>{`
+
+                    .animate-rotate-one {
+                    animation: rotate-one 1s linear infinite;
+                    }
+
                     @keyframes rotate-one {
                     0% { transform: rotateX(35deg) rotateY(-45deg) rotateZ(0deg); }
                     100% { transform: rotateX(35deg) rotateY(-45deg) rotateZ(360deg); }
@@ -26,9 +31,7 @@ export function LoadingScreen(props: LoadingScreenProps) {
                     100% { transform: rotateX(35deg) rotateY(55deg) rotateZ(360deg) ;  }
                     }
 
-                    .animate-rotate-one {
-                    animation: rotate-one 1s linear infinite;
-                    }
+                    
                     .animate-rotate-two {
                     animation: rotate-two 1s linear infinite;
                     }
@@ -40,7 +43,7 @@ export function LoadingScreen(props: LoadingScreenProps) {
         <div
           className={`bg-transparent rounded-lg p-6 flex flex-col ${className}`}
         >
-          <div className="top-1/2 left-1/2 absolute rounded-full w-16 h-16 -translate-x-1/2 -translate-y-1/2 [perspective:800px]">
+          <div className="top-1/2 left-1/2 absolute rounded-full w-16 h-16 -translate-x-1/2 -translate-y-1/2 duration-300 [perspective:800px]">
             <div className="absolute inset-0 border-b-[5px] border-b-contrast rounded-full animate-rotate-one"></div>
             <div className="absolute inset-0 border-r-[5px] border-r-contrast rounded-full animate-rotate-two"></div>
             <div className="absolute inset-0 border-t-[5px] border-t-contrast rounded-full animate-rotate-three"></div>

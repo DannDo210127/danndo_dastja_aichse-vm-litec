@@ -1,33 +1,31 @@
 // API and shared component imports
-import { StandardButton } from "@/shared/StandardButton";
-import { StandardInput } from "@/shared/StandardInput";
-import StandardModal from "@/shared/StandardModal";
-import { useEffect, useState } from "react";
+import { StandardButton } from '@/shared/StandardButton';
+import { StandardInput } from '@/shared/StandardInput';
+import StandardModal from '@/shared/StandardModal';
+import { useEffect, useState } from 'react';
 
 // Props interface for the modal
 interface CreateClassroomModalProps {
   isOpen: boolean;
   onClose: () => void;
   onSubmit: (name: string, description: string) => void;
-  errormessage: string;
 }
 
 export function CreateClassroomModal({
   isOpen,
   onClose,
   onSubmit,
-  errormessage,
 }: CreateClassroomModalProps) {
   // Form state
-  const [classroomName, setClassroomName] = useState<string>("");
-  const [classroomDescription, setClassroomDescription] = useState<string>("");
+  const [classroomName, setClassroomName] = useState<string>('');
+  const [classroomDescription, setClassroomDescription] = useState<string>('');
 
-  const isCreateDisabled = classroomName.trim() === "";
+  const isCreateDisabled = classroomName.trim() === '';
 
   useEffect(() => {
     if (!isOpen) {
-      setClassroomName("");
-      setClassroomDescription("");
+      setClassroomName('');
+      setClassroomDescription('');
     }
   }, [isOpen]);
 
@@ -36,20 +34,20 @@ export function CreateClassroomModal({
     if (!isOpen) return;
 
     // Focus classroom name input when modal opens
-    const input = document.getElementsByName("StandardInput")[0];
+    const input = document.getElementsByName('StandardInput')[0];
     input?.focus();
 
     // Handle Enter and Escape keys
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === "Enter" && !isCreateDisabled) {
+      if (e.key === 'Enter' && !isCreateDisabled) {
         handleCreateClassroom();
-      } else if (e.key === "Escape") {
+      } else if (e.key === 'Escape') {
         onClose();
       }
     };
 
-    document.addEventListener("keydown", handleKeyDown);
-    return () => document.removeEventListener("keydown", handleKeyDown);
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
   }, [isOpen, isCreateDisabled, onClose]);
 
   // Handle form submission
@@ -80,7 +78,7 @@ export function CreateClassroomModal({
         />
 
         {/* Action Buttons */}
-        <div className="flex gap-4 w-full mt-2">
+        <div className="flex gap-4 mt-2 w-full">
           <StandardButton
             label="Cancel"
             onClick={onClose}
@@ -92,8 +90,8 @@ export function CreateClassroomModal({
             disabled={isCreateDisabled}
             className={`ml-1 h-full px-10 py-3 ${
               isCreateDisabled
-                ? "bg-lightforeground"
-                : "bg-contrast! text-background"
+                ? 'bg-lightforeground'
+                : 'bg-contrast! text-background'
             }`}
           />
         </div>
